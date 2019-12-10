@@ -1,0 +1,96 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-quizz-questions-list'
+	// - var activeGroup = 'tables'
+
+block title
+	title Quizz : Questions - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Quizz : Questions
+			p Liste des questions composants les Quizzs
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item
+				| Quizz
+			li.breadcrumb-item.active
+				a(href="#") Questions
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#questionsDataTable
+						thead
+							tr
+								th Titre
+								th Categorie
+								th Photo
+								th Date de création
+								th Date de mise à jour
+								th Publié
+								th Actions
+						tbody
+							each question in questions
+								tr
+									td #{question.title}
+									td #{question.itsQuestionCategory ? question.itsQuestionCategory.title : null}
+									td
+										if question.picture && question.picture.path
+											//- Going back to the root to get the picture using ../
+											img.pic-image-box(src=`../${question.picture.path}`)
+									td #{prettyDate(question.createdAt)}
+									td #{prettyDate(question.updatedAt)}
+									td
+										if question.published
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										a(class='btn btn-primary' href="/quizzs/questions/edit/" + question.id data-id=`${question.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										a(class='delete-item btn btn-secondary' href="#" data-id=`${question.id}`) 
+											i.fa.fa-fw.fa-lg.fa-times-circle
+											| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/quizzs/questions/add") 
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Ajouter une question						
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#questionsDataTable').DataTable();
+		$('.delete-item').click(function(){
+			swal({
+				title				: "Supprimer la question ?",
+				text				: "La suppression d'une question est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "[WIP/TODO] Supprimer élément", "success");
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});
+		});

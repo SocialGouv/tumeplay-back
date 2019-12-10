@@ -1,0 +1,92 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'thematiques'
+
+block title
+	title Thématiques - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Thématiques
+			p Liste des thematiques accessibles
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Thématiques
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#contentsDataTable
+						thead
+							tr
+								th Titre
+								th Photo
+								th Date de création
+								th Date de mise à jour
+								th Publié
+								th Actions
+						tbody
+							each thematique in  thematiques
+								tr
+									td #{thematique.title}
+									td
+										if thematique.picture && thematique.picture.path
+											img.pic-image-box(src=thematique.picture.path)
+									td #{prettyDate(thematique.createdAt)}
+									td #{prettyDate(thematique.updatedAt)}
+									td
+										if thematique.active
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										a(class='btn btn-primary' href="/thematiques/edit/" + thematique.id data-id=`${thematique.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										a(class='delete-item btn btn-secondary' href="#" data-id=`${thematique.id}`) 
+											i.fa.fa-fw.fa-lg.fa-times-circle
+											| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/thematiques/add") 
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Créer une thematique						
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();
+		$('.delete-item').click(function(){
+			swal({
+				title				: "Supprimer le thematique ?",
+				text				: "La suppression d'un thematique est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "[WIP/TODO] Supprimer élément", "success");
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});
+		});

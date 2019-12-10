@@ -1,0 +1,101 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-products'
+	// - var activeGroup = 'tables'
+
+block title
+	title Produits - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Produits
+			p Liste des produits accessibles dans la section "Informations"
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") Produits
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#productsDataTable
+						thead
+							tr
+								th Titre
+								th Description
+								th Photo
+								th Date de création
+								th Date de mise à jour
+								th Actif
+								th Actions
+						tbody
+							each product in products
+								tr
+									td #{product.title}
+									td #{product.description}
+									td
+										if product.picture && product.picture.path
+											img.pic-image-box(src=product.picture.path)
+									td #{prettyDate(product.createdAt)}
+									td #{prettyDate(product.updatedAt)}
+									td
+										if product.active
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										a(class='btn btn-primary' href="/products/edit/" + product.id data-id=`${product.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										form(action="/products/delete/" + product.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+											button(class='delete-item btn btn-secondary' type="submit" data-id=`${product.id}`) 
+												i.fa.fa-fw.fa-lg.fa-times-circle
+												| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/products/add") 
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Créer un produit						
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript' src="js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript' src="js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript' src="js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		
+		function deleteConfirmation(form){
+			swal({
+				title				: "Supprimer le produit ?",
+				text				: "La suppression d'un produit est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "Supprimer élément", "success");
+					form.submit();
+					return;
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		}
+		$('#productsDataTable').DataTable();
+		$('.delete-item').click(async function(e){
+			
+		});

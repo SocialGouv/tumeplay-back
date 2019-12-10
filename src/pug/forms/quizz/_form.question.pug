@@ -1,0 +1,109 @@
+block content
+	if question
+		- var targetUrl = "/quizzs/questions/edit/" + question.id
+		h3.tile-title Modifier une question
+	else
+		- var targetUrl = "/quizzs/questions/add"
+		h3.tile-title Créer une nouvelle question
+
+	form.content-form(action=`${targetUrl}`, method="POST" name="myForm" enctype="multipart/form-data")#mainForm
+		.row
+			.col-md-6
+				.tile
+					if question
+						input(type="hidden",	value=`${question.id}`)
+					.form-group
+						label.control-label Titre
+						if question
+							input.form-control(type="text" name="title" placeholder="Titre de la question ( usage interne uniquement )" value=`${question.title}`)
+						else
+							input.form-control(type="text" name="title" placeholder="Titre de la question ( usage interne uniquement )")
+					.form-group
+						label.control-label Photo de la question:
+						input.form-control(type="file" name="questionContentPicture")
+					.form-group
+						label.control-label Question :
+
+						if question
+							textarea.form-control(rows="10" name="content" placeholder="Question")=question.content
+						else
+							textarea.form-control(rows="10" name="content" placeholder="Question")
+					.form-group
+						label.control-label Texte de réponse :
+
+						if question
+							textarea.form-control(rows="5" name="answerText" placeholder="Texte de réponse")=question.answerText
+						else
+							textarea.form-control(rows="5" name="answerText" placeholder="Texte de réponse")
+					br
+					if categories
+						.form-group
+							label.control-label Select a category
+							select.form-control(name="selectedCategory")
+								optgroup(label="Select a category")
+									each category in categories
+										option(value=category) #{category.title}	
+					.animated-checkbox
+						label
+							if question
+								input(type="checkbox" name="published" checked=question.published)
+							else
+								input(type="checkbox" name="published")
+
+							span.label-text Publié
+			.col-md-6
+				.tile
+					h4 Gérer les réponses
+					div
+						a.btn.btn-secondary(id="newAnswerBtn") CREER UNE REPONSE et cocher les bonnes réponses
+					br
+					div()
+						ul#responseList
+			.clearfix
+		button.btn.btn-primary(type="submit")
+			i.fa.fa-fw.fa-lg.fa-check-circle
+			| Valider
+		| &nbsp;&nbsp;&nbsp;
+		a.btn.btn-secondary(href="/quizzs/questions")
+			i.fa.fa-fw.fa-lg.fa-times-circle
+			| Annuler
+
+
+
+block specific-js
+	script(type='text/javascript').
+		var newAnswerBtn_element = document.getElementById("newAnswerBtn");
+		newAnswerBtn_element.addEventListener("click", newAnswer, false);
+
+		var numAnswer = 0;
+		
+		//- @TODO-RNO: Will need to find a more performant way to do the steps below:
+		function newAnswer(){
+			var responseList_UL = document.getElementById("responseList");
+			var responseContainerItem = document.createElement("div");
+			
+
+			//- Creating the input element of response
+			var input_responseName_element = document.createElement("input");
+			input_responseName_element.setAttribute("type","text");
+			input_responseName_element.setAttribute("placeholder",`Reponse No.${numAnswer+1}`);
+			input_responseName_element.setAttribute("name",`answerItems[${numAnswer}][title]`);
+
+			//- Creating the Checkbox element of response (isCorrect)
+			var input_responseIsGoodAnswer_element = document.createElement("input");
+			input_responseIsGoodAnswer_element.setAttribute("type","checkbox");
+			input_responseIsGoodAnswer_element.setAttribute("name",`answerItems[${numAnswer}][isCorrect]`);
+
+			var breakpoint = document.createElement("br");
+
+			numAnswer++;
+
+			responseContainerItem.appendChild(input_responseName_element);
+			responseContainerItem.appendChild(input_responseIsGoodAnswer_element);
+			
+			responseList_UL.appendChild(responseContainerItem);
+			responseList_UL.appendChild(breakpoint);
+			console.log('Clicked on new response')
+		}
+
+

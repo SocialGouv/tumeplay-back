@@ -1,0 +1,58 @@
+-function prettyDate(dateString){
+	//if it's already a date object and not a string you don't need this line:
+	-var date = new Date(dateString);
+	-var d = date.getDate();
+	-var mo = date.getMonth();
+	-var y  = date.getFullYear();
+	-var h  = date.getHours();
+	-var m  = date.getMinutes();
+	-return d+'/'+mo+'/'+y+' '+h+':'+m;
+-}
+
+doctype html
+html(lang="en")
+
+	//- Variables to set active page in sidebar
+	block variables
+		- var activePage = 'dashboard'
+		- var activeGroup = 'none'
+
+	head
+		meta(name="description", content="Tumeplay - Backend")
+
+		// Twitter meta
+		meta(property="twitter:card", content="summary_large_image")
+		meta(property="twitter:site", content="@pratikborsadiya")
+		meta(property="twitter:creator", content="@pratikborsadiya")
+
+		// Open Graph Meta
+		meta(property="og:type", content="website")
+		meta(property="og:site_name", content="Tumeplay")
+		meta(property="og:title", content="Tumeplay - Administration")                         
+		meta(property="og:description", content="Tumeplay.")
+
+		block title
+			title Tumeplay - Administration
+
+		include ../includes/_head.pug
+
+	body.app.sidebar-mini.rtl
+
+		// Navbar
+		include ../includes/_header.pug
+
+		// Sidebar menu
+		include ../includes/_sidebar.pug
+
+		main.app-content
+			block content
+
+		//- Javascripts
+		include ../includes/_javascript.pug
+		
+		// Page specific javascripts
+		block specific-js
+
+		// Google analytics script
+		script(type="text/javascript").
+			

@@ -1,0 +1,93 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-contents'
+	// - var activeGroup = 'tables'
+
+block title
+	title Contenus - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Contenus
+			p Liste des contenus accessibles dans la section "Informations"
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Contenus
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#contentsDataTable
+						thead
+							tr
+								th Titre
+								th Photo
+								th Date de création
+								th Date de mise à jour
+								th Publié
+								th Actions
+						tbody
+							each content in contents
+								tr
+									td #{content.title}
+									td
+										if content.picture && content.picture.path
+											img.pic-image-box(src=content.picture.path)
+									td #{prettyDate(content.createdAt)}
+									td #{prettyDate(content.updatedAt)}
+									td
+										if content.published
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										a(class='btn btn-primary' href="/contents/edit/" + content.id data-id=`${content.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										a(class='delete-item btn btn-secondary' href="#" data-id=`${content.id}`) 
+											i.fa.fa-fw.fa-lg.fa-times-circle
+											| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/contents/add") 
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Créer un contenu						
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();
+		$('.delete-item').click(function(){
+			swal({
+				title				: "Supprimer le contenu ?",
+				text				: "La suppression d'un contenu est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "[WIP/TODO] Supprimer élément", "success");
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});
+		});

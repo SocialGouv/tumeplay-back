@@ -1,0 +1,65 @@
+doctype html
+html
+	head
+		include includes/_head.pug
+		title Login - Pass Préservatif
+
+	body
+		section.material-half-bg
+			.cover
+
+		section.login-content
+			.logo: h1 Tumeplay
+
+			.login-box
+				form.login-form(action="/login", method="POST")
+					h3.login-head
+						i.fa.fa-lg.fa-fw.fa-user
+						| Authentification
+					.form-group
+						label.control-label Adresse E-mail
+						input.form-control(type="text", name="email" placeholder="Adresse E-mail", autofocus)
+
+					.form-group
+						label.control-label Mot de passe
+						input.form-control(type="password", name="password" placeholder="Mot de passe")
+
+					.form-group
+						.utility
+							.animated-checkbox
+								label
+									input(type="checkbox")
+									span.label-text Rester connecté
+							p.semibold-text.mb-2
+								a(href="#" data-toggle="flip") Mot de passe oublié ?
+
+					.form-group.btn-container
+						button.btn.btn-primary.btn-block
+							i.fa.fa-sign-in.fa-lg.fa-fw
+							| Valider
+
+				form.forget-form(action="index.html")
+					h3.login-head
+						i.fa.fa-lg.fa-fw.fa-lock
+						| Mot de passe oublié
+					.form-group
+						label.control-label Nom d'utilisateur
+						input.form-control(type="text", placeholder="Adresse E-mail")
+
+					.form-group.btn-container
+						button.btn.btn-primary.btn-block
+							i.fa.fa-unlock.fa-lg.fa-fw
+							| Réinitialiser
+
+					.form-group.mt-3
+						p.semibold-text.mb-0
+							a(href="#" data-toggle="flip") <i class="fa fa-angle-left fa-fw"></i> Retour à l'authentification
+
+		include includes/_javascript.pug
+
+		script(type="text/javascript").
+			// Login Page Flipbox control
+			$('.login-content [data-toggle="flip"]').click(function() {
+				$('.login-box').toggleClass('flipped');
+				return false;
+			});

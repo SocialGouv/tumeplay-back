@@ -1,0 +1,54 @@
+.row
+	.col-md-12
+		.tile
+			if content 
+				h3.tile-title Modifier une catégorie
+			else
+				h3.tile-title Créer une nouvelle catégorie
+			
+			if content
+				- var targetUrl = "/quizzs/categories/edit/" + content.id
+			else
+				- var targetUrl = "/quizzs/categories/add"
+				
+			form.content-form#myform(action=`${targetUrl}`, method="POST", enctype="multipart/form-data")
+				
+				if content
+					input(type="hidden" value=`${content.id}`)
+								
+				.form-group
+					label.control-label Titre
+					if content
+						input.form-control(type="text", name="title", placeholder="Titre de la catégorie" value=`${content.title}`)
+					else
+						input.form-control(type="text", name="title", placeholder="Titre de la catégorie")
+				
+				input.form-control(type="file" name="categoryPicture")
+				
+				.animated-checkbox
+					label
+						if content
+							input(type="checkbox" name="published" checked=content.published)
+						else
+							input(type="checkbox" name="published")
+
+						span.label-text Active
+	
+				.tile-footer
+					button.btn.btn-primary(type="submit")
+						i.fa.fa-fw.fa-lg.fa-check-circle
+						| Valider
+					| &nbsp;&nbsp;&nbsp;
+					a.btn.btn-secondary(href="/quizzs/categories")
+						i.fa.fa-fw.fa-lg.fa-times-circle
+						| Annuler
+				br
+				if thematiques
+					select.form-control(name="selectedThematique")
+						optgroup(label="Select thematique")
+							each thematique in thematiques
+								option(value=thematique) #{thematique.title}
+	.clearfix
+        
+
+block specific-js

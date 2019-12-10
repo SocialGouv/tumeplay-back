@@ -1,0 +1,54 @@
+.row
+	.col-md-12
+		.tile
+			if thematique 
+				h3.tile-title Modifier un thematique
+			else
+				h3.tile-title Créer un nouveau thematique
+			
+			if thematique
+				- var targetUrl = "/thematiques/edit/" + thematique.id
+			else
+				- var targetUrl = "/thematiques/add"
+				
+			//- form(action='/profile' method='POST' enctype='multipart/form-data')
+			//- 		input(type='file' name='avatar')
+
+			form.thematique-form(action=`${targetUrl}`, method="POST", enctype="multipart/form-data")
+				
+				
+				if thematique
+					input(type="hidden" value=`${thematique.id}`)
+								
+				.form-group
+					label.control-label Titre
+					if thematique
+						input.form-control(type="text", name="title", placeholder="Titre du thematique ( usage interne uniquement )" value=`${thematique.title}`)
+					else
+						input.form-control(type="text", name="title", placeholder="Titre du thematique ( usage interne uniquement )")
+				if thematique
+					if thematique.picture && thematique.picture.path
+						img.pic-image-box-normal(src="../../"+thematique.picture.path)
+				input.form-control(type="file" name="themePicture")
+			
+				.animated-checkbox
+					label
+						if thematique
+							input(type="checkbox" name="active" checked=thematique.active)
+						else
+							input(type="checkbox" name="active")
+
+						span.label-text Publié
+	
+				.tile-footer
+					button.btn.btn-primary(type="submit")
+						i.fa.fa-fw.fa-lg.fa-check-circle
+						| Valider
+					| &nbsp;&nbsp;&nbsp;
+					a.btn.btn-secondary(href="/thematiques")
+						i.fa.fa-fw.fa-lg.fa-times-circle
+						| Annuler                                
+	.clearfix
+        
+
+block specific-js
