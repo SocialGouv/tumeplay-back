@@ -9,25 +9,38 @@ aside.app-sidebar
 
 	ul.app-menu
 		li
-			a.app-menu__item(href='/home' class={'active': activePage == 'dashboard'})
-				i.app-menu__icon.fa.fa-dashboard
-				span.app-menu__label Dashboard    
-		li
-			a.app-menu__item(href='/thematiques' class={'active': activePage == 'thematiques'})
-				i.app-menu__icon.fa.fa-dashboard
-				span.app-menu__label Thématiques    
-
-		li
 			a.app-menu__item(href='/contents' class={'active': activePage == 'page-contents'})
 				i.app-menu__icon.fa.fa-book
 				span.app-menu__label Contenus
+				
+		li
+			a.app-menu__item(href='/profiles' class={'active': activePage == 'page-profiles'})
+				i.app-menu__icon.fa.fa-dashboard
+				span.app-menu__label Utilisateurs
+
+		li
+			a.app-menu__item(href='/thematiques' class={'active': activePage == 'thematiques'})
+				i.app-menu__icon.fa.fa-dashboard
+				span.app-menu__label Familles
+				
+		li
+			a.app-menu__item(href='/quizzs/categories' class={'active': activePage.indexOf('page-quizz-categories') != -1})
+				i.app-menu__icon.fa.fa-dashboard
+				span.app-menu__label Thématiques    
+
 		li
 			a.app-menu__item(href='/products' class={'active': activePage == 'page-products'})
 				i.app-menu__icon.fa.fa-book
 				span.app-menu__label Produits
 
-		li.treeview(class={'is-expanded': activePage.indexOf('page-quizz') != -1})
-			a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-quizz') != -1})
+		li
+			a.app-menu__item(href='/boxs' class={'active': activePage.indexOf('page-box') != -1 })
+				i.app-menu__icon.fa.fa-book
+				span.app-menu__label Boxs
+
+				
+		li.treeview(class={'is-expanded': activePage.indexOf('page-quizz-questions') != -1})
+			a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-quizz-questions') != -1})
 				i.app-menu__icon.fa.fa-table
 				span.app-menu__label Quizz
 				i.treeview-indicator.fa.fa-angle-right
@@ -37,13 +50,30 @@ aside.app-sidebar
 					a.treeview-item(href='/quizzs/questions' class={'active': activePage.indexOf('page-quizz-questions') != -1})
 						i.icon.fa.fa-circle-o
 						span Questions
-				li
-					a.treeview-item(href='/quizzs/categories' class={'active': activePage.indexOf('page-quizz-categories') != -1})
-						i.icon.fa.fa-circle-o
-						span Catégories
-								
 
+
+		li.treeview(class={'is-expanded': activePage.indexOf('page-order') != -1})
+			a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-order') != -1})
+				i.app-menu__icon.fa.fa-table
+				span.app-menu__label Commandes
+				i.treeview-indicator.fa.fa-angle-right
+				
+			ul.treeview-menu
+				li
+					a.treeview-item(href='/orders/management' class={'active': activePage.indexOf('page-order-management') != -1})
+						i.icon.fa.fa-circle-o
+						span Gestion des commandes
+				li
+					a.treeview-item(href='/orders/shipping-mode' class={'active': activePage.indexOf('page-shipping-mode') != -1})
+						i.icon.fa.fa-circle-o
+						span Type de livraison
+
+		li
+			a.reset-data.app-menu__item(href='/synchronize/sync')
+				i.app-menu__icon.fa.fa-warning.fa-lg
+				span.app-menu__label RAZ - Import
 		li
 			a.app-menu__item(href='/logout')
 				i.app-menu__icon.fa.fa-sign-out.fa-lg
 				span.app-menu__label Déconnexion
+				

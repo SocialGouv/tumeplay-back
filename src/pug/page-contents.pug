@@ -31,6 +31,7 @@ block content
 						thead
 							tr
 								th Titre
+								th Famille
 								th Photo
 								th Date de création
 								th Date de mise à jour
@@ -40,6 +41,9 @@ block content
 							each content in contents
 								tr
 									td #{content.title}
+									td 
+										if content.itsTheme
+											| #{content.itsTheme.title}
 									td
 										if content.picture && content.picture.path
 											img.pic-image-box(src=content.picture.path)
@@ -65,9 +69,9 @@ block content
 
 block specific-js
 	// Data table plugin
-	script(type='text/javascript', src="js/plugins/jquery.dataTables.min.js")
-	script(type='text/javascript', src="js/plugins/dataTables.bootstrap.min.js")
-	script(type='text/javascript', src="js/plugins/sweetalert.min.js")
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
 	script(type='text/javascript').
 		$('#contentsDataTable').DataTable();
 		$('.delete-item').click(function(){

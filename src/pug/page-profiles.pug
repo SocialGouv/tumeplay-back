@@ -1,0 +1,51 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-profiles'
+
+block title
+	title Profiles - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Utilisateurs
+			p Liste des utilisateurs
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") Utilisateurs
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#profilesDataTable
+						thead
+							tr
+								th Nom
+								th Prénom
+								th Email
+								th Date de création
+								th Date de mise à jour
+						tbody
+							each profile in profiles
+								tr
+									td #{profile.surname}
+									td #{profile.name}
+									td #{profile.email}
+									td #{prettyDate(profile.createdAt)}
+									td #{prettyDate(profile.updatedAt)}
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript' src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript' src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript' src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		
+		$('#profilesDataTable').DataTable();

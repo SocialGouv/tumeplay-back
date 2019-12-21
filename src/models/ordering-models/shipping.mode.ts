@@ -7,6 +7,11 @@ export default (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
-		title: DataTypes.STRING
+		title: DataTypes.STRING,
+		deleted: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
+		}
 	})
 };

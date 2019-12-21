@@ -1,67 +1,108 @@
-import { Service, Inject } 				from 'typedi';
-import config							from '../config';
-import { IThematique, IThematiqueInputDTO }	from '../interfaces/IThematique';
-import events 							from '../subscribers/events';
+import { Service, Inject } from 'typedi';
+import config from '../config';
+import { IThematique, IThematiqueInputDTO } from '../interfaces/IThematique';
+import events from '../subscribers/events';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 
 
 @Service()
-export default class ThematiqueService 
-{
+export default class ThematiqueService {
 	constructor(
-		@Inject('thematiqueModel') private thematiqueModel : Models.ThematiqueModel,
-		@Inject('logger') 		private logger,
-		@EventDispatcher() 		private eventDispatcher: EventDispatcherInterface,
-	) 
-	{
+		@Inject('thematiqueModel') private thematiqueModel: any,
+		@Inject('logger') private logger,
+		@EventDispatcher() private eventDispatcher: EventDispatcherInterface,
+	) {
 
 	}
 
-	public async create(thematiqueInput: IThematiqueInputDTO): Promise<{ thematique: IThematique }> 
-	{
-		try 
-		{
-			this.logger.silly('Creating thematique',thematiqueInput);
-			
-			thematiqueInput.active = ( thematiqueInput.active == "on" );
-			     
-			const thematiqueRecord = await this.thematiqueModel.create({
+	public async create(thematiqueInput: IThematiqueInputDTO): Promise<{ thematique: IThematique }> {
+		try {
+			this.logger.silly('Creating thematique', thematiqueInput);
+
+			thematiqueInput.active = (thematiqueInput.active == "on");
+
+			const thematique: IThematique = await this.thematiqueModel.create({
 				...thematiqueInput
 			});
-			
-			if (!thematiqueRecord) {
+
+			if (!thematique) {
 				throw new Error('Content cannot be created');
 			}
 
-			return { thematiqueRecord };
-		} 
-		catch (e) 
-		{
+			return { thematique };
+		}
+		catch (e) {
 			this.logger.error(e);
 			throw e;
 		}
 	}
 
-	public async update(thematiqueId : Number, thematiqueInput: IThematiqueInputDTO): Promise<{ thematique: IThematique }> 
-	{
-		const thematiqueRecord = await this.thematiqueModel.findOne({
-		   where: {
-			   id: thematiqueId
-		   }
+	public async update(thematiqueId: Number, thematiqueInput: Partial<IThematiqueInputDTO>): Promise<{ thematique: IThematique }> {
+		const thematique = await this.thematiqueModel.findOne({
+			where: {
+				id: thematiqueId
+			}
 		});
-		
-		if (!thematiqueRecord) 
-		{
+
+		if (!thematique) {
 			throw new Error('Content not found.');
-		}                                                    
-		
-		this.logger.silly('Updating thematique');
-				
-		thematiqueInput.active = ( thematiqueInput.active == "on" );
-		
-		await thematiqueRecord.update(thematiqueInput);
-		
-		return { thematiqueRecord };
-	
+		}
+
+		this.logger.silly('Updating thematique', thematiqueInput);
+
+		thematiqueInput.active = (thematiqueInput.active == "on");
+
+		await thematique.update(thematiqueInput);
+
+		return { thematique };
+
+	}
+	public async findAll(): Promise<{ thematiques: IThematique[] }> {
+		try {
+			this.logger.silly('Finding all thematiques');
+			const thematiques: IThematique[] = await this.thematiqueModel.findAll();
+
+			return { thematiques };
+		}
+		catch (e) {
+			this.logger.error(e);
+			throw e;
+		}
+	}
+	public async findById(id: number): Promise<{ thematique: IThematique }> {
+		try {
+			this.logger.silly('Finding thematique');
+			const thematique: IThematique = await this.thematiqueModel.findOne(
+				{
+					where: { id }
+				}
+			);
+
+			if (!thematique) {
+				let err = new Error('thematique cannot be found');
+				throw err;
+			}
+
+			return { thematique };
+		}
+		catch (e) {
+			this.logger.error(e);
+			throw e;
+		}
+	}
+	public async findBy_idFictitious(idFictitious: number): Promise<{ thematique: IThematique }> {
+		try {
+			this.logger.silly('Finding thematique');
+			const thematique: IThematique = await this.thematiqueModel.findOne(
+				{
+					where: { idFictitious }
+				}
+			);
+			return { thematique };
+		}
+		catch (e) {
+			this.logger.error(e);
+			throw e;
+		}
 	}
 }

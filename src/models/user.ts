@@ -9,6 +9,7 @@ export default (sequelize, type) => {
 		},
 		name 	 : DataTypes.STRING,
 		email	 : DataTypes.STRING,
+		roles	 : DataTypes.STRING,
 		salt	 : DataTypes.STRING, 
 		password : {
 			type	  : DataTypes.STRING,

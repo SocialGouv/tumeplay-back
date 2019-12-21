@@ -7,6 +7,11 @@ export default (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
+		isDefaultData:	{
+			type: DataTypes.BOOLEAN,
+			allowNull: true,
+			defaultValue: false
+		},
 		title: DataTypes.STRING,
 		questionContentId	: {
 			type	  : DataTypes.INTEGER,

@@ -30,6 +30,7 @@ block content
 							tr
 								th Titre
 								th Description
+								th Qté par défaut
 								th Photo
 								th Date de création
 								th Date de mise à jour
@@ -39,7 +40,8 @@ block content
 							each product in products
 								tr
 									td #{product.title}
-									td #{product.description}
+									td #{product.shortDescription}
+									td #{product.defaultQty}
 									td
 										if product.picture && product.picture.path
 											img.pic-image-box(src=product.picture.path)
@@ -66,9 +68,9 @@ block content
 
 block specific-js
 	// Data table plugin
-	script(type='text/javascript' src="js/plugins/jquery.dataTables.min.js")
-	script(type='text/javascript' src="js/plugins/dataTables.bootstrap.min.js")
-	script(type='text/javascript' src="js/plugins/sweetalert.min.js")
+	script(type='text/javascript' src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript' src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript' src="/js/plugins/sweetalert.min.js")
 	script(type='text/javascript').
 		
 		function deleteConfirmation(form){

@@ -10,13 +10,21 @@ if (!envFound)
 
 export default {
   port				: parseInt(process.env.SERVER_PORT, 10),
-  databaseURL		: process.env.DATABASE_URI,
   databaseHost		: process.env.DATABASE_HOST,
   databaseLogin 	: process.env.DATABASE_LOGIN,
   databasePassword 	: process.env.DATABASE_PASSWORD,
   databaseName		: process.env.DATABASE_NAME,
+  databaseForce 	: process.env.DATABASE_FORCE,
   jwtSecret			: process.env.JWT_SECRET,   
   
+  defaultAdminLogin : process.env.DEFAULT_ADMIN_LOGIN,
+  defaultAdminPassword : process.env.DEFAULT_ADMIN_PASSWORD,
+  
+  roles: {
+	  administrator: 'ROLE_ADMINISTATOR',
+	  user: 'ROLE_USER',
+  },
+    
   logs: {
     level: process.env.LOG_LEVEL || 'silly',
   },

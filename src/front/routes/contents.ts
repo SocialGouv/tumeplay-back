@@ -11,7 +11,7 @@ var multer = require('multer');
 
 var contentMulterStorage = multer.diskStorage(
 	{
-		destination: 'uploads/contentFiles',
+		destination: 'uploads/pictures/content',
 		filename: function (req, file, cb) {
 			cb(null, Date.now() + '-' + file.originalname);
 		}
@@ -29,8 +29,8 @@ export default (app: Router) => {
 	route.get('/', middlewares.isAuth, async (req: Request, res: Response) => {
 		try {
 			const ContentModel: any = Container.get('contentModel')
-
-			const contents = await ContentModel.findAll({ include: ['picture'] });
+                                                                                          
+			const contents = await ContentModel.findAll({ include: ['picture', 'itsTheme'] });
 
 			return res.render("page-contents", {
 				username: req['session'].name,
@@ -45,8 +45,16 @@ export default (app: Router) => {
 
 	route.get('/add', middlewares.isAuth, async (req: Request, res: Response) => {
 		try {
+			const CategoryModelService: any = Container.get('questionCategoryModel');
+			const categories = await CategoryModelService.findAll();
+
+			const ThemeModelService : any = Container.get('thematiqueModel');
+			const themes = await ThemeModelService.findAll();
+			
 			return res.render("page-contents-edit", {
-				username: req['session'].name
+				username: req['session'].name,
+				themes: themes,
+				categories: categories,
 			});
 		}
 		catch (e) {
@@ -59,11 +67,13 @@ export default (app: Router) => {
 			const logger: any = Container.get('logger');
 			logger.debug('Calling Front Create endpoint with body: %o', req.body);
 
-			try {
+			try { 
 				let contentItem: IContentInputDTO = {
 					title: req.body.title,
 					text: req.body.text,
 					published: req.body.published,
+					themeId: req.body.theme,
+					categoryId: req.body.category,
 					pictureId: null
 				}
 
@@ -94,7 +104,13 @@ export default (app: Router) => {
 		try {
 			const documentId = req.params.id;
 			const ContentModel: any = Container.get('contentModel')
+            
+            const CategoryModelService: any = Container.get('questionCategoryModel');
+			const categories = await CategoryModelService.findAll();
 
+			const ThemeModelService : any = Container.get('thematiqueModel');
+			const themes = await ThemeModelService.findAll();
+			
 			const content = await ContentModel.findOne({
 				where: {
 					id: documentId
@@ -103,7 +119,9 @@ export default (app: Router) => {
 
 			return res.render("page-contents-edit", {
 				username: req['session'].name,
-				content: content
+				content: content,
+				themes: themes,
+				categories: categories,
 			});
 		}
 		catch (e) {
@@ -121,6 +139,8 @@ export default (app: Router) => {
 					title: req.body.title,
 					text: req.body.text,
 					published: req.body.published,
+					themeId: req.body.theme,
+					categoryId: req.body.category,
 					pictureId: undefined
 				}
 

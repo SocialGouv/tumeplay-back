@@ -1,8 +1,36 @@
 // Essential javascripts for application to work
-script(src='js/jquery-3.2.1.min.js')
-script(src='js/popper.min.js')
-script(src='js/bootstrap.min.js')
-script(src='js/main.js')
+script(src='/js/jquery-3.2.1.min.js')
+script(src='/js/popper.min.js')
+script(src='/js/bootstrap.min.js')
+script(src='/js/main.js')
 
 // The javascript plugin to display page loading on top
-script(src='js/plugins/pace.min.js')
+script(src='/js/plugins/pace.min.js')
+	
+
+// Data table plugin
+script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+script(type='text/javascript').
+	$('.reset-data').click(function(){
+		var _target = $(this).attr('href');
+		swal({
+			title				: "Resynchroniser les données ?",
+			text				: "Toutes les modifications effectuées seront annulées - Cette action est irréversible.",
+			type				: "warning",
+			showCancelButton	: true,
+			confirmButtonText	: "Resynchroniser",
+			cancelButtonText	: "Annuler",
+			closeOnConfirm		: false,
+			closeOnCancel		: false
+		}, 
+		function(isConfirm) 
+		{
+			if (isConfirm) 
+			{
+				window.location = _target;
+			} else {
+				swal("Annulé", "Aucune action n'a été réalisée.", "error");
+			}
+		});
+		return false;
+	});

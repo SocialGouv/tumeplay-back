@@ -44,7 +44,7 @@ export default class ProductService {
             );
 
             if (!product) {
-                throw new Error('Product cannot be created');
+                throw new Error('Product cannot be found');
             }
 
             return { product };

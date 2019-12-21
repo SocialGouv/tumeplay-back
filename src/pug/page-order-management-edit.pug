@@ -1,0 +1,34 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-order-management-edit'
+
+block title
+	if order
+		title Modifier une commande - PassPréservatif
+	else
+		title Créer une commande - PassPreservatif
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Gestion de commande (Reference no: #{order ? order.id : "_"})
+			p Visualisation des details de la commande
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") order
+
+	.row
+		.col-md-12
+			include ./forms/order-management/_form.pug
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();

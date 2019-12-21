@@ -25,12 +25,18 @@ export default ({ app }: { app: express.Application }) => {
   app.use('/js',  		express.static('public/js'));
   app.use('/pictures',  express.static('public/pictures'));
   
-  app.use('/uploads/themeFiles',  express.static('uploads/themeFiles'));
-  app.use('/uploads/categoryFiles',  express.static('uploads/categoryFiles'));
-  app.use('/uploads/contentFiles',  express.static('uploads/contentFiles'));
-  app.use('/uploads/questionFiles',  express.static('uploads/questionFiles'));
-  app.use('/uploads/productFiles',  express.static('uploads/productFiles'));
+  app.use('/uploads/pictures/box',  express.static('uploads/pictures/box'));
+  app.use('/uploads/pictures/category',  express.static('uploads/pictures/category'));
+  app.use('/uploads/pictures/content',  express.static('uploads/pictures/content'));
+  app.use('/uploads/pictures/product',  express.static('uploads/pictures/product'));
+  app.use('/uploads/pictures/question',  express.static('uploads/pictures/question'));
+  app.use('/uploads/pictures/theme',  express.static('uploads/pictures/theme'));
   
+  
+  
+
+  // In default question files, may be accessed via api:
+  // ----------------------------------------------------------------------------------------------------
   
   app.set("view engine", "pug");
   app.set("views", 		 path.join(__dirname, "../pug"));

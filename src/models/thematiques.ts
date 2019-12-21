@@ -15,7 +15,12 @@ export default ( sequelize, type) => {
 				model	: 'picture',
 				key 	: 'id'
 			}
-		}
+		},
+		isDefaultData:	{
+			type: DataTypes.BOOLEAN,
+			allowNull: true,
+			defaultValue: false
+		},
 	});
 	return ThematiqueModel;
 };

@@ -17,10 +17,23 @@ export default (app: Router) => {
 					},
 					include: ['picture']
 				}
-			);          
-			                 
-			
-			return res.json({ contents }).status(200);
+			); 
+                  
+		    let parsedContent = contents.map((content) => {
+		        return (
+		            {
+		               key: content.id,
+					    id: content.id,
+					    numberOfLines: 3,
+					    theme: content.themeId,
+					    category: content.categoryId,
+					    picture: ( content.picture ? content.picture.destination + '/' + content.picture.filename : false ),
+					    title: content.title,
+					    text: content.text,
+		            }
+		        );
+		    });
+			return res.json( parsedContent ).status(200);                            
 		}
 		catch (e) {
 			logger.error('🔥 error: %o', e);

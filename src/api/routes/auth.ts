@@ -4,21 +4,20 @@ import AuthService 									from '../../services/auth';
 import { IUserInputDTO } 							from '../../interfaces/IUser';
 import middlewares 									from '../middlewares';
 import { celebrate, Joi } 							from 'celebrate';
+import config from '../../config';
 
 const route = Router();
 
 export default (app: Router) => 
 {
 	app.use('/auth', route);
-
+     
 	route.post(
-		'/create',
+		'/simple-register',
 		celebrate(
 		{
 			body: Joi.object({
-				name		: Joi.string().required(),
-				email		: Joi.string().required(),
-				password	: Joi.string().required(),
+				uniqId		: Joi.string().required(),                                                                          
 			}),
 		}),
 		async (req: Request, res: Response, next: NextFunction) => 
@@ -28,8 +27,10 @@ export default (app: Router) =>
 			
 			try 
 			{
+				const _localRole = [config.roles.user];
+				const _localData = { uniqId : req.body.uniqId, email: req.body.uniqId + '@mail.com', roles: JSON.stringify(_localRole), password: req.body.uniqId };
 				const authServiceInstance 	= Container.get(AuthService);
-				const { user, token } 		= await authServiceInstance.create(req.body as IUserInputDTO);
+				const { user, token } 		= await authServiceInstance.create(_localData as IUserInputDTO);
 				return res.status(201).json({ user, token });
 			} 
 			catch (e) 
@@ -39,15 +40,16 @@ export default (app: Router) =>
 			}
 		},
 	);
-
+	
+	
+	// Currently not used.
 	route.post(
-		'/login',
+	    '/simple-login',
 		celebrate(
 			{
 				body: Joi.object(
-					{
-						email	 : Joi.string().required(),
-						password : Joi.string().required(),
+				{
+					uniqId : Joi.string().required() 
 				}),
 		}),
 		async (req: Request, res: Response, next: NextFunction) => 
@@ -59,8 +61,8 @@ export default (app: Router) =>
 			{
 				const { email, password } = req.body;
 				const authServiceInstance = Container.get(AuthService);
-				const { user, token } 	  = await authServiceInstance.login(email, password);
-				
+				const { user, token } 	  = await authServiceInstance.SimpleLogin(uniqId);
+				                   
 				return res.json({ user, token }).status(200);
 			} 
 			catch (e) 
@@ -69,7 +71,7 @@ export default (app: Router) =>
 				return next(e);
 			}
 		},
-	);
+	);         
 
 	route.post('/logout', middlewares.isAuth, (req: Request, res: Response, next: NextFunction) => 
 	{

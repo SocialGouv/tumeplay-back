@@ -16,6 +16,28 @@ export default class UserService
 
 	}
 
+
+	public async findById(id: string): Promise<{ userRecords:IUser[] }> 
+	{
+		try 
+		{
+            
+			const userRecords:IUser[] = await this.userModel.findAll({where: {id}});
+			if (!userRecords) {
+                throw new Error('User cannot be created');
+			}                      
+			
+			/*this.eventDispatcher.dispatch(events.user.signUp, { user: userRecord }); */
+
+			return { userRecords };
+		} 
+		catch (e) 
+		{
+			this.logger.error(e);
+			throw e;
+		}
+	}
+	
 	public async findByEmail(email: string): Promise<{ userRecords:IUser[] }> 
 	{
 		try 

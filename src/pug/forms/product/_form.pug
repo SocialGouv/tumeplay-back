@@ -20,15 +20,22 @@
 				.form-group
 					label.control-label Titre
 					if product
-						input.form-control(type="text", name="title", placeholder="Titre du produit ( usage interne uniquement )" value=`${product.title}`)
+						input.form-control(type="text", name="title", placeholder="Nom du produit" value=`${product.title}`)
 					else
-						input.form-control(type="text", name="title", placeholder="Titre du produit ( usage interne uniquement )")
+						input.form-control(type="text", name="title", placeholder="Nom du produit")
 				.form-group
 					label.control-label Description
 					if product
 						input.form-control(type="text", name="description", placeholder="Description" value=`${product.description}`)
 					else
 						input.form-control(type="text", name="description", placeholder="Description")
+				.form-group
+					label.control-label Description courte
+					if product
+						input.form-control(type="text", name="shortDescription", placeholder="Description courte" value=`${product.shortDescription}`)
+					else
+						input.form-control(type="text", name="shortDescription", placeholder="Description courte")
+				
 				if product
 					if product.picture && product.picture.path
 						img.pic-image-box-normal(src="../../"+product.picture.path)

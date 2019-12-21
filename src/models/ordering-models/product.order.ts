@@ -7,6 +7,7 @@ export default (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
+		qty: DataTypes.INTEGER,
 		productId: {
 			type: DataTypes.INTEGER,
 			reference: {

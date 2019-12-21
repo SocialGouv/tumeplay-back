@@ -18,6 +18,27 @@ block content
 							input.form-control(type="text" name="title" placeholder="Titre de la question ( usage interne uniquement )" value=`${question.title}`)
 						else
 							input.form-control(type="text" name="title" placeholder="Titre de la question ( usage interne uniquement )")
+							
+					if themes
+						.form-group
+							label.control-label Famille
+							select.form-control(name="selectedTheme")
+								optgroup(label="Famille")
+									each theme in themes
+										if question && question.themeId == theme.id
+											option(value=theme) #{theme.title}
+										else
+											option(value=theme) #{theme.title}
+					if categories
+						.form-group
+							label.control-label Thèmatique associé
+							select.form-control(name="selectedCategory")
+								optgroup(label="Thèmatique associé")
+									each category in categories
+										if question && question.categoryId == category.id
+											option(value=category) #{category.title}
+										else
+											option(value=category) #{category.title}
 					.form-group
 						label.control-label Photo de la question:
 						input.form-control(type="file" name="questionContentPicture")
@@ -36,13 +57,7 @@ block content
 						else
 							textarea.form-control(rows="5" name="answerText" placeholder="Texte de réponse")
 					br
-					if categories
-						.form-group
-							label.control-label Select a category
-							select.form-control(name="selectedCategory")
-								optgroup(label="Select a category")
-									each category in categories
-										option(value=category) #{category.title}	
+					
 					.animated-checkbox
 						label
 							if question
@@ -55,10 +70,19 @@ block content
 				.tile
 					h4 Gérer les réponses
 					div
-						a.btn.btn-secondary(id="newAnswerBtn") CREER UNE REPONSE et cocher les bonnes réponses
+						a.btn.btn-secondary(id="newAnswerBtn", style="color: #FFF") Créer une réponse et cocher les bonnes réponses
 					br
 					div()
 						ul#responseList
+							
+							if answers
+								each answer, i in answers 
+									div
+										input(type="checkbox" name="answerItems["+i+"][isCorrect]" checked=answer.isCorrect)
+										input(type="text" name="answerItems["+i+"][title]" value=`${answer.title}`)
+										br
+										br 
+
 			.clearfix
 		button.btn.btn-primary(type="submit")
 			i.fa.fa-fw.fa-lg.fa-check-circle
@@ -98,8 +122,9 @@ block specific-js
 
 			numAnswer++;
 
-			responseContainerItem.appendChild(input_responseName_element);
 			responseContainerItem.appendChild(input_responseIsGoodAnswer_element);
+			responseContainerItem.appendChild(input_responseName_element);
+			
 			
 			responseList_UL.appendChild(responseContainerItem);
 			responseList_UL.appendChild(breakpoint);

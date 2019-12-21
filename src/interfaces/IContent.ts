@@ -5,6 +5,8 @@ export interface IContent {
   text: string;
   published: string;
   pictureId: number;
+  themeId: number;
+  categoryId: number;
 }
 
 export interface IContentInputDTO {
@@ -12,4 +14,6 @@ export interface IContentInputDTO {
   text: string;
   published: string;
   pictureId: number;
+  themeId: number;
+  categoryId: number;
 }

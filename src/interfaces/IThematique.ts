@@ -1,14 +1,13 @@
-import {IPicture} from './IPicture';
-export interface IThematique {
-  id		        :   number;
-  title		      :   string;
-  active	      :   string;
-  pictureId     :   number;
-  picture   :   IPicture  // need to INCLUDE in search to get this data
+import { IPicture } from './IPicture';
+export interface IThematique extends IThematiqueInputDTO {
+  id: number;
+  picture: IPicture;
 }
 
 export interface IThematiqueInputDTO {
-  title		      :   string;
-  active	      :   string;
-  pictureId     :   number;
+  title: string;
+  active: string | boolean;
+  pictureId: number;
+  isDefaultData?: boolean;
+  idFictitious?: number;
 }

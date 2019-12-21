@@ -31,36 +31,5 @@ export default (app: Router) => {
       return next(e);
     }
   });
-
-
-  route.post(
-    '/newProduct', middlewares.isAuth,
-    celebrate(
-      {
-        body: Joi.object(
-          {
-            title: Joi.string(),
-            description: Joi.string(),
-            price: Joi.number(),
-            active: Joi.boolean(),
-            pictureId: Joi.number().integer()
-          }
-        ),
-      }),
-    async (req: Request, res: Response, next: NextFunction) => {
-      const logger: any = Container.get('logger');
-      logger.debug('Calling API newProduct endpoint with body: %o', req.body);
-
-      try {
-        const productItem: IProductInputDTO = req.body;
-        const ProductModel: any = Container.get('productModel')
-        const product = await ProductModel.create(productItem);
-        return res.json({ product }).status(200);
-      }
-      catch (e) {
-        logger.error('🔥 error: %o', e);
-        return next(e);
-      }
-    },
-  );
+             
 };

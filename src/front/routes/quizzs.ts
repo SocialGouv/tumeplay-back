@@ -18,7 +18,7 @@ var multer = require('multer');
 // QuestionCategory picture setup
 var categoryMulterStorage = multer.diskStorage(
 	{
-		destination: 'uploads/categoryFiles',
+		destination: 'uploads/pictures/category',
 		filename: function (req, file, cb) {
 			cb(null, Date.now() + '-' + file.originalname);
 		}
@@ -29,7 +29,7 @@ var uploadCategory = multer({ storage: categoryMulterStorage });
 // QuestionContent picture setup
 var questionContentMulterStorage = multer.diskStorage(
 	{
-		destination: 'uploads/questionFiles',
+		destination: 'uploads/pictures/question',
 		filename: function (req, file, cb) {
 			cb(null, Date.now() + '-' + file.originalname);
 		}
@@ -52,7 +52,8 @@ export default (app: Router) => {
 		try {
 			const questionContent: any = Container.get('questionModel')
 
-			const questions: IQuestionContent[] = await questionContent.findAll({ include: ['itsQuestionCategory', 'picture'] });
+			const questions: IQuestionContent[] = await questionContent.findAll({ include: ['itsQuestionCategory', 'itsTheme', 'picture'] });
+			
 			return res.render("page-quizz-questions", {
 				username: req['session'].name,
 				questions: questions
@@ -69,9 +70,13 @@ export default (app: Router) => {
 			const CategoryModel_Service: any = Container.get('questionCategoryModel');
 			const categories = await CategoryModel_Service.findAll();
 
+			const ThematiquesService: any = Container.get('thematiqueModel');
+			const themes = await ThematiquesService.findAll();
+			
 			return res.render("page-quizz-questions-edit", {
 				username: req['session'].name,
-				categories
+				categories,
+				themes
 			});
 
 		}
@@ -91,6 +96,7 @@ export default (app: Router) => {
 				content: req.body.content,
 				published: req.body.published,
 				categoryId: req.body.selectedCategory ? JSON.parse(req.body.selectedCategory).id : null,
+				themeId: req.body.selectedTheme ? JSON.parse(req.body.selectedTheme).id : null,
 				pictureId: null,
 			}
 
@@ -152,14 +158,26 @@ export default (app: Router) => {
 				}
 			});
 
+			const ThematiquesService: any = Container.get('thematiqueModel');
+			const themes = await ThematiquesService.findAll();
+			
 			const CategoryModel_Service: any = Container.get('questionCategoryModel');
 			const categories = await CategoryModel_Service.findAll();
 
+			const questionAnswerModel = Container.get('questionAnswerModel');
+			
+			const answers = await questionAnswerModel.findAll({
+				where: {
+					questionContentId : documentId,
+				}
+			})
 
 			return res.render("page-quizz-questions-edit", {
 				username: req['session'].name,
 				question,
-				categories
+				categories,
+				themes,
+				answers
 			});
 
 		}
@@ -190,6 +208,32 @@ export default (app: Router) => {
 				const { picture } = await pictureServiceInstance.create(picObject as IPictureInputDTO);
 				// Assigning pic id to the thematique item
 				questionContentItem.pictureId = picture.id;
+			}
+			
+			
+			console.log(req.body.answerItems);
+			// Processing question possible answers:
+			if (req.body.answerItems && Array.isArray(req.body.answerItems)) {
+				let answerItems: IQuestionAnswerDTO[] = req.body.answerItems.map(answerItem => {
+					if( answerItem.title != '' )
+					{
+						return ({
+							title: answerItem.title,
+							isCorrect: (answerItem.isCorrect === "on"),
+							published: true,	// @TODO: is published really needed in question answer ?
+							questionContentId: documentId
+						});
+					}
+				});
+				if (answerItems.length > 0) {
+					// Creating answers
+					const questionAnswerService = Container.get(QuestionAnswerService);
+					const questionAnswerModel = Container.get('questionAnswerModel');
+					
+					await questionAnswerModel.destroy({ where: {questionContentId : documentId} })
+					
+					await questionAnswerService.bulkcreate(answerItems);
+				}
 			}
 
 			const questionServiceInstance = Container.get(QuestionContentService);

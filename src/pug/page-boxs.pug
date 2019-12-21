@@ -1,0 +1,101 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-box'
+	// - var activeGroup = 'tables'
+
+block title
+	title Produits - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Boxs
+			p Liste des boxs accessibles dans le tunnel d'achat
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") Boxs
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#boxsDataTable
+						thead
+							tr
+								th Titre
+								th Description
+								th Photo
+								th Date de création
+								th Date de mise à jour
+								th Actif
+								th Actions
+						tbody
+							each box in boxs
+								tr
+									td #{box.title}
+									td #{box.description}
+									td
+										if box.picture && box.picture.path
+											img.pic-image-box(src=box.picture.path)
+									td #{prettyDate(box.createdAt)}
+									td #{prettyDate(box.updatedAt)}
+									td
+										if box.active
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										a(class='btn btn-primary' href="/boxs/edit/" + box.id data-id=`${box.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										form(action="/boxs/delete/" + box.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+											button(class='delete-item btn btn-secondary' type="submit" data-id=`${box.id}`) 
+												i.fa.fa-fw.fa-lg.fa-times-circle
+												| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/boxs/add") 
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Créer une box						
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript' src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript' src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript' src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		
+		function deleteConfirmation(form){
+			swal({
+				title				: "Supprimer la box ?",
+				text				: "La suppression d'une box est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "Supprimer élément", "success");
+					form.submit();
+					return;
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		}
+		$('#boxsDataTable').DataTable();
+		$('.delete-item').click(async function(e){
+			
+		});

@@ -1,15 +1,15 @@
 
-export interface IQuestionAnswer {
+export interface IQuestionAnswer extends IQuestionAnswerMain {
   id: number;
-  title: string;
-  questionContentId: number;
-  isCorrect: boolean;
-  published: boolean;
 }
 
-export interface IQuestionAnswerDTO {
+export interface IQuestionAnswerDTO extends IQuestionAnswerMain { }
+
+interface IQuestionAnswerMain {
   title: string;
   questionContentId: number;
   isCorrect: boolean;
-  published: boolean;
+  published: boolean | string;
+  idFictitiousInTheQuestion?: number;
+  isDefaultData?:boolean;
 }

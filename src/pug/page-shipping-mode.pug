@@ -1,0 +1,87 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-shipping-mode'
+
+block title
+	title Types de livraison - PassPréservatif
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Types de livraison
+			p Liste des type de livraisons
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Types de livraison
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#shippingModesDataTable
+						thead
+							tr
+								th Titre
+								th Date de création
+								th Date de mise à jour
+								th Actions
+						tbody
+							each shippingMode in shippingModes
+								tr
+									td #{shippingMode.title}
+									td #{prettyDate(shippingMode.createdAt)}
+									td #{prettyDate(shippingMode.updatedAt)}
+									td
+										a(class='btn btn-primary' href="/orders/shipping-mode/edit/" + shippingMode.id data-id=`${shippingMode.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										form(action="/orders/shipping-mode/delete/" + shippingMode.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+											button(class='delete-item btn btn-secondary' type="submit") 
+												i.fa.fa-fw.fa-lg.fa-times-circle
+												| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/orders/shipping-mode/add") 
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Créer un type de livraison						
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins//jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins//dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins//sweetalert.min.js")
+	script(type='text/javascript').
+		function deleteConfirmation(form){
+			swal({
+				title				: "Supprimer le type de livraison ?",
+				text				: "La suppression d'un type de livraison est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "Supprimer élément", "success");
+					form.submit();
+					return;
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		}
+
+		$('#shippingModesDataTable').DataTable();

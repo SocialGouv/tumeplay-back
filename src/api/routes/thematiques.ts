@@ -18,7 +18,19 @@ export default (app: Router) => {
 				include: ['picture']
 			});
 
-			return res.json({ thematiques }).status(200);
+			  
+		    let parsedThematiques = thematiques.map((thematique) => {
+		        return (
+		            {
+		                key: thematique.id,
+					    id: thematique.id,
+					    
+					    picture: ( thematique.picture ? thematique.picture.destination + '/' + thematique.picture.filename : false ),
+					    value: thematique.title,           
+		            }
+		        );
+		    });
+			return res.json( parsedThematiques ).status(200);
 		}
 		catch (e) {
 			logger.error('🔥 error: %o', e);

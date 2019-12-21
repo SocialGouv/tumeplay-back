@@ -19,6 +19,10 @@ const isAuth = async (req, res, next) => {
 	{
 		if (req.session.loggedin) 
 		{
+			if( !req.session.roles || req.session.roles != config.roles.administrator )
+			{
+				return res.redirect('/');
+			}
 			next();
 		} else {
 			return res.redirect('/');

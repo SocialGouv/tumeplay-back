@@ -1,0 +1,35 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-box-edit'
+	// - var activeGroup = 'tables'
+
+block title
+	if produit
+		title Modifier une box - Tumeplay
+	else
+		title Créer une box - PassPreservatif
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Boxs
+			p Liste des boxs accessibles dans le tunnel d'achat
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") Box
+
+	.row
+		.col-md-12
+			include ./forms/box/_form.pug
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();

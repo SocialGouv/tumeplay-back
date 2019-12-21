@@ -1,0 +1,96 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-order-management'
+	// - var activeGroup = 'tables'
+
+block title
+	title Commandes - PassPréservatif
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Commandes
+			p Liste des commandes
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Commandes
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#ordersDataTable
+						thead
+							tr
+								th Réference (ID)
+								th Date de commande
+								th Client
+								th Address de livraison
+								th Type de livraison
+								th Date de création
+								th Date de mise à jour
+								th Envoyé
+								th Livré
+								th Actions
+						tbody
+							each order in orders
+								tr
+									td #{order.id}
+									td #{order.orderDate ? prettyDate(order.orderDate) : ""}
+									td #{order.profileFullName}
+									td #{order.shippingAddressConcatenation}
+									td #{order.shippingModeText}
+									td #{prettyDate(order.createdAt)}
+									td #{prettyDate(order.updatedAt)}
+									td
+										if order.sent
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										if order.delivered
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										a(class='btn btn-primary' href="/orders/management/edit/" + order.id data-id=`${order.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;				
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#ordersDataTable').DataTable();
+		$('.delete-item').click(function(){
+			swal({
+				title				: "Supprimer le commande ?",
+				text				: "La suppression d'un commande est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "[WIP/TODO] Supprimer élément", "success");
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});
+		});

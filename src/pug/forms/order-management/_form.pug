@@ -1,0 +1,91 @@
+.row
+	.col-md-6
+		.tile
+			if order 
+				h3.tile-title Gérer livraison
+			else
+				h3.tile-title Créer un nouveau livraison
+			
+			if order
+				- var targetUrl = "/orders/management/edit/" + order.id
+			else
+				- var targetUrl = "/orders/management/add"
+
+			form.order-form(action=`${targetUrl}`, method="POST")
+				if order
+					input(type="hidden" value=`${order.id}`)
+								
+				p
+					b Réference (ID) : 
+					| #{order.id}
+				p
+					b Date de commande : 
+					| #{order.orderDate ? prettyDate(order.orderDate) : ""}
+				p
+					b Client : 
+					| #{order.profileFullName}
+				p
+					b Addresse de livraison : 
+					| #{order.shippingAddressConcatenation}
+				p
+					b Type de livraison : 
+					| #{order.shippingModeText}
+				p
+					b Date de création : 
+					| #{prettyDate(order.createdAt)}
+				p
+					b Date de mise à jour : 
+					| #{prettyDate(order.updatedAt)}
+				.animated-checkbox
+					label
+						if order
+							input(type="checkbox" name="sent" checked=order.sent)
+						else
+							input(type="checkbox" name="sent")
+
+						span.label-text Envoyé
+				.animated-checkbox
+					label
+						if order
+							input(type="checkbox" name="delivered" checked=order.delivered)
+						else
+							input(type="checkbox" name="delivered")
+
+						span.label-text Livré
+				.tile-footer
+					button.btn.btn-primary(type="submit")
+						i.fa.fa-fw.fa-lg.fa-check-circle
+						| Valider
+					| &nbsp;&nbsp;&nbsp;
+					a.btn.btn-secondary(href="/orders/management")
+						i.fa.fa-fw.fa-lg.fa-times-circle
+						| Annuler                                
+	.col-md-6
+		.tile
+			div
+				h2 Produits commandés
+			if order.box
+				hr
+					
+				h5
+					| Box commandée : #{order.box.title}
+				hr
+					
+			if order.products
+				table.table.table-hover.table-bordered#orderDataTable
+					thead
+						tr
+							th Nom
+							th Quantité
+					tbody
+						each product in order.products
+							tr
+								td #{product.title}      
+								td #{product.product_order.qty}
+	.clearfix
+        
+
+block specific-js
+	script(type='text/javascript', src="/js/plugins//jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins//dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins//sweetalert.min.js")

@@ -13,7 +13,7 @@ var multer = require('multer');
 
 var themeMulterStorage = multer.diskStorage(
     {
-        destination: 'uploads/themeFiles',
+        destination: 'uploads/pictures/theme',
         filename: function ( req, file, cb ) {
 			cb( null, Date.now() + '-' + file.originalname);
 		}

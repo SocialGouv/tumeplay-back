@@ -8,7 +8,7 @@ import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDi
 @Service()
 export default class QuestionAnswerService {
 	constructor(
-		@Inject('questionAnswerModel') private questionAnswerModel: Models.QuestionAnswerModel,
+		@Inject('questionAnswerModel') private questionAnswerModel: any,
 		@Inject('logger') private logger,
 		@EventDispatcher() private eventDispatcher: EventDispatcherInterface,
 	) {
@@ -17,7 +17,7 @@ export default class QuestionAnswerService {
 
 	public async create(questionAnswerInput: IQuestionAnswerDTO): Promise<{ questionAnswer: IQuestionAnswer }> {
 		try {
-			this.logger.silly('Creating questionAnswer', questionAnswerInput);
+			//this.logger.silly('Creating questionAnswer', questionAnswerInput);
 
 			const questionAnswer: IQuestionAnswer = await this.questionAnswerModel.create({
 				...questionAnswerInput
@@ -33,10 +33,10 @@ export default class QuestionAnswerService {
 			this.logger.error(e);
 			throw e;
 		}
-	}	
+	}
 	public async bulkcreate(questionAnswerInput: IQuestionAnswerDTO[]): Promise<{ questionAnswers: IQuestionAnswer[] }> {
 		try {
-			this.logger.silly('Creating questionAnswer', questionAnswerInput);
+			//this.logger.silly('Creating questionAnswer', questionAnswerInput);
 
 			const questionAnswers: IQuestionAnswer[] = await this.questionAnswerModel.bulkCreate(questionAnswerInput);
 
@@ -72,5 +72,19 @@ export default class QuestionAnswerService {
 
 		return { questionAnswer: updatedQuestionAnswer };
 
+	}
+
+
+	public async findByQuestionId(questionContentId: Number): Promise<{ questionAnswers: IQuestionAnswer[] }> {
+		try {
+			if (!questionContentId) throw new Error('Missing question content id')
+			const questionAnswers: IQuestionAnswer[] = await this.questionAnswerModel.findAll({
+				where: { questionContentId }
+			});
+			return { questionAnswers };
+		} catch (e) {
+			this.logger.error(e);
+			throw e;
+		}
 	}
 }

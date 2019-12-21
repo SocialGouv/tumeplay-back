@@ -7,7 +7,6 @@ export default (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
-		title: DataTypes.STRING,
 		orderDate: DataTypes.DATE,
 		sent: {
 			type: DataTypes.BOOLEAN,
@@ -18,6 +17,13 @@ export default (sequelize, type) => {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
 			defaultValue: false
+		},   
+		boxId: {
+			type: DataTypes.INTEGER,
+			reference: {
+				model: 'box',
+				key: 'id'
+			}
 		},
 		shippingModeId: {
 			type: DataTypes.INTEGER,
@@ -37,6 +43,13 @@ export default (sequelize, type) => {
 			type: DataTypes.INTEGER,
 			reference: {
 				model: 'profile',
+				key: 'id'
+			}
+		},
+		userId: {
+			type: DataTypes.INTEGER,
+			reference: {
+				model: 'user',
 				key: 'id'
 			}
 		}

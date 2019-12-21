@@ -1,0 +1,35 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-shipping-mode-edit'
+	// - var activeGroup = 'tables'
+
+block title
+	if shippingMode
+		title Modifier un type de livraison - PassPréservatif
+	else
+		title Créer un type de livraison - PassPreservatif
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  type de livraison
+			p Liste des type de livraisons accessibles dans la section "Informations"
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") type de livraison
+
+	.row
+		.col-md-12
+			include ./forms/shipping-mode/_form.pug
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();

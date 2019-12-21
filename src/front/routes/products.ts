@@ -12,7 +12,7 @@ var multer = require('multer');
 
 var productMulterStorage = multer.diskStorage(
 	{
-		destination: 'uploads/productFiles',
+		destination: 'uploads/pictures/product',
 		filename: function (req, file, cb) {
 			cb(null, Date.now() + '-' + file.originalname);
 		}
@@ -29,7 +29,7 @@ export default (app: Router) => {
 
 
 
-	route.get('/', async (req: Request, res: Response) => {
+	route.get('/', middlewares.isAuth, async (req: Request, res: Response) => {
 		try {
 			const ProductModel: any = Container.get('productModel')
 
@@ -89,6 +89,7 @@ export default (app: Router) => {
 				let productItem: IProductInputDTO = {
 					title: req.body.title,
 					description: req.body.description,
+					shortDescription: req.body.shortDescription,
 					price: null,
 					active: (req.body.active == 'on'),
 					deleted: false,
@@ -130,8 +131,9 @@ export default (app: Router) => {
 				let productItem: IProductInputDTO = {
 					title: req.body.title,
 					description: req.body.description,
+					shortDescription: req.body.shortDescription,
 					price: req.body.price,
-					active: (req.body.active == 'on'),
+					active: (req.body.active == 'on'),   
 					deleted: false,
 					pictureId: undefined
 				}

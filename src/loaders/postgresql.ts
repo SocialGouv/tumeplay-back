@@ -13,7 +13,12 @@ import ShippingModeModel from '../models/ordering-models/shipping.mode';
 import OrderModel from '../models/ordering-models/order';
 import ProductOrderModel from '../models/ordering-models/product.order';
 
+import BoxModel from '../models/box';
+import BoxProductModel from '../models/box.products';
+
 import config from '../config';
+import { Container } from 'typedi';
+import SyncDefaultData from '../services/synchronizer/sync-default-data';
 
 export default async () => {
 
@@ -23,10 +28,11 @@ export default async () => {
 		config.databasePassword,
 		{
 			host: config.databaseHost,
-			dialect: 'postgres'
+			dialect: 'postgres',
+			logging: false,
 		}
 	);
-
+    
 	const User = UserModel(sequelize, Sequelize);
 	const Profile = ProfileModel(sequelize, Sequelize);
 	const ShippingAddress = ShippingAddressModel(sequelize, Sequelize);
@@ -41,13 +47,20 @@ export default async () => {
 	const Order = OrderModel(sequelize, Sequelize);
 	const ProductOrder = ProductOrderModel(sequelize, Sequelize);
 
+	const Box = BoxModel(sequelize, Sequelize);
+	const BoxProducts = BoxProductModel(sequelize, Sequelize);
+	
 	// Setup of relationships
 	Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
-
+    Content.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
+    Content.belongsTo(questionCategory, { foreignKey: 'categoryId', as: 'itsQuestionCategory' });
+    
 	questionCategory.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
 	questionCategory.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
 
 	QuestionContent.belongsTo(questionCategory, { foreignKey: 'categoryId', as: 'itsQuestionCategory' });
+	QuestionContent.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
+
 	QuestionContent.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
 
 	Thematique.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
@@ -60,9 +73,11 @@ export default async () => {
 
 	Product.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
 
+	Order.belongsTo(Box, { foreignKey: 'boxId', as: 'box' });
 	Order.belongsTo(ShippingMode, { foreignKey: 'shippingModeId', as: 'shippingMode' });
 	Order.belongsTo(ShippingAddress, { foreignKey: 'shippingAddressId', as: 'shippingAddress' });
 	Order.belongsTo(Profile, { foreignKey: 'profileId', as: 'profile' });
+	Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 	Order.belongsToMany(Product, {
 		through: ProductOrder,
 		as: 'products',
@@ -72,9 +87,22 @@ export default async () => {
 	ProductOrder.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 	ProductOrder.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
 	
+	
+	Box.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
+    BoxProducts.belongsTo(Box, { foreignKey: 'boxId', as: 'box' });
+	BoxProducts.belongsTo(Product, { foreignKey: 'productId', as: 'product' }); 
 	// -----------------------------
-
-	sequelize.sync().then(() => {
+	
+	const dbForce = {};
+	if( config.databaseForce && config.databaseForce == 1 )
+	{
+		dbForce.force = true;
+	}
+	
+	sequelize.sync(dbForce).then(async () => {
+		let syncDefaultData = Container.get(SyncDefaultData);
+		await syncDefaultData.createInitAdmin();
+		
 	});
 
 	module.exports = User;
@@ -90,6 +118,8 @@ export default async () => {
 	module.exports = ShippingMode;
 	module.exports = Order;
 	module.exports = ProductOrder;
+	module.exports = Box;
+	module.exports = BoxProducts;
 
 	return {
 		userModel: User,
@@ -104,6 +134,8 @@ export default async () => {
 		productModel: Product,
 		shippingModeModel: ShippingMode,
 		orderModel: Order,
-		productOrderModel: ProductOrder
+		productOrderModel: ProductOrder,
+		boxModel: Box,
+		boxProductModel: BoxProducts,
 	};
 }

@@ -1,0 +1,38 @@
+.row
+	.col-md-12
+		.tile
+			if shippingMode 
+				h3.tile-title Modifier un type de livraison
+			else
+				h3.tile-title Créer un nouveau type de livraison
+			
+			if shippingMode
+				- var targetUrl = "/orders/shipping-mode/edit/" + shippingMode.id
+			else
+				- var targetUrl = "/orders/shipping-mode/add"
+
+			form.shippingMode-form(action=`${targetUrl}`, method="POST")
+				
+				
+				if shippingMode
+					input(type="hidden" value=`${shippingMode.id}`)
+								
+				.form-group
+					label.control-label Titre
+					if shippingMode
+						input.form-control(type="text", name="title", placeholder="Titre du type de livraison ( usage interne uniquement )" value=`${shippingMode.title}`)
+					else
+						input.form-control(type="text", name="title", placeholder="Titre du type de livraison ( usage interne uniquement )")
+	
+				.tile-footer
+					button.btn.btn-primary(type="submit")
+						i.fa.fa-fw.fa-lg.fa-check-circle
+						| Valider
+					| &nbsp;&nbsp;&nbsp;
+					a.btn.btn-secondary(href="/orders/shipping-mode")
+						i.fa.fa-fw.fa-lg.fa-times-circle
+						| Annuler                                
+	.clearfix
+        
+
+block specific-js

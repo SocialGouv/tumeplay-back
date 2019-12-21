@@ -1,9 +1,9 @@
 import { Service, Inject } 		from 'typedi';
 import jwt 						from 'jsonwebtoken';
-import config					from '../config';
 import argon2 					from 'argon2';
-import UserModel 				from '../models/user';
 import { randomBytes } 			from 'crypto';
+import config					from '../config';
+import UserModel 				from '../models/user';
 import { IUser, IUserInputDTO } from '../interfaces/IUser';
 import events 					from '../subscribers/events';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
@@ -25,6 +25,22 @@ export default class AuthService
 	{
 		try 
 		{
+			let userRecord = await this.userModel.findOne({
+			   where: {
+				   email: userInputDTO.email
+			   }
+			});
+			
+			if (userRecord) 
+			{
+				return this.generateLoginReturn(userRecord);
+			}                                                    
+			
+			if( userInputDTO.roles && typeof userInputDTO.roles.valueOf() != 'string' )
+			{
+				userInputDTO.roles = JSON.stringify(userInputDTO.roles);
+			}
+			
 			const salt = randomBytes(32);
 
 			this.logger.silly('Hashing password');
@@ -33,7 +49,7 @@ export default class AuthService
 			
 			this.logger.silly('Creating user db record');
 			     
-			const userRecord = await this.userModel.create({
+			userRecord = await this.userModel.create({
 				...userInputDTO,
 				salt: salt.toString('hex'),
 				password: hashedPassword,
@@ -76,7 +92,14 @@ export default class AuthService
 		if (!userRecord) 
 		{
 			throw new Error('User not registered');
-		}                                                    
+		} 
+		
+		const localRoles = JSON.parse(userRecord.roles);
+		this.logger.silly('USER ROLES : ' + localRoles);
+		if( localRoles != config.roles.administrator )
+		{
+			throw new Error('Access denied.');
+		}
 		
 		//this.logger.debug('Having user  : %o', userRecord);
 		this.logger.silly('Checking password');
@@ -85,22 +108,32 @@ export default class AuthService
 		
 		if (validPassword) 
 		{
-			this.logger.silly('Password is valid!');
-			this.logger.silly('Generating JWT');
-			const token = this.generateToken(userRecord);
-
-			var jsonString 	= JSON.stringify(userRecord);
-			var user 		= JSON.parse(jsonString);
-			
-			Reflect.deleteProperty(user, 'password');
-			Reflect.deleteProperty(user, 'salt');
-			
-			return { user, token };
+			return this.generateLoginReturn(userRecord);
 		} 
 		else 
 		{
 			throw new Error('Invalid Password');
 		}
+	}
+	
+	public async simpleLogin(uniqId: string)
+	{
+		
+	}
+	
+	private generateLoginReturn(userRecord)
+	{
+		this.logger.silly('Password is valid!');
+		this.logger.silly('Generating JWT');
+		const token = this.generateToken(userRecord);
+
+		var jsonString 	= JSON.stringify(userRecord);
+		var user 		= JSON.parse(jsonString);
+		
+		Reflect.deleteProperty(user, 'password');
+		Reflect.deleteProperty(user, 'salt');
+		
+		return { user, token };
 	}
 
 	private generateToken(user) 

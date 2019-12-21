@@ -22,7 +22,28 @@
 						input.form-control(type="text", name="title", placeholder="Titre du contenu ( usage interne uniquement )" value=`${content.title}`)
 					else
 						input.form-control(type="text", name="title", placeholder="Titre du contenu ( usage interne uniquement )")
-					
+				
+				.form-group
+					label.control-label Famille
+					select.form-control(name="theme")
+						option(value=0) - Sélectionner -
+							each theme in themes
+								if content && theme.id == content.themeId
+									option(value=theme.id, selected="selected")  #{theme.title}    
+								else
+									option(value=theme.id) #{theme.title}    
+				
+				.form-group
+					label.control-label Thème
+					select.form-control(name="category")
+						option(value=0) - Sélectionner -
+							each category in categories
+								if content && category.id == content.categoryId
+									option(value=category.id, selected="selected")  #{category.title}    
+								else
+									option(value=category.id) #{category.title}    
+							
+										
 				.form-group
 					label.control-label Contenu
 					

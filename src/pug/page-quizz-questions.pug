@@ -31,7 +31,8 @@ block content
 						thead
 							tr
 								th Titre
-								th Categorie
+								th Famille
+								th Thèmatique
 								th Photo
 								th Date de création
 								th Date de mise à jour
@@ -41,11 +42,13 @@ block content
 							each question in questions
 								tr
 									td #{question.title}
+									td #{question.itsTheme ? question.itsTheme.title : null}
 									td #{question.itsQuestionCategory ? question.itsQuestionCategory.title : null}
 									td
 										if question.picture && question.picture.path
-											//- Going back to the root to get the picture using ../
-											img.pic-image-box(src=`../${question.picture.path}`)
+											img.pic-image-box(src=`/${question.picture.path}`)
+										else if question.defaultPicturePath
+											img.pic-image-box(src=`/${question.defaultPicturePath}`)
 									td #{prettyDate(question.createdAt)}
 									td #{prettyDate(question.updatedAt)}
 									td
@@ -68,9 +71,9 @@ block content
 
 block specific-js
 	// Data table plugin
-	script(type='text/javascript', src="js/plugins/jquery.dataTables.min.js")
-	script(type='text/javascript', src="js/plugins/dataTables.bootstrap.min.js")
-	script(type='text/javascript', src="js/plugins/sweetalert.min.js")
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
 	script(type='text/javascript').
 		$('#questionsDataTable').DataTable();
 		$('.delete-item').click(function(){

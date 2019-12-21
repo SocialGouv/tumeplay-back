@@ -7,29 +7,23 @@ export default ( sequelize, type) => {
 			primaryKey 		: true,
 			autoIncrement	: true
 		},
-		title		: DataTypes.STRING,
-		published	: DataTypes.BOOLEAN,
-		deleted		: DataTypes.BOOLEAN,
-		pictureId	: {
-			type	  : DataTypes.INTEGER,
-			reference : {
-				model	: 'picture',
-				key 	: 'id'
-			}
+		isDefaultData:	{
+			type: DataTypes.BOOLEAN,
+			allowNull: true,
+			defaultValue: false
 		},
-		themeId	: {
-			type	  : DataTypes.INTEGER,
-			reference : {
-				model	: 'thematique',
-				key 	: 'id'
-			}
-		}
+		title				: 	DataTypes.STRING,
+		published			: 	{
+			type: DataTypes.BOOLEAN,
+			allowNull: true,
+			defaultValue: false
+		},
+		deleted				: 	{
+			type: DataTypes.BOOLEAN,
+			allowNull: true,
+			defaultValue: false
+		},		
 	});
-
-	// QuestionCategoryModel.associate = function(models) {
-	// 	console.info('NOW Associating question category with pic');
-	// 	QuestionCategoryModel.belongsTo(models.picture, {foreignKey: 'pictureId', as: 'pictures'});
-	// };
 
 	return QuestionCategoryModel;
 };

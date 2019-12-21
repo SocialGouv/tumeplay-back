@@ -22,34 +22,5 @@ export default (app: Router) => {
       return next(e);
     }
   });
-
-  route.post(
-    '/newShippingMode',
-    celebrate(
-      {
-        body: Joi.object(
-          {
-            title: Joi.string().required()
-          }
-        ),
-      }),
-    async (req: Request, res: Response, next: NextFunction) => {
-      const logger: any = Container.get('logger');
-      logger.debug('Calling API newShippingMode endpoint with body: %o', req.body);
-
-      try {
-        const shippingModeItem: IShippingModeDTO = {
-          ...req.body
-        };
-        const ShippingModeService: any = Container.get('shippingModeModel')
-        const shippingMode = await ShippingModeService.create(shippingModeItem);
-        return res.json({ shippingMode }).status(200);
-      }
-      catch (e) {
-        logger.error('🔥 error: %o', e);
-        return next(e);
-      }
-    },
-  );
-
+    
 };
