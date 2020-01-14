@@ -1,4 +1,4 @@
-import { Router } 	from 'express';
+import { Router, Request, Response } from 'express';
 import auth 		from './routes/auth';
 import box 			from './routes/boxs';
 import contents 	from './routes/contents'
@@ -23,7 +23,12 @@ export default () => {
 
 	shippingMode(app);	
 	thematiques(app);
-	user(app);   
+	user(app);
+	
+		
+	app.get('/ready',(req: Request, res: Response) => {
+	    return res.json({}).status(200);
+	});   
 	
 	return app
 }

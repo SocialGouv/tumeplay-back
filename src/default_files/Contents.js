@@ -206,7 +206,7 @@ const contents = [
     picture: 'LPF-photocontenu-fantasme.jpg',
     title: "Avoir des fantasmes, c'est ok ?",
     text:
-      "Les fantasmes, c'est tout ce qu'on peut imaginer et qui provoque notre excitation sexuelle. Des fantasmes, tout le monde peut en avoir. Ou pas. Pas de règle en la matière. On peut s'imaginer dans telle ou telle position, dans tel ou tel lieu, avec tel\u0095le\u0095s partenaire\u0095s. Et ça n'a rien de grave."
+      "Les fantasmes, c'est tout ce qu'on peut imaginer et qui provoque notre excitation sexuelle. Des fantasmes, tout le monde peut en avoir. Ou pas. Pas de règle en la matière. On peut s'imaginer dans telle ou telle position, dans tel ou tel lieu, avec tel\u0095le\u0095s partenaire\u0095s. Et ça n'a rien de grave.",
   },
   {
     key: 20,
@@ -926,7 +926,7 @@ const contents = [
     title:
       '1 préservatif interne + 1 préservatif externe = 2x plus de protection ?',
     text:
-      "Il ne faut jamais utiliser 2 preservatifs en même temps que ce soit un ou deux préservatifs exterrne (\"masculin\") et un préservatif interne (\"féminin\") en même temps. Ça risquerait de les déchirer. Petite astuce pour le préservatif interne : bien frotter l'emballage entre les mains avant de l'ouvrir pour bien répartir le lubrifiant.",
+      'Il ne faut jamais utiliser 2 preservatifs en même temps que ce soit un ou deux préservatifs exterrne ("masculin") et un préservatif interne ("féminin") en même temps. Ça risquerait de les déchirer. Petite astuce pour le préservatif interne : bien frotter l\'emballage entre les mains avant de l\'ouvrir pour bien répartir le lubrifiant.',
   },
   {
     key: 85,
