@@ -1,32 +1,32 @@
 extends layouts/_layout.pug
 
 block variables
-	- var activePage = 'page-produit-edit'
+	- var activePage = 'page-poi-edit'
 	// - var activeGroup = 'tables'
 
 block title
-	if produit
-		title Modifier un produit - Tumeplay
+	if poi
+		title Modifier un POI - Tumeplay
 	else
-		title Créer un produit - Tumeplay
+		title Créer un POI - Tumeplay
 
 block content
 	.app-title
 		div
 			h1
 				i.fa.fa-book
-				|  produit
-			p Liste des produits accessibles dans la section "Informations"
+				|  POI
+			p Liste des POI accessibles via l'application
 
 		ul.app-breadcrumb.breadcrumb.side
 			li.breadcrumb-item
 				i.fa.fa-home.fa-lg
 			li.breadcrumb-item.active
-				a(href="#") produit
+				a(href="#") POI
 
 	.row
 		.col-md-12
-			include ./forms/product/_form.pug
+			include ./forms/poi/_form.pug
 block specific-js
 	// Data table plugin
 	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")

@@ -157,7 +157,7 @@ export default (app: Router) => {
 					handleProducts(box, req.body.selectedProduct, req.body.qty);	
 				}
 				
-				return res.redirect(boxs_URL);
+				return res.redirect(ROOT_URL);
 
 			}
 			catch (e) {
@@ -231,7 +231,7 @@ export default (app: Router) => {
 				
 				await boxServiceInstance.update(documentId, productItem);
 
-				return res.redirect(boxs_URL);
+				return res.redirect(ROOT_URL);
 
 			}
 			catch (e) {
@@ -252,7 +252,7 @@ export default (app: Router) => {
 			                                                                 
 			await boxServiceInstance.update(documentId, { deleted: true });
 
-			return res.redirect(boxs_URL);
+			return res.redirect(ROOT_URL);
 		}
 		catch (e) {
 			throw e;

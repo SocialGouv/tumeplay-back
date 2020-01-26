@@ -19,7 +19,7 @@ export default async ({ expressApp }) => {
 			},
 			{
 				name: 'contentModel',
-				model: models.contentModel
+				model: models.contentModel    
 			},
 			{
 				name: 'questionModel',
@@ -72,6 +72,10 @@ export default async ({ expressApp }) => {
 			{
 				name: 'boxProductModel',
 				model: models.boxProductModel
+			},
+			{
+				name: 'poiModel',
+				model: models.poiModel
 			}
 		],
 	});

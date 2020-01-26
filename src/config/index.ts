@@ -17,6 +17,18 @@ export default {
   databaseForce 	: process.env.DATABASE_FORCE,
   jwtSecret			: process.env.JWT_SECRET,   
   
+  // Email setups:
+  gmailSetup: {
+    serviceName: process.env.GMAIL_SERVICE_NAME,
+    serviceHost: process.env.GMAIL_SERVICE_HOST,
+    serviceSecure: (process.env.GMAIL_SERVICE_SECURE==='true'),
+    servicePort: process.env.GMAIL_SERVICE_PORT,
+    username: process.env.GMAIL_USER_NAME,
+    password: process.env.GMAIL_USER_PASSWORD,
+  },
+  
+  // -----------
+
   defaultAdminLogin : process.env.DEFAULT_ADMIN_LOGIN,
   defaultAdminPassword : process.env.DEFAULT_ADMIN_PASSWORD,
   

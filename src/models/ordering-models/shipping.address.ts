@@ -13,7 +13,7 @@ export default (sequelize, type) => {
 		cp: DataTypes.STRING,
 		city: DataTypes.STRING,
 		concatenation: DataTypes.STRING,
-
+		zipCode: DataTypes.STRING,
 		userId: {
 			type: DataTypes.INTEGER,
 			reference: {

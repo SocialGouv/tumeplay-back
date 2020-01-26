@@ -24,9 +24,13 @@ export default (app: Router) => {
 		{
           where: {
             deleted: false,
-            active: true
+            active: true,
+            
           },
           include: ['picture'],          
+          order  : [
+			['id', 'ASC']
+		  ]
         }  
       );
       

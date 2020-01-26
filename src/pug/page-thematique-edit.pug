@@ -8,14 +8,14 @@ block title
 	if thematique
 		title Modifier un thematique - Tumeplay
 	else
-		title Créer un thematique - PassPreservatif
+		title Créer un thematique - Tumeplay
 
 block content
 	.app-title
 		div
 			h1
 				i.fa.fa-book
-				|  thematique
+				|  Thématique
 			p Liste des thematiques accessibles dans la section "Informations"
 
 		ul.app-breadcrumb.breadcrumb.side
@@ -32,4 +32,4 @@ block specific-js
 	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
 	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
 	script(type='text/javascript').
-		$('#contentsDataTable').DataTable();
+		$('#poiDataTable').DataTable();

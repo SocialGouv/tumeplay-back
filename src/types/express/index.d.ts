@@ -10,6 +10,7 @@ import { IProduct } from '../../interfaces/IProduct';
 import { IShippingMode } from '../../interfaces/IShippingMode';
 import { IOrder } from '../../interfaces/IOrder';
 import { IProductOrder } from '../../interfaces/IProductOrder';
+import { IPoi }	from '../../interfaces/IPoi';
 
 declare global 
 {
@@ -32,5 +33,6 @@ declare global
     export type ShippingModeModel = Model<IShippingMode>;
     export type OrderModel = Model<IOrder>;
     export type ProductOrderModel = Model<IProductOrder>;
+    export type PoiModel = Model<IPoi>;
   }
 }

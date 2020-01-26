@@ -74,7 +74,7 @@
 						
 									.col-md-4
 										label.control-label Quantité
-										if box && currentProducts[loopCounter]
+										if box && currentProducts[loopCounter] && currentProducts[loopCounter].qty
 											input.form-control(type="text", name="qty[]", value=`${ currentProducts[loopCounter].qty }`, placeholder="Quantité")
 										else
 											input.form-control(type="text", name="qty[]", placeholder="Quantité")

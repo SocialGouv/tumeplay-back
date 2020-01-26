@@ -1,11 +1,11 @@
 import { Container } from 'typedi';
 import { Router, Request, Response, NextFunction } from 'express';
 import middlewares from '../middlewares';
-import { IThematique } from '../../interfaces/IThematique';
+import { IPoi } from '../../interfaces/IPoi';
 const route = Router();
 
 export default (app: Router) => {
-	app.use('/thematiques', route);
+	app.use('/poi', route);
 
 
 	route.get('/', async (req: Request, res: Response, next: NextFunction) => {
@@ -15,10 +15,7 @@ export default (app: Router) => {
 
 			const thematiques: IThematique[] = await thematiqueService.findAll({
 				where: { active: true },
-				include: ['picture'],
-				order  : [
-					['id', 'ASC']
-				]
+				include: ['picture']
 			});
 
 			  

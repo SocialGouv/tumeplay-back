@@ -34,7 +34,7 @@ export default class ShippingModeService {
 
     public async findById(id: number): Promise<{ shippingMode: IShippingMode }> {
         try {
-            this.logger.silly('Creating shippingMode');
+            this.logger.silly('Searching shippingMode');
             const shippingMode: IShippingMode = await this.shippingModeModel.findOne(
                 {
                     where: { id }

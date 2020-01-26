@@ -1,0 +1,105 @@
+.row
+	.col-md-12
+		.tile
+			if content 
+				h3.tile-title Modifier un POI
+			else
+				h3.tile-title Créer un nouveau POI
+			
+			if content
+				- var targetUrl = "/poi/edit/" + poi.id
+			else
+				- var targetUrl = "/poi/add"
+				
+			form.poi-form#myform(action=`${targetUrl}`, method="POST")
+				
+				if poi
+					input(type="hidden" value=`${poi.id}`)
+								
+				.form-group
+					label.control-label Titre
+					if poi
+						input.form-control(type="text", name="name", placeholder="Nom du POI" value=`${poi.title}`)
+					else
+						input.form-control(type="text", name="name", placeholder="Nom du POI")
+				
+				.form-group
+					label.control-label Type
+				
+					select.col-md-3.form-control(name="type")
+						option(value=0) - Sélectionner -
+							each type in types
+								if poi && type == poi.type
+									option(value=type, selected="selected")  #{type}
+								else
+									option(value=type) #{type}
+				    
+						
+				.form-group
+					label.control-label Description
+					
+					if poi
+						textarea.form-control(rows="20", name="text", placeholder="Description")=poi.description
+					else
+						textarea.form-control(rows="20", name="text", placeholder="Description")
+				
+				
+				.row
+					.col-md-6
+						.tile
+							label.control-label Adresse
+							
+							if poi
+								.form-group
+									input.form-control(type="text", name="street", placeholder="Numéro et Rue" value=`${poi.street}`)
+								.form-group
+									input.form-control(type="text", name="zipCode", placeholder="Code Postal" value=`${poi.zipCode}`)
+								.form-group
+									input.form-control(type="text", name="city", placeholder="Ville" value=`${poi.city}`)
+								
+							else
+								.form-group
+									input.form-control(type="text", name="street", placeholder="Numéro et Rue")
+								.form-group
+									input.form-control(type="text", name="zipCode", placeholder="Code Postal")
+								.form-group
+									input.form-control(type="text", name="city", placeholder="Ville")          
+							
+					.col-md-6
+						.tile
+							label.control-label Localisation
+							
+							if poi
+								.form-group
+									input.form-control(type="text", name="latitude", placeholder="Latitude" value=`${poi.latitude}`)
+								.form-group
+									input.form-control(type="text", name="longitude", placeholder="Longitude" value=`${poi.longitude}`)
+
+							else
+								.form-group
+									input.form-control(type="text", name="latitude", placeholder="Latitude")
+								.form-group
+									input.form-control(type="text", name="longitude", placeholder="Longitude")
+						
+				.animated-checkbox
+					label
+						if poi
+							input(type="checkbox" name="active" checked=poi.active)
+						else
+							input(type="checkbox" name="active")
+
+						span.label-text Actif
+	
+				.tile-footer
+					button.btn.btn-primary(type="submit")
+						i.fa.fa-fw.fa-lg.fa-check-circle
+						| Valider
+					| &nbsp;&nbsp;&nbsp;
+					a.btn.btn-secondary(href="/poi")
+						i.fa.fa-fw.fa-lg.fa-times-circle
+						| Annuler
+				br
+	.clearfix
+        
+
+block specific-js

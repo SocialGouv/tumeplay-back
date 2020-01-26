@@ -1,18 +1,18 @@
 extends layouts/_layout.pug
 
 block variables
-	- var activePage = 'page-shipping-mode'
+	- var activePage = 'page-poi'
 
 block title
-	title Types de livraison - Tumeplay
+	title Point d'Interêt ( POI ) - Tumeplay
 
 block content
 	.app-title
 		div
 			h1
 				i.fa.fa-book
-				|  Types de livraison
-			p Liste des type de livraisons
+				|  POI
+			p Liste des POI
 
 		ul.app-breadcrumb.breadcrumb.side
 			li.breadcrumb-item
@@ -20,38 +20,44 @@ block content
 			//li.breadcrumb-item
 			//	| Tables
 			li.breadcrumb-item.active
-				a(href="#") Types de livraison
+				a(href="#") POI
 
 	.row
 		.col-md-12
 			.tile
 				.tile-body
-					table.table.table-hover.table-bordered#shippingModesDataTable
+					table.table.table-hover.table-bordered#poiDataTable
 						thead
 							tr
-								th Titre
+								th Nom
+								th Type
+								th Rue
+								th Code Postal
 								th Date de création
 								th Date de mise à jour
 								th Actions
 						tbody
-							each shippingMode in shippingModes
+							each poi in pois
 								tr
-									td #{shippingMode.title}
-									td #{prettyDate(shippingMode.createdAt)}
-									td #{prettyDate(shippingMode.updatedAt)}
+									td #{poi.name}
+									td #{poi.type}
+									td #{poi.street}
+									td #{poi.zipCode}
+									td #{prettyDate(poi.createdAt)}
+									td #{prettyDate(poi.updatedAt)}
 									td
-										a(class='btn btn-primary' href="/orders/shipping-mode/edit/" + shippingMode.id data-id=`${shippingMode.id}`) 
+										a(class='btn btn-primary' href="/poi/edit/" + poi.id data-id=`${poi.id}`) 
 											i.fa.fa-fw.fa-lg.fa-check-circle 
 											| Éditer
 										| &nbsp;&nbsp;&nbsp;
-										form(action="/orders/shipping-mode/delete/" + shippingMode.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+										form(action="/poi/delete/" + poi.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
 											button(class='delete-item btn btn-secondary' type="submit") 
 												i.fa.fa-fw.fa-lg.fa-times-circle
 												| Supprimer
 				.tile-footer
-					a(class='btn btn-primary' href="/orders/shipping-mode/add") 
+					a(class='btn btn-primary' href="/poi/add") 
 						i.fa.fa-fw.fa-lg.fa-plus 
-						| Créer un type de livraison						
+						| Créer POI						
 
 block specific-js
 	// Data table plugin
@@ -61,8 +67,8 @@ block specific-js
 	script(type='text/javascript').
 		function deleteConfirmation(form){
 			swal({
-				title				: "Supprimer le type de livraison ?",
-				text				: "La suppression d'un type de livraison est définitive.",
+				title				: "Supprimer le POI ?",
+				text				: "La suppression d'un POI est définitive.",
 				type				: "warning",
 				showCancelButton	: true,
 				confirmButtonText	: "Supprimer",
@@ -84,4 +90,4 @@ block specific-js
 			});
 		}
 
-		$('#shippingModesDataTable').DataTable();
+		$('#poiDataTable').DataTable();

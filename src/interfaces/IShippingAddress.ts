@@ -6,6 +6,7 @@ export interface IShippingAddressInputDTO {
   cp: string;
   city: string;
   concatenation: string;
+  zipCode: string;
   userId: string;
 }
 

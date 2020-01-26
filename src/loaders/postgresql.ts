@@ -16,6 +16,8 @@ import ProductOrderModel from '../models/ordering-models/product.order';
 import BoxModel from '../models/box';
 import BoxProductModel from '../models/box.products';
 
+import PoiModel from '../models/poi'; 
+
 import config from '../config';
 import { Container } from 'typedi';
 import SyncDefaultData from '../services/synchronizer/sync-default-data';
@@ -49,6 +51,8 @@ export default async () => {
 
 	const Box = BoxModel(sequelize, Sequelize);
 	const BoxProducts = BoxProductModel(sequelize, Sequelize);
+	
+	const Poi = PoiModel(sequelize, Sequelize);
 	
 	// Setup of relationships
 	Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
@@ -120,6 +124,7 @@ export default async () => {
 	module.exports = ProductOrder;
 	module.exports = Box;
 	module.exports = BoxProducts;
+	module.exports = Poi;
 
 	return {
 		userModel: User,
@@ -137,5 +142,6 @@ export default async () => {
 		productOrderModel: ProductOrder,
 		boxModel: Box,
 		boxProductModel: BoxProducts,
+		poiModel: Poi,
 	};
 }
