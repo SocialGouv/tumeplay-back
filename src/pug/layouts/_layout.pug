@@ -1,11 +1,11 @@
 -function prettyDate(dateString){
 	//if it's already a date object and not a string you don't need this line:
 	-var date = new Date(dateString);
-	-var d = date.getDate();
-	-var mo = date.getMonth();
+	-var d = ( date.getDate() < 10 ) ? '0' + date.getDate() : date.getDate();
+	-var mo = ( ( date.getMonth() + 1 ) < 10 ) ? '0' + ( date.getMonth()+1) : (date.getMonth()+1);
 	-var y  = date.getFullYear();
-	-var h  = date.getHours();
-	-var m  = date.getMinutes();
+	-var h  = ( date.getHours() < 10 ) ? '0' + date.getHours() : date.getHours();
+	-var m  = ( date.getMinutes() < 10 ) ? '0' + date.getMinutes() : date.getMinutes();
 	-return d+'/'+mo+'/'+y+' '+h+':'+m;
 -}
 

@@ -78,7 +78,7 @@ export default class OrderService {
             const orderFound: IOrder = await this.orderModel.findOne(
                 {
                     where: { id },
-                    include: ['shippingMode', 'shippingAddress', 'profile', 'products', 'box']
+                    include: ['shippingMode', 'shippingAddress', 'profile', 'products', 'pickup', 'box']
                 }
             );
 
@@ -101,6 +101,8 @@ export default class OrderService {
                 shippingAddressConcatenation: orderFound.shippingAddress ? orderFound.shippingAddress.concatenation : null,
                 shippingModeText: orderFound.shippingMode ? orderFound.shippingMode.title : null,
                 products: orderFound.products,
+                pickup: orderFound.pickup,
+
                 box: orderFound.box,
             }
             
@@ -119,7 +121,7 @@ export default class OrderService {
             this.logger.silly('Finding all orders');
             let ordersResult: IOrder[] = await this.orderModel.findAll(
                 {
-                    include: ['shippingMode', 'shippingAddress', 'profile']
+                    include: ['shippingMode', 'shippingAddress', 'profile', 'pickup']
                 }
             );
             const orders: IOrderMainView[] = ordersResult.map(item => {
@@ -140,6 +142,7 @@ export default class OrderService {
                     userId: item.userId,
                     createdAt: item.createdAt,
                     updatedAt: item.updatedAt,
+                    pickup: item.pickup,
                     ...additional_fields
                 });
             });

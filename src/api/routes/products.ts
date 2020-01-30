@@ -23,6 +23,10 @@ export default (app: Router) => {
           include: ['picture']
         }
       );
+      products.map(function(product) {
+      	  product.shortTitle = product.shortDescription;
+		  return product;
+      })
       return res.json({ products }).status(200);
     }
     catch (e) {

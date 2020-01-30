@@ -26,7 +26,14 @@
 					| #{order.profileFullName}
 				p
 					b Addresse de livraison : 
-					| #{order.shippingAddressConcatenation}
+					if order.shippingModeText == 'pickup'
+						| #{order.pickup.name}
+						br 
+						| #{order.pickup.street}  
+						br 
+						| #{order.pickup.zipCode} #{order.pickup.city}  
+					else
+						| #{order.shippingAddressConcatenation}
 				p
 					b Type de livraison : 
 					| #{order.shippingModeText}

@@ -71,7 +71,7 @@ export default class PoiService {
             );
 
             if (!poi) {
-                throw new Error('ShippingMode cannot be found');
+                throw new Error('POI cannot be found');
             }
 
             return { poi };
@@ -81,13 +81,35 @@ export default class PoiService {
             throw e;
         }
     }
+    
+    public async findByExternalNumber(externalNumber: number): Promise<{ poi: IPoi }> {
+        try {
+            this.logger.silly('Searching POI');
+            const poi: IPoi = await this.poiModel.findOne(
+                {
+                    where: { externalNumber: externalNumber }
+                }
+            );
+
+            if (!poi) {
+                throw new Error('POI cannot be found');
+            }
+
+            return { poi };
+        }
+        catch (e) {
+            this.logger.error(e);
+            
+            return false;
+        }
+    }
 
                                 
-	public async findAll(): Promise<{ questionCategories: IQuestionCategory[] }> {
+	public async findAll(): Promise<{ questionCategories: IPoi[] }> {
 		try {
-			this.logger.silly('Finding category');
-			const questionCategories: IQuestionCategory[] = await this.categoryModel.findAll();
-			return { questionCategories };
+			this.logger.silly('Finding POI');
+			const pois: IPoi[] = await this.poiModel.findAll();
+			return { pois };
 		}
 		catch (e) {
 			this.logger.error(e);

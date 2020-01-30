@@ -78,7 +78,7 @@ export default (app: Router) => {
 			try {
 				let poiItem: IPoiInputDTO = {
 					name		: req.body.name,
-					description	: req.body.description,
+					description	: req.body.text,
 					type		: req.body.type,
 					zipCode		: req.body.zipCode,
 					street		: req.body.street,

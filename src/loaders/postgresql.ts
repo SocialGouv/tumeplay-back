@@ -82,6 +82,8 @@ export default async () => {
 	Order.belongsTo(ShippingAddress, { foreignKey: 'shippingAddressId', as: 'shippingAddress' });
 	Order.belongsTo(Profile, { foreignKey: 'profileId', as: 'profile' });
 	Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+	Order.belongsTo(Poi, { foreignKey: 'pickupId', as: 'pickup' });
+	
 	Order.belongsToMany(Product, {
 		through: ProductOrder,
 		as: 'products',

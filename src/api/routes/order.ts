@@ -26,8 +26,9 @@ export default (app: Router) => {
 					{
 						deliveryMode: Joi.string(),
 						userAdress: Joi.object(),
+						selectedPickup: Joi.object(),
 						box: Joi.number().integer(),
-						products: Joi.array().items(Joi.number()).allow(null)
+						products: Joi.array().items(Joi.object()).allow(null)
 					}
 				),
 			}),
@@ -51,8 +52,10 @@ export default (app: Router) => {
 			const userId = req.user.id;
 			const userAdress = req.body.userAdress;
 			const boxId = req.body.box;
+			const selectedPickup = req.body.selectedPickup;
 			const products = req.body.products;
 			const deliveryMode = req.body.deliveryMode;
+			const localProducts = [];
 
 			const logger: any = Container.get('logger');
 			const BoxModelService = Container.get(BoxService);
@@ -78,7 +81,7 @@ export default (app: Router) => {
 			// Step 1 : Load box
 			const { box } = await BoxModelService.findById(boxId);
 
-			logger.debug("Local Box : %o", box);
+			
 
 			if (!box) {
 				throw Exception('No box');
@@ -96,11 +99,31 @@ export default (app: Router) => {
 
 			// Step 3 && Step 4
 			if (boxProducts.length == 0) {
-				boxProducts = await ProductService.findAll({
+				const productsIds = [];
+				
+				logger.debug("PRODUCTS  : %o", products);
+				for( let i = 0; i < products.length; i++ )
+				{
+					productsIds.push(products[i].id);
+					localProducts[products[i].id] = products[i].qty;
+				}
+				
+				
+				logger.debug("ProductIDS : %o", localProducts);
+				logger.debug("ProductIDS 2 : %o", productsIds);
+
+				const allProducts = await ProductService.findAll({
 					where: {
-						id: products,
+						id: productsIds,
 					}
 				})
+				
+				allProducts.forEach(function(product) {
+					boxProducts.push({
+						productId: product.id,
+						qty: localProducts[product.id],
+					});
+				});
 			}
 
 			if (boxProducts.length == 0) {
@@ -167,7 +190,8 @@ export default (app: Router) => {
 				shippingAddressId: localUserAdress.id,
 				profileId: userProfile.id,
 				userId: userId,
-				boxId: box.id
+				boxId: box.id,
+				pickupId: ( deliveryMode == 'pickup' ? selectedPickup.id : null )
 			}
 
 			const order = await OrderModelService.create(orderData);
@@ -177,21 +201,17 @@ export default (app: Router) => {
 			const _orderProducts = [];
 
 			boxProducts.forEach(product => {
+				logger.debug("Local Box : %o", product);
+				
 				_orderProducts.push({
 					productId: product.productId,
 					orderId: order.id,
-					qty: (product.qty ? product.qty : (product.defaultQty ? product.defaultQty : null)),
+					qty: (localProducts[product.productId] ? localProducts[product.productId] : (product.qty ? product.qty : (product.defaultQty ? product.defaultQty : null))),
 				})
 			});
 
 			await OrderProductModelService.bulkCreate(_orderProducts);
-
-
-			logger.debug('Calling API newOrder endpoint with body: %o', req.body);
-
-			const _jwt = middlewares.isAuth;
-			logger.debug('CurrentUser : %o', req.user);
-
+                
 			// Step 9. Send email (confirmation of order)
 			try {
 				const gmailConfig = config.gmailSetup;
@@ -218,18 +238,7 @@ export default (app: Router) => {
 			}
 			
 
-			return res.json().status(200);
-			/*
-			try {
-				const orderItem: IOrderInputDTO = req.body;
-				const OrderModel_Service: OrderService = Container.get(OrderService)
-				const { order } = await OrderModel_Service.create(orderItem);
-				return res.json({ order }).status(200);
-			}
-			catch (e) {
-				logger.error('🔥 error: %o', e);
-				return next(e);
-			} */
+			return res.json().status(200);			
 		},
 	);
 

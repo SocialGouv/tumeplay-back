@@ -8,29 +8,41 @@ export default (app: Router) => {
 	app.use('/poi', route);
 
 
-	route.get('/', async (req: Request, res: Response, next: NextFunction) => {
+	route.get('/pickup', async (req: Request, res: Response, next: NextFunction) => {
 		const logger: any = Container.get('logger');
 		try {
-			const thematiqueService: any = Container.get('thematiqueModel')
+			const poiService: any = Container.get('poiModel')
 
-			const thematiques: IThematique[] = await thematiqueService.findAll({
-				where: { active: true },
-				include: ['picture']
+			const points : IPoi[] = await poiService.findAll({
+				where: { active: true, type: 'pickup' },
+				
 			});
-
-			  
-		    let parsedThematiques = thematiques.map((thematique) => {
+			
+			
+		    let parsedPoints = points.map((point) => {
 		        return (
 		            {
-		                key: thematique.id,
-					    id: thematique.id,
+		                key: point.id,
+					    id: point.id,
+					    name: point.name,
+					    description: point.description,
+					    zipCode: point.zipCode,
+					    street: point.street,
+					    city: point.city,
+					    coordinates: {
+							latitude:  point.latitude,
+							longitude: point.longitude
+					    },
+					    horaires: JSON.parse(point.horaires),
 					    
-					    picture: ( thematique.picture ? thematique.picture.destination + '/' + thematique.picture.filename : false ),
-					    value: thematique.title,           
+					    
 		            }
 		        );
 		    });
-			return res.json( parsedThematiques ).status(200);
+            
+			
+			          
+			return res.json( parsedPoints ).status(200);
 		}
 		catch (e) {
 			logger.error('🔥 error: %o', e);
@@ -58,4 +70,9 @@ export default (app: Router) => {
 			return next(e);
 		}
 	});
+	
+	function prepareTimetableForDisplay(timetables)
+	{
+		
+	}
 };

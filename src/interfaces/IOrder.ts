@@ -13,7 +13,7 @@ interface IOrderMain extends ICommonDates {
   shippingAddressId: number;
   profileId: number;
   userId: number;
-
+  pickupId: number;
 }
 
 interface IOrderIncludedFields {

@@ -46,6 +46,13 @@ export default (sequelize, type) => {
 				key: 'id'
 			}
 		},
+		pickupId: {
+			type: DataTypes.INTEGER,
+			reference: {
+				model: 'poi',
+				key: 'id'
+			}
+		},
 		userId: {
 			type: DataTypes.INTEGER,
 			reference: {

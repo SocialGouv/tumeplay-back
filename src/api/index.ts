@@ -9,6 +9,7 @@ import quizzs   	from './routes/quizzs'
 import shippingMode from './routes/shipping-mode';      
 import thematiques  from './routes/thematiques';         
 import user 		from './routes/user';
+import poi 			from './routes/poi';
 
 // guaranteed to get dependencies
 export default () => {
@@ -24,6 +25,7 @@ export default () => {
 	shippingMode(app);	
 	thematiques(app);
 	user(app);   
+	poi(app);
 	
 	return app
 }

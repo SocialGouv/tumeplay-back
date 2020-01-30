@@ -14,7 +14,9 @@ export default ( sequelize, type) => {
 		street				:   DataTypes.STRING,
 		city 				:   DataTypes.STRING,
 		latitude	 		:	DataTypes.FLOAT,
-		longitude	 		:	DataTypes.FLOAT,       
+		longitude	 		:	DataTypes.FLOAT,
+		horaires 			: 	DataTypes.STRING(1000),   
+		externalNumber 		: 	DataTypes.STRING,    
 		active				: 	DataTypes.BOOLEAN,
 	});
 	return PoiModel;

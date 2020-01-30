@@ -46,7 +46,15 @@ block content
 									td #{order.id}
 									td #{order.orderDate ? prettyDate(order.orderDate) : ""}
 									td #{order.profileFullName}
-									td #{order.shippingAddressConcatenation}
+									if order.shippingModeText == 'pickup'
+										td 
+											| #{order.pickup.name}
+											br 
+											| #{order.pickup.street}  
+											br 
+											| #{order.pickup.zipCode} #{order.pickup.city}  
+									else
+										td #{order.shippingAddressConcatenation}
 									td #{order.shippingModeText}
 									td #{prettyDate(order.createdAt)}
 									td #{prettyDate(order.updatedAt)}
