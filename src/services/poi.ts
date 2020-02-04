@@ -87,7 +87,8 @@ export default class PoiService {
             this.logger.silly('Searching POI');
             const poi: IPoi = await this.poiModel.findOne(
                 {
-                    where: { externalNumber: externalNumber }
+                    where: { externalNumber: externalNumber },
+                    raw: true
                 }
             );
 

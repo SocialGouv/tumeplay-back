@@ -27,6 +27,11 @@ export default {
     password: process.env.GMAIL_USER_PASSWORD,
   },
   
+  mondialRelay : {
+	websiteId: process.env.MONDIALRELAY_ID,
+	websiteKey: process.env.MONDIALRELAY_SECRET
+  },
+  
   // -----------
 
   defaultAdminLogin : process.env.DEFAULT_ADMIN_LOGIN,

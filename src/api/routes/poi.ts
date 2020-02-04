@@ -2,24 +2,54 @@ import { Container } from 'typedi';
 import { Router, Request, Response, NextFunction } from 'express';
 import middlewares from '../middlewares';
 import { IPoi } from '../../interfaces/IPoi';
+import { Op } from 'sequelize';
+import MondialRelayService from '../../services/mondial.relay';
+
 const route = Router();
 
 export default (app: Router) => {
 	app.use('/poi', route);
 
 
-	route.get('/pickup', async (req: Request, res: Response, next: NextFunction) => {
+	route.get('/pickup/:latitude/:longitude', async (req: Request, res: Response, next: NextFunction) => {
 		const logger: any = Container.get('logger');
 		try {
-			const poiService: any = Container.get('poiModel')
+			const mondialRelay: any = Container.get(MondialRelayService);
 
+			const myPoints = await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
+			
+			console.log("MY POINTS");
+			console.log(myPoints);
+			
+			const poiService: any = Container.get('poiModel')
+			const bounds = computeRoughCoordinates(req.params.latitude, req.params.longitude);
 			const points : IPoi[] = await poiService.findAll({
-				where: { active: true, type: 'pickup' },
-				
+				where: { 
+					active: true, 
+					type: 'pickup',
+					latitude: {
+						[Op.gte] : bounds.lat_min,
+						[Op.lte] : bounds.lat_max,
+					},
+					longitude:{
+						[Op.gte] : bounds.lon_min,
+						[Op.lte] : bounds.lon_max,
+					} 
+				},
 			});
 			
 			
 		    let parsedPoints = points.map((point) => {
+			    const localTimetable  = JSON.parse(point.horaires);
+			    const parsedTimetable = {};
+			    
+			    Object.keys(localTimetable).forEach(function(key) {
+					parsedTimetable[key] = {
+						am : formatTimetableRow(localTimetable[key]['am']),
+						pm : formatTimetableRow(localTimetable[key]['pm'])
+					};
+			    });
+			    
 		        return (
 		            {
 		                key: point.id,
@@ -33,7 +63,7 @@ export default (app: Router) => {
 							latitude:  point.latitude,
 							longitude: point.longitude
 					    },
-					    horaires: JSON.parse(point.horaires),
+					    horaires: parsedTimetable,
 					    
 					    
 		            }
@@ -71,8 +101,30 @@ export default (app: Router) => {
 		}
 	});
 	
-	function prepareTimetableForDisplay(timetables)
+	function formatTimetableRow(row)
 	{
-		
+		let _return = null;
+		if( row != null )
+		{
+			let splitted = row.split('-');
+			
+			_return = splitted[0].substr(0, 2) + "h" + splitted[0].substr(2) + ' - ' + splitted[1].substr(0, 2) + "h" + splitted[1].substr(2);
+		}
+		return _return;
+	}
+	
+	// Compute a rough square of 30km around a geopoint
+	// Based on the fact that 1 degree is *roughly* 111.2km
+	function computeRoughCoordinates(latitude, longitude)
+	{
+		var lat_change = 30/111.2;
+	     var lon_change = Math.abs(Math.cos(latitude*(Math.PI/180)));
+	     var bounds = { 
+	         lat_min : latitude - lat_change,
+	         lon_min : longitude - lon_change,
+	         lat_max : latitude + lat_change,
+	         lon_max : longitude + lon_change
+	     };
+	     return bounds;
 	}
 };
