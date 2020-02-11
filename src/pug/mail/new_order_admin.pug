@@ -1,0 +1,46 @@
+extends _layout.pug
+
+block title
+	| Nouvelle commande
+	
+block content
+
+	.col-12
+		.subtitle Bonjour,
+		br
+		.text Voici le détail de la nouvelle commande à préparer :
+		br
+		.text Box « #{boxName} » 
+		br
+		.text Contenu
+			each product in products
+				.text -  #{product.title} : #{product.product_order.qty}
+									
+		br
+		.text Mode de livraison : #{shippingMethodReadable}
+		br
+		.text Adresse de livraison :
+		.text
+			if shippingMethod == 'pickup'
+				| #{pickup.name}
+				br 
+				| #{pickup.street}  
+				br 
+				| #{pickup.zipCode} #{pickup.city}  
+			else
+				| #{firstName} #{name}
+				br 
+				| #{shippingAddress.street}  
+				br 
+				| #{shippingAddress.zipCode} #{shippingAddress.city}  
+		
+		br
+		br
+	.clearfix
+	
+	.col-12
+		.text Merci !
+		br 
+		.text Cordialement,
+		.text L'équipe Tumeplay
+		br

@@ -3,22 +3,19 @@ import ProductModel from '../models/ordering-models/product.order';
 import { IProductOrder, IProductOrderInputDTO } from '../interfaces/IProductOrder';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 
-
 @Service()
 export default class ProductOrderService {
-    constructor(
+    public constructor(
         @Inject('productOrderModel') private productOrderModel: any,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
-    ) {
-
-    }
+    ) {}
 
     public async create(productOrderInput: IProductOrderInputDTO): Promise<{ productOrder: IProductOrder }> {
         try {
             this.logger.silly('Creating productOrder');
             const productOrder: IProductOrder = await this.productOrderModel.create({
-                ...productOrderInput
+                ...productOrderInput,
             });
 
             if (!productOrder) {
@@ -26,14 +23,15 @@ export default class ProductOrderService {
             }
 
             return { productOrder };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
     }
 
-    public async bulkCreate(productOrderInputList: IProductOrderInputDTO[]): Promise<{ productOrders: IProductOrder[] }> {
+    public async bulkCreate(
+        productOrderInputList: IProductOrderInputDTO[],
+    ): Promise<{ productOrders: IProductOrder[] }> {
         try {
             this.logger.silly('Creating productOrder');
             const productOrders: IProductOrder[] = await this.productOrderModel.bulkCreate(productOrderInputList);
@@ -43,11 +41,9 @@ export default class ProductOrderService {
             }
 
             return { productOrders };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
     }
-
 }

@@ -1,0 +1,200 @@
+
+body 
+{
+	max-width: 600px;
+	margin: 0 auto;
+	width: 100%;
+	padding-top: 30px;
+}
+
+.title
+{
+	font-family: 'CarterOne-Regular';
+	font-size: 24px;
+}
+
+.text-center
+{
+	text-align: center;
+}
+
+.underline-wrapper
+{
+	position: relative;
+}
+
+
+.header-picture
+{
+	max-width: 170px;
+	margin-bottom: 30px;
+}
+
+.main-subtitle 
+{
+	font-family: 'CarterOne-Regular';
+	font-size: 18px;
+	display: inline-block;
+	margin-bottom: 12px;
+}
+
+.underline
+{
+    display: inline-block;
+    height: 3px;
+    width: 100%;
+    background-color: #FDBC11;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+
+.subtitle 
+{
+	color: #C80352;
+	font-family: 'Abel-Regular';
+	font-size: 20px;
+}
+
+.text
+{
+	font-family: 'Chivo-Regular';
+	font-size: 13px;
+	line-height: 22px;
+}
+
+.bold
+{
+	font-family: 'Chivo-Bold';
+}
+
+.clearfix
+{
+	clear: both;
+}
+
+.instagram-icon
+{
+	height: 20px;
+	width: 20px;
+	margin-left: 4px;
+	margin-right:4px;
+	vertical-align: middle;
+}
+
+.col-1,
+.col-2,
+.col-3,
+.col-4,
+.col-5,
+.col-6,
+.col-7,
+.col-8,
+.col-9,
+.col-10,
+.col-11,
+.col-12
+{
+	padding: 10px;
+	float: left;
+	box-sizing: border-box;
+}
+
+.col-1
+{
+	width: 8.333333333%; 
+}
+.col-2
+{
+	width: 16.66666666%; 
+}
+.col-3
+{
+	width: 24.99999999%; 
+}
+.col-4
+{
+	width: 33.33333333%; 
+}
+.col-5
+{
+	width: 41.66666666%; 
+}
+.col-6
+{
+	width: 49.99999999%; 
+}
+.col-7
+{
+	width: 58.33333331%; 
+}
+.col-8
+{
+	width: 66.66666664%; 
+}
+.col-9
+{
+	width: 74.99999997%; 
+}
+.col-10
+{
+	width: 83.33333333%; 
+}
+.col-11
+{
+	width: 91.66666663%; 
+}
+.col-12
+{
+	width: 100%; 
+}
+
+footer
+{
+	margin-top: 80px;
+	padding-top: 20px;
+	border-top: 2px solid #EEEEEE;
+	padding-bottom: 40px;
+}
+
+.small-height 
+{
+	height: 30px;
+}
+
+.footer-picture
+{
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.box-picture-wrapper
+{
+	position: relative;
+}
+
+.decorate-top-left
+{
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	left: -10px;
+	top: -10px;
+}
+
+
+.decorate-bottom-right
+{
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	bottom: -10px;
+	right: -10px;
+}
+
+.box-picture
+{
+	max-width: 170px;
+}

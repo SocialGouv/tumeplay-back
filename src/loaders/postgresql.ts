@@ -16,134 +16,125 @@ import ProductOrderModel from '../models/ordering-models/product.order';
 import BoxModel from '../models/box';
 import BoxProductModel from '../models/box.products';
 
-import PoiModel from '../models/poi'; 
+import PoiModel from '../models/poi';
 
 import config from '../config';
 import { Container } from 'typedi';
 import SyncDefaultData from '../services/synchronizer/sync-default-data';
 
 export default async () => {
+    const sequelize = new Sequelize(config.databaseName, config.databaseLogin, config.databasePassword, {
+        host: config.databaseHost,
+        dialect: 'postgres',
+        logging: false,
+    });
 
-	const sequelize = new Sequelize(
-		config.databaseName,
-		config.databaseLogin,
-		config.databasePassword,
-		{
-			host: config.databaseHost,
-			dialect: 'postgres',
-			logging: false,
-		}
-	);
-    
-	const User = UserModel(sequelize, Sequelize);
-	const Profile = ProfileModel(sequelize, Sequelize);
-	const ShippingAddress = ShippingAddressModel(sequelize, Sequelize);
-	const Content = ContentModel(sequelize, Sequelize);
-	const QuestionContent = QuestionContentModel(sequelize, Sequelize);
-	const questionCategory = QuestionCategoryModel(sequelize, Sequelize);
-	const Thematique = ThematiqueModel(sequelize, Sequelize);
-	const Picture = PictureModel(sequelize, Sequelize);
-	const QuestionAnswer = QuestionAnswerModel(sequelize, Sequelize);
-	const Product = ProductModel(sequelize, Sequelize);
-	const ShippingMode = ShippingModeModel(sequelize, Sequelize);
-	const Order = OrderModel(sequelize, Sequelize);
-	const ProductOrder = ProductOrderModel(sequelize, Sequelize);
+    const User = UserModel(sequelize, Sequelize);
+    const Profile = ProfileModel(sequelize, Sequelize);
+    const ShippingAddress = ShippingAddressModel(sequelize, Sequelize);
+    const Content = ContentModel(sequelize, Sequelize);
+    const QuestionContent = QuestionContentModel(sequelize, Sequelize);
+    const questionCategory = QuestionCategoryModel(sequelize, Sequelize);
+    const Thematique = ThematiqueModel(sequelize, Sequelize);
+    const Picture = PictureModel(sequelize, Sequelize);
+    const QuestionAnswer = QuestionAnswerModel(sequelize, Sequelize);
+    const Product = ProductModel(sequelize, Sequelize);
+    const ShippingMode = ShippingModeModel(sequelize, Sequelize);
+    const Order = OrderModel(sequelize, Sequelize);
+    const ProductOrder = ProductOrderModel(sequelize, Sequelize);
 
-	const Box = BoxModel(sequelize, Sequelize);
-	const BoxProducts = BoxProductModel(sequelize, Sequelize);
-	
-	const Poi = PoiModel(sequelize, Sequelize);
-	
-	// Setup of relationships
-	Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
+    const Box = BoxModel(sequelize, Sequelize);
+    const BoxProducts = BoxProductModel(sequelize, Sequelize);
+
+    const Poi = PoiModel(sequelize, Sequelize);
+
+    // Setup of relationships
+    Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
     Content.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
     Content.belongsTo(questionCategory, { foreignKey: 'categoryId', as: 'itsQuestionCategory' });
-    
-	questionCategory.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
-	questionCategory.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
 
-	QuestionContent.belongsTo(questionCategory, { foreignKey: 'categoryId', as: 'itsQuestionCategory' });
-	QuestionContent.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
+    questionCategory.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
+    questionCategory.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
 
-	QuestionContent.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
+    QuestionContent.belongsTo(questionCategory, { foreignKey: 'categoryId', as: 'itsQuestionCategory' });
+    QuestionContent.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
 
-	Thematique.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
+    QuestionContent.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
 
-	Profile.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    Thematique.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
 
-	User.hasOne(Profile, { foreignKey: 'userId', as: 'profile' });
+    Profile.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-	ShippingAddress.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    User.hasOne(Profile, { foreignKey: 'userId', as: 'profile' });
 
-	Product.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
+    ShippingAddress.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-	Order.belongsTo(Box, { foreignKey: 'boxId', as: 'box' });
-	Order.belongsTo(ShippingMode, { foreignKey: 'shippingModeId', as: 'shippingMode' });
-	Order.belongsTo(ShippingAddress, { foreignKey: 'shippingAddressId', as: 'shippingAddress' });
-	Order.belongsTo(Profile, { foreignKey: 'profileId', as: 'profile' });
-	Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-	Order.belongsTo(Poi, { foreignKey: 'pickupId', as: 'pickup' });
-	
-	Order.belongsToMany(Product, {
-		through: ProductOrder,
-		as: 'products',
-		foreignKey: 'orderId'
-	});
+    Product.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
 
-	ProductOrder.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
-	ProductOrder.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
-	
-	
-	Box.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
+    Order.belongsTo(Box, { foreignKey: 'boxId', as: 'box' });
+    Order.belongsTo(ShippingMode, { foreignKey: 'shippingModeId', as: 'shippingMode' });
+    Order.belongsTo(ShippingAddress, { foreignKey: 'shippingAddressId', as: 'shippingAddress' });
+    Order.belongsTo(Profile, { foreignKey: 'profileId', as: 'profile' });
+    Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    Order.belongsTo(Poi, { foreignKey: 'pickupId', as: 'pickup' });
+
+    Order.belongsToMany(Product, {
+        through: ProductOrder,
+        as: 'products',
+        foreignKey: 'orderId',
+    });
+
+    ProductOrder.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+    ProductOrder.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+
+    Box.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
     BoxProducts.belongsTo(Box, { foreignKey: 'boxId', as: 'box' });
-	BoxProducts.belongsTo(Product, { foreignKey: 'productId', as: 'product' }); 
-	// -----------------------------
-	
-	const dbForce = {};
-	if( config.databaseForce && config.databaseForce == 1 )
-	{
-		dbForce.force = true;
-	}
-	
-	sequelize.sync(dbForce).then(async () => {
-		let syncDefaultData = Container.get(SyncDefaultData);
-		await syncDefaultData.createInitAdmin();
-		
-	});
+    BoxProducts.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+    // -----------------------------
 
-	module.exports = User;
-	module.exports = Profile;
-	module.exports = ShippingAddress
-	module.exports = Content;
-	module.exports = QuestionContent;
-	module.exports = questionCategory;
-	module.exports = Thematique;
-	module.exports = Picture;
-	module.exports = QuestionAnswer;
-	module.exports = Product;
-	module.exports = ShippingMode;
-	module.exports = Order;
-	module.exports = ProductOrder;
-	module.exports = Box;
-	module.exports = BoxProducts;
-	module.exports = Poi;
+    const dbForce = {};
+    if (config.databaseForce && config.databaseForce == 1) {
+        dbForce.force = true;
+    }
 
-	return {
-		userModel: User,
-		profileModel: Profile,
-		shippingAddressModel: ShippingAddress,
-		contentModel: Content,
-		questionModel: QuestionContent,
-		questionCategoryModel: questionCategory,
-		thematiqueModel: Thematique,
-		pictureModel: Picture,
-		questionAnswerModel: QuestionAnswer,
-		productModel: Product,
-		shippingModeModel: ShippingMode,
-		orderModel: Order,
-		productOrderModel: ProductOrder,
-		boxModel: Box,
-		boxProductModel: BoxProducts,
-		poiModel: Poi,
-	};
-}
+    sequelize.sync(dbForce).then(async () => {
+        let syncDefaultData = Container.get(SyncDefaultData);
+        await syncDefaultData.createInitAdmin();
+    });
+
+    module.exports = User;
+    module.exports = Profile;
+    module.exports = ShippingAddress;
+    module.exports = Content;
+    module.exports = QuestionContent;
+    module.exports = questionCategory;
+    module.exports = Thematique;
+    module.exports = Picture;
+    module.exports = QuestionAnswer;
+    module.exports = Product;
+    module.exports = ShippingMode;
+    module.exports = Order;
+    module.exports = ProductOrder;
+    module.exports = Box;
+    module.exports = BoxProducts;
+    module.exports = Poi;
+
+    return {
+        userModel: User,
+        profileModel: Profile,
+        shippingAddressModel: ShippingAddress,
+        contentModel: Content,
+        questionModel: QuestionContent,
+        questionCategoryModel: questionCategory,
+        thematiqueModel: Thematique,
+        pictureModel: Picture,
+        questionAnswerModel: QuestionAnswer,
+        productModel: Product,
+        shippingModeModel: ShippingMode,
+        orderModel: Order,
+        productOrderModel: ProductOrder,
+        boxModel: Box,
+        boxProductModel: BoxProducts,
+        poiModel: Poi,
+    };
+};

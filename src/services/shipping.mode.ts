@@ -2,22 +2,19 @@ import { Service, Inject } from 'typedi';
 import { IShippingMode, IShippingModeDTO } from '../interfaces/IShippingMode';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 
-
 @Service()
 export default class ShippingModeService {
-    constructor(
+    public constructor(
         @Inject('shippingModeModel') private shippingModeModel: any,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
-    ) {
-
-    }
+    ) {}
 
     public async create(shippingModeInput: Partial<IShippingModeDTO>): Promise<{ shippingMode: IShippingMode }> {
         try {
             this.logger.silly('Creating shippingMode');
             const shippingMode: IShippingMode = await this.shippingModeModel.create({
-                ...shippingModeInput
+                ...shippingModeInput,
             });
 
             if (!shippingMode) {
@@ -25,8 +22,7 @@ export default class ShippingModeService {
             }
 
             return { shippingMode };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
@@ -35,28 +31,28 @@ export default class ShippingModeService {
     public async findById(id: number): Promise<{ shippingMode: IShippingMode }> {
         try {
             this.logger.silly('Searching shippingMode');
-            const shippingMode: IShippingMode = await this.shippingModeModel.findOne(
-                {
-                    where: { id }
-                }
-            );
+            const shippingMode: IShippingMode = await this.shippingModeModel.findOne({
+                where: { id },
+            });
 
             if (!shippingMode) {
                 throw new Error('ShippingMode cannot be found');
             }
 
             return { shippingMode };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
     }
 
-    public async update(id: number, shippingModeInput: Partial<IShippingModeDTO>): Promise<{ shippingMode: IShippingMode }> {
+    public async update(
+        id: number,
+        shippingModeInput: Partial<IShippingModeDTO>,
+    ): Promise<{ shippingMode: IShippingMode }> {
         try {
             const shippingModeRecord: any = await this.shippingModeModel.findOne({
-                where: { id }
+                where: { id },
             });
 
             if (!shippingModeRecord) {
@@ -68,8 +64,7 @@ export default class ShippingModeService {
             const shippingMode: IShippingMode = await shippingModeRecord.update(shippingModeInput);
 
             return { shippingMode };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }

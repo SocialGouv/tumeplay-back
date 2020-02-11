@@ -6,21 +6,18 @@ import { IShippingMode, IShippingModeDTO } from '../../interfaces/IShippingMode'
 const route = Router();
 
 export default (app: Router) => {
-  app.use('/shipping-modes', route);
+    app.use('/shipping-modes', route);
 
-  route.get('/', async (req: Request, res: Response, next: NextFunction) => {
-    const logger: any = Container.get('logger');
-    try {
+    route.get('/', async (req: Request, res: Response, next: NextFunction) => {
+        const logger: any = Container.get('logger');
+        try {
+            const shippingModeModel: any = Container.get('shippingModeModel');
+            const shippingModes = await shippingModeModel.findAll();
+            return res.json({ shippingModes }).status(200);
+        } catch (e) {
+            logger.error('🔥 error: %o', e);
 
-      const shippingModeModel: any = Container.get('shippingModeModel')
-      const shippingModes = await shippingModeModel.findAll();
-      return res.json({ shippingModes }).status(200);
-    }
-    catch (e) {
-      logger.error('🔥 error: %o', e);
-
-      return next(e);
-    }
-  });
-    
+            return next(e);
+        }
+    });
 };

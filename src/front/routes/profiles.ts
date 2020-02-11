@@ -9,32 +9,29 @@ const route = Router();
 
 export default (app: Router) => {
     const routes = {
-        PROFILE_ROOT: '/profiles'
-    }
+        PROFILE_ROOT: '/profiles',
+    };
 
     const pageNames = {
         profile: {
             viewList: 'page-profiles',
-            addEdit: 'page-profiles-edit'
-        }
-    }
+            addEdit: 'page-profiles-edit',
+        },
+    };
 
     app.use(routes.PROFILE_ROOT, route);
 
-
     route.get('/', async (req: Request, res: Response) => {
         try {
-            const ProfileModel: any = Container.get('profileModel')
+            const ProfileModel: any = Container.get('profileModel');
 
             const profiles: IProfile[] = await ProfileModel.findAll();
             return res.render(pageNames.profile.viewList, {
                 username: req['session'].name,
-                profiles
+                profiles,
             });
-        }
-        catch (e) {
+        } catch (e) {
             throw e;
         }
     });
-
 };

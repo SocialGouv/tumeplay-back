@@ -11,27 +11,22 @@ import config from '../../config';
  * Luckily this API follow _common sense_ ergo a _good design_ and don't allow that ugly stuff
  */
 const isLoggedIn = req => {
-  return req.session.loggedin;
+    return req.session.loggedin;
 };
 
 const isAuth = async (req, res, next) => {
-  try
-	{
-		if (req.session.loggedin) 
-		{
-			if( !req.session.roles || req.session.roles != config.roles.administrator )
-			{
-				return res.redirect('/');
-			}
-			next();
-		} else {
-			return res.redirect('/');
-		}
-	}
-	catch(e)
-	{
-		return res.redirect('/');
-	}
+    try {
+        if (req.session.loggedin) {
+            if (!req.session.roles || req.session.roles != config.roles.administrator) {
+                return res.redirect('/');
+            }
+            next();
+        } else {
+            return res.redirect('/');
+        }
+    } catch (e) {
+        return res.redirect('/');
+    }
 };
 
 export default isAuth;

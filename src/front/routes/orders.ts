@@ -12,19 +12,19 @@ export default (app: Router) => {
     const routes = {
         ORDERS_ROOT: '/orders',
         ORDER_MANAGEMENT_ROOT: '/management',
-        SHIPPING_MODE_ROOT: '/shipping-mode'
-    }
+        SHIPPING_MODE_ROOT: '/shipping-mode',
+    };
 
     const pageNames = {
         shipping: {
             viewList: 'page-shipping-mode',
-            addEdit: 'page-shipping-mode-edit'
+            addEdit: 'page-shipping-mode-edit',
         },
         orderManagement: {
             viewList: 'page-order-management',
-            addEdit: 'page-order-management-edit'
-        }
-    }
+            addEdit: 'page-order-management-edit',
+        },
+    };
 
     app.use(routes.ORDERS_ROOT, route);
 
@@ -34,22 +34,19 @@ export default (app: Router) => {
 
     route.get(routes.ORDER_MANAGEMENT_ROOT, middlewares.isAuth, async (req: Request, res: Response) => {
         try {
-            const OrderModel_service: OrderService = Container.get(OrderService)
+            const OrderModel_service: OrderService = Container.get(OrderService);
 
             const { orders } = await OrderModel_service.findAllOrdersMainView();
             return res.render(pageNames.orderManagement.viewList, {
                 username: req['session'].name,
-                orders
+                orders,
             });
-        }
-        catch (e) {
+        } catch (e) {
             throw e;
         }
     });
 
-
-
-    route.get(`${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`,middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(`${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`, middlewares.isAuth, async (req: Request, res: Response) => {
         try {
             const documentId = +req.params.id;
             const orderModelService: OrderService = Container.get(OrderService);
@@ -57,43 +54,39 @@ export default (app: Router) => {
             const { order } = await orderModelService.findByIdDetailled(documentId);
             return res.render(pageNames.orderManagement.addEdit, {
                 username: req['session'].name,
-                order
+                order,
             });
-        }
-        catch (e) {
+        } catch (e) {
             throw e;
         }
     });
 
     route.post(
-        `${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`, middlewares.isAuth,
-        celebrate(
-            {
-                body: Joi.object(
-                    {
-                        sent: Joi.string().allow(null),
-                        delivered: Joi.string().allow(null),
-                    }
-                ),
+        `${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`,
+        middlewares.isAuth,
+        celebrate({
+            body: Joi.object({
+                sent: Joi.string().allow(null),
+                delivered: Joi.string().allow(null),
             }),
+        }),
         async (req: Request, res: Response) => {
             const logger: any = Container.get('logger');
             logger.debug('Calling API edit order with body: %o', req.body);
 
             try {
                 const orderInput: Partial<IOrderInputDTO> = {
-                    sent: req.body.sent ? (req.body.sent === "on") : false,
-                    delivered: req.body.delivered ? (req.body.delivered === "on") : false,
+                    sent: req.body.sent ? req.body.sent === 'on' : false,
+                    delivered: req.body.delivered ? req.body.delivered === 'on' : false,
                 };
                 const id = +req.params.id;
 
-                const orderModelService: OrderService = Container.get(OrderService)
+                const orderModelService: OrderService = Container.get(OrderService);
                 await orderModelService.update(id, orderInput);
                 return res.redirect(`${routes.ORDERS_ROOT}${routes.ORDER_MANAGEMENT_ROOT}/edit/${id}`);
-            }
-            catch (e) {
+            } catch (e) {
                 logger.error('🔥 error: %o', e);
-                throw (e);
+                throw e;
             }
         },
     );
@@ -102,35 +95,30 @@ export default (app: Router) => {
      * @description Shipping mode routes
      */
 
-
     route.get(routes.SHIPPING_MODE_ROOT, middlewares.isAuth, async (req: Request, res: Response) => {
         try {
-            const ShippingModeModel: any = Container.get('shippingModeModel')
+            const ShippingModeModel: any = Container.get('shippingModeModel');
 
-            const shippingModes: IShippingMode[] = await ShippingModeModel.findAll(
-                {
-                    where: {
-                        deleted: false
-                    }
-                }
-            );
+            const shippingModes: IShippingMode[] = await ShippingModeModel.findAll({
+                where: {
+                    deleted: false,
+                },
+            });
             return res.render(pageNames.shipping.viewList, {
                 username: req['session'].name,
-                shippingModes
+                shippingModes,
             });
-        }
-        catch (e) {
+        } catch (e) {
             throw e;
         }
     });
 
-    route.get(`${routes.SHIPPING_MODE_ROOT}/add`,middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(`${routes.SHIPPING_MODE_ROOT}/add`, middlewares.isAuth, async (req: Request, res: Response) => {
         try {
             return res.render(pageNames.shipping.addEdit, {
-                username: req['session'].name
+                username: req['session'].name,
             });
-        }
-        catch (e) {
+        } catch (e) {
             throw e;
         }
     });
@@ -143,96 +131,81 @@ export default (app: Router) => {
             const { shippingMode } = await ShippingModeModel.findById(documentId);
             return res.render(pageNames.shipping.addEdit, {
                 username: req['session'].name,
-                shippingMode
+                shippingMode,
             });
-        }
-        catch (e) {
+        } catch (e) {
             throw e;
         }
     });
 
     route.post(
-        `${routes.SHIPPING_MODE_ROOT}/add`, middlewares.isAuth,
-        celebrate(
-            {
-                body: Joi.object(
-                    {
-                        title: Joi.string().required(),
-                    }
-                ),
+        `${routes.SHIPPING_MODE_ROOT}/add`,
+        middlewares.isAuth,
+        celebrate({
+            body: Joi.object({
+                title: Joi.string().required(),
             }),
+        }),
         async (req: Request, res: Response) => {
             const logger: any = Container.get('logger');
             logger.debug('Calling API new shipping mode with body: %o', req.body);
 
             try {
                 const shippingModeItem: Partial<IShippingModeDTO> = {
-                    title: req.body.title
+                    title: req.body.title,
                 };
-                const ShippingModeModel: ShippingModeService = Container.get(ShippingModeService)
+                const ShippingModeModel: ShippingModeService = Container.get(ShippingModeService);
                 await ShippingModeModel.create(shippingModeItem);
                 return res.redirect(`${routes.ORDERS_ROOT}${routes.SHIPPING_MODE_ROOT}`);
-            }
-            catch (e) {
-                logger.error('🔥 error: %o', e);
-                throw (e);
-            }
-        },
-    );
-
-
-    route.post(
-        `${routes.SHIPPING_MODE_ROOT}/edit/:id`,
-        celebrate(
-            {
-                body: Joi.object(
-                    {
-                        title: Joi.string().required(),
-                    }
-                ),
-            }),
-            middlewares.isAuth,
-        async (req: Request, res: Response) => {
-            const logger: any = Container.get('logger');
-            logger.debug('Calling API new shipping mode with body: %o', req.body);
-
-            try {
-                const shippingModeItem: Partial<IShippingModeDTO> = {
-                    title: req.body.title
-                };
-                const id = +req.params.id;
-
-                const ShippingModeModel: ShippingModeService = Container.get(ShippingModeService)
-                await ShippingModeModel.update(id, shippingModeItem);
-                return res.redirect(`${routes.ORDERS_ROOT}${routes.SHIPPING_MODE_ROOT}`);
-            }
-            catch (e) {
-                logger.error('🔥 error: %o', e);
-                throw (e);
-            }
-        },
-    );
-
-    route.post(`${routes.SHIPPING_MODE_ROOT}/delete/:id`, middlewares.isAuth,
-        async (req: any, res: Response) => {
-            const logger: any = Container.get('logger');
-            logger.debug('Calling Front Create endpoint with body: %o', req.body);
-
-            try {
-
-                const documentId = req.params.id;
-
-                // Updating
-                const shippingModeService: ShippingModeService = Container.get(ShippingModeService);
-                await shippingModeService.update(documentId, { deleted: true });
-                return res.redirect(`${routes.ORDERS_ROOT}${routes.SHIPPING_MODE_ROOT}`);
-
-            }
-            catch (e) {
+            } catch (e) {
                 logger.error('🔥 error: %o', e);
                 throw e;
             }
-        }
+        },
     );
 
+    route.post(
+        `${routes.SHIPPING_MODE_ROOT}/edit/:id`,
+        celebrate({
+            body: Joi.object({
+                title: Joi.string().required(),
+            }),
+        }),
+        middlewares.isAuth,
+        async (req: Request, res: Response) => {
+            const logger: any = Container.get('logger');
+            logger.debug('Calling API new shipping mode with body: %o', req.body);
+
+            try {
+                const shippingModeItem: Partial<IShippingModeDTO> = {
+                    title: req.body.title,
+                };
+                const id = +req.params.id;
+
+                const ShippingModeModel: ShippingModeService = Container.get(ShippingModeService);
+                await ShippingModeModel.update(id, shippingModeItem);
+                return res.redirect(`${routes.ORDERS_ROOT}${routes.SHIPPING_MODE_ROOT}`);
+            } catch (e) {
+                logger.error('🔥 error: %o', e);
+                throw e;
+            }
+        },
+    );
+
+    route.post(`${routes.SHIPPING_MODE_ROOT}/delete/:id`, middlewares.isAuth, async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Create endpoint with body: %o', req.body);
+
+        try {
+            const documentId = req.params.id;
+
+            // Updating
+            const shippingModeService: ShippingModeService = Container.get(ShippingModeService);
+            await shippingModeService.update(documentId, { deleted: true });
+            return res.redirect(`${routes.ORDERS_ROOT}${routes.SHIPPING_MODE_ROOT}`);
+        } catch (e) {
+            logger.error('🔥 error: %o', e);
+            throw e;
+        }
+    });
 };

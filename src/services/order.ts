@@ -4,28 +4,25 @@ import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDi
 import ProductOrderService from './product.order';
 import { IProductOrderInputDTO } from '../interfaces/IProductOrder';
 
-
 @Service()
 export default class OrderService {
-    constructor(
+    public constructor(
         @Inject('orderModel') private orderModel: any,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
-    ) {
-
-    }
+    ) {}
 
     /**
      * @description Create an order
      * @param orderInput  the order object (main detail)
-     * @param productIds list of product ids to assign to the order (will create a product order for each) 
+     * @param productIds list of product ids to assign to the order (will create a product order for each)
      */
     public async create(orderInput: Partial<IOrderInputDTO>, productIds?: number[]): Promise<{ order: IOrder }> {
         try {
             this.logger.silly('Creating order');
             // Creating the order
             const order: IOrder = await this.orderModel.create({
-                ...orderInput
+                ...orderInput,
             });
 
             if (!order) {
@@ -36,15 +33,14 @@ export default class OrderService {
                 const orderId = order.id;
                 const productOrderService: ProductOrderService = Container.get(ProductOrderService);
                 const orderProductList: IProductOrderInputDTO[] = orderInput.productIds.map(productId => {
-                    return ({ productId, orderId })
+                    return { productId, orderId };
                 });
                 // Creating product order mappings:
                 await productOrderService.bulkCreate(orderProductList);
             }
 
             return { order };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
@@ -53,34 +49,28 @@ export default class OrderService {
     public async findById(id: number, includePicture: boolean): Promise<{ order: IOrder }> {
         try {
             this.logger.silly('Creating order');
-            const order: IOrder = await this.orderModel.findOne(
-                {
-                    where: { id }
-                }
-            );
+            const order: IOrder = await this.orderModel.findOne({
+                where: { id },
+            });
 
             if (!order) {
                 throw new Error('Order cannot be found');
             }
 
             return { order };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
     }
 
-
     public async findByIdDetailled(id: number): Promise<{ order: IOrderMainView }> {
         try {
             this.logger.silly('Finding an order');
-            const orderFound: IOrder = await this.orderModel.findOne(
-                {
-                    where: { id },
-                    include: ['shippingMode', 'shippingAddress', 'profile', 'products', 'pickup', 'box']
-                }
-            );
+            const orderFound: IOrder = await this.orderModel.findOne({
+                where: { id },
+                include: ['shippingMode', 'shippingAddress', 'profile', 'products', 'pickup', 'box'],
+            });
 
             if (!orderFound) {
                 throw new Error('Order cannot be found');
@@ -97,20 +87,23 @@ export default class OrderService {
                 userId: orderFound.userId,
                 createdAt: orderFound.createdAt,
                 updatedAt: orderFound.updatedAt,
-                profileFullName: ( orderFound.profile ?  `${orderFound.profile.name} ${orderFound.profile.surname}` : '' ),
-                shippingAddressConcatenation: orderFound.shippingAddress ? orderFound.shippingAddress.concatenation : null,
+                profileFullName: orderFound.profile ? `${orderFound.profile.name} ${orderFound.profile.surname}` : '',
+                profileFirstName: orderFound.profile ? `${orderFound.profile.surname}` : '',
+                profileName: orderFound.profile ? `${orderFound.profile.name}` : '',
+                shippingAddressConcatenation: orderFound.shippingAddress
+                    ? orderFound.shippingAddress.concatenation
+                    : null,
                 shippingModeText: orderFound.shippingMode ? orderFound.shippingMode.title : null,
                 products: orderFound.products,
                 pickup: orderFound.pickup,
-
                 box: orderFound.box,
-            }
+                shipping: orderFound.shippingAddress
+            };
+
             
-            this.logger.silly(order.products);
-            
+
             return { order };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
@@ -119,19 +112,17 @@ export default class OrderService {
     public async findAllOrdersMainView(): Promise<{ orders: IOrderMainView[] }> {
         try {
             this.logger.silly('Finding all orders');
-            let ordersResult: IOrder[] = await this.orderModel.findAll(
-                {
-                    include: ['shippingMode', 'shippingAddress', 'profile', 'pickup']
-                }
-            );
+            let ordersResult: IOrder[] = await this.orderModel.findAll({
+                include: ['shippingMode', 'shippingAddress', 'profile', 'pickup'],
+            });
             const orders: IOrderMainView[] = ordersResult.map(item => {
                 let additional_fields = {
-                    profileFullName: ( item.profile ?  `${item.profile.name} ${item.profile.surname}` : '' ),
+                    profileFullName: item.profile ? `${item.profile.name} ${item.profile.surname}` : '',
                     shippingAddressConcatenation: item.shippingAddress ? item.shippingAddress.concatenation : null,
-                    shippingModeText: item.shippingMode ? item.shippingMode.title : null
-                }
+                    shippingModeText: item.shippingMode ? item.shippingMode.title : null,
+                };
 
-                return ({
+                return {
                     id: item.id,
                     orderDate: item.orderDate,
                     sent: item.sent,
@@ -143,13 +134,12 @@ export default class OrderService {
                     createdAt: item.createdAt,
                     updatedAt: item.updatedAt,
                     pickup: item.pickup,
-                    ...additional_fields
-                });
+                    ...additional_fields,
+                };
             });
 
             return { orders };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
@@ -158,7 +148,7 @@ export default class OrderService {
     public async update(id: number, orderInput: Partial<IOrderInputDTO>): Promise<{ order: IOrder }> {
         try {
             const orderRecord: any = await this.orderModel.findOne({
-                where: { id }
+                where: { id },
             });
 
             if (!orderRecord) {
@@ -170,8 +160,7 @@ export default class OrderService {
             const order: IOrder = await orderRecord.update(orderInput);
 
             return { order };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }

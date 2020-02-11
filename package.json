@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "grunt watch",
     "build": "grunt build",
-    "start": "nodemon"
+    "start": "nodemon",
+    "lint" : "eslint --ext .js,.ts src/"
   },
   "keywords": [
     "admin",
@@ -46,6 +47,7 @@
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.19.3",
     "soap": "^0.30.0",
+    "striptags": "^3.1.1",
     "typedi": "^0.8.0",
     "winston": "^3.2.1"
   },
@@ -54,19 +56,19 @@
     "@types/jest": "^23.3.8",
     "@types/lodash": "^4.14.118",
     "@types/node": "^10.14.20",
-    "@typescript-eslint/eslint-plugin": "^1.7.0",
-    "@typescript-eslint/parser": "^1.7.0",
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
     "autoprefixer": "^7.2.6",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.3.0",
-    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-prettier": "^3.1.2",
     "grunt": "^1.0.4",
     "grunt-contrib-pug": "^1.0.0",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-postcss": "^0.8.0",
     "grunt-sass": "^2.1.0",
     "jest": "^24.9.0",
-    "prettier": "^1.18.2",
+    "prettier": "^1.19.1",
     "ts-jest": "^24.1.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.20.0",

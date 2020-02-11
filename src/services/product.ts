@@ -3,22 +3,19 @@ import ProductModel from '../models/product';
 import { IProduct, IProductInputDTO } from '../interfaces/IProduct';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 
-
 @Service()
 export default class ProductService {
-    constructor(
+    public constructor(
         @Inject('productModel') private productModel: any,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
-    ) {
-
-    }
+    ) {}
 
     public async create(productInput: Partial<IProductInputDTO>): Promise<{ product: IProduct }> {
         try {
             this.logger.silly('Creating product');
             const product: IProduct = await this.productModel.create({
-                ...productInput
+                ...productInput,
             });
 
             if (!product) {
@@ -26,8 +23,7 @@ export default class ProductService {
             }
 
             return { product };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
@@ -36,20 +32,17 @@ export default class ProductService {
     public async findById(id: number, includePicture: boolean): Promise<{ product: IProduct }> {
         try {
             this.logger.silly('Creating product');
-            const product: IProduct = await this.productModel.findOne(
-                {
-                    where: { id },
-                    include: includePicture ? ['picture'] : undefined
-                }
-            );
+            const product: IProduct = await this.productModel.findOne({
+                where: { id },
+                include: includePicture ? ['picture'] : undefined,
+            });
 
             if (!product) {
                 throw new Error('Product cannot be found');
             }
 
             return { product };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }
@@ -58,7 +51,7 @@ export default class ProductService {
     public async update(id: number, productInput: Partial<IProductInputDTO>): Promise<{ product: IProduct }> {
         try {
             const productRecord: any = await this.productModel.findOne({
-                where: { id }
+                where: { id },
             });
 
             if (!productRecord) {
@@ -70,8 +63,7 @@ export default class ProductService {
             const product: IProduct = await productRecord.update(productInput);
 
             return { product };
-        }
-        catch (e) {
+        } catch (e) {
             this.logger.error(e);
             throw e;
         }

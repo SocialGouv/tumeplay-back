@@ -1,0 +1,47 @@
+extends _layout.pug
+
+block title
+	| Confirmation de ta commande Tumeplay
+	
+block content
+	.col-4.box-picture-wrapper
+		img.decorate-top-left(src=`${hostname}` + "/pictures/mail/decorate-top-left.png")
+		img.box-picture(src=`${hostname}` + "/pictures/mail/box-" + `${boxId}` + ".png")
+		img.decorate-bottom-right(src=`${hostname}` + "/pictures/mail/decorate-bottom-right.png")
+		
+	.col-8
+		.subtitle #{firstName}, merci pour ta commande !
+		br
+		.text Ta commande a bien été prise en compte. Tu trouveras son récapitulatif ci-dessous. Nos équipes la préparent et font le maximum pour l’expédier au plus vite. Le n° de suivi de ton colis te sera communiqué par e-mail.
+		br
+		.text Détail de ta commande : 
+		.text #{firstName} #{name}
+		.text Box « #{boxName} » 
+		.text Mode de livraison : #{shippingMethodReadable}
+		.text Adresse de livraison :
+		.text 
+			if shippingMethod == 'pickup'
+				| #{pickup.name}
+				br 
+				| #{pickup.street}  
+				br 
+				| #{pickup.zipCode} #{pickup.city}  
+			else
+				| #{firstName} #{name}
+				br 
+				| #{shippingAddress.street}  
+				br 
+				| #{shippingAddress.zipCode} #{shippingAddress.city}  
+		
+	.clearfix
+	
+	.col-12
+		.text.bold Une question sur ta commande ?
+		.text Notre équipe répond à tes questions par mail à l'adresse 
+			a(href='mailto:contact.tumeplay@fabrique.social.gouv.fr') contact.tumeplay@fabrique.social.gouv.fr
+		br 
+		.text Si jamais tu ne reçois pas ton colis, n’hésite pas à nous le signaler à cette adresse. Nous ferons de notre mieux pour trouver une solution. 
+		br
+		.text Pour en savoir plus, suis-nous sur Instagram 
+			img.instagram-icon(src=`${hostname}` + "/pictures/mail/instagram-icon.jpg")
+			a(href="https://www.instagram.com/tumeplay/") @tumeplay
