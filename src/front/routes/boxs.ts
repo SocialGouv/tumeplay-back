@@ -106,6 +106,7 @@ export default (app: Router) => {
                 shortDescription: req.body.shortDescription,
                 price: null,
                 active: req.body.active == 'on',
+                available: req.body.available == 'on',
                 deleted: false,
                 pictureId: null,
             };
@@ -178,6 +179,7 @@ export default (app: Router) => {
                 shortDescription: req.body.shortDescription,
                 price: req.body.price,
                 active: req.body.active == 'on',
+                available: req.body.available == 'on',
                 deleted: false,
                 pictureId: undefined,
             };

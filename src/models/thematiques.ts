@@ -9,6 +9,11 @@ export default (sequelize, type) => {
         },
         title: DataTypes.STRING,
         active: DataTypes.BOOLEAN,
+        isSpecial: {
+	        type: DataTypes.BOOLEAN,
+	        allowNull: false,
+	        defaultValue: false,
+	    },
         pictureId: {
             type: DataTypes.INTEGER,
             reference: {

@@ -12,6 +12,11 @@ export default (sequelize, type) => {
         shortDescription: DataTypes.STRING,
         price: DataTypes.DECIMAL,
         active: DataTypes.BOOLEAN,
+        available: {
+	        type: DataTypes.BOOLEAN,
+	        allowNull: false,
+	        defaultValue: true,
+	    },
         deleted: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

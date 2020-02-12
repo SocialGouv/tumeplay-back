@@ -22,7 +22,7 @@ export default (app: Router) => {
                 return {
                     key: thematique.id,
                     id: thematique.id,
-
+					isSpecial: thematique.isSpecial,
                     picture: thematique.picture
                         ? thematique.picture.destination + '/' + thematique.picture.filename
                         : false,

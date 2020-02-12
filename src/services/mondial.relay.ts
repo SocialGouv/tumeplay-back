@@ -37,7 +37,7 @@ export default class MondialRelayService {
             Dest_CP: pickup.zipCode,
             Dest_Pays: 'FR',
             
-            Poids: '250',
+            Poids: '400',
             NbColis: '1',
             
             CRT_Valeur: '0',
@@ -56,7 +56,7 @@ export default class MondialRelayService {
 				securityKey += params[prop];	
         	}
         }
-
+		console.log(params);
         securityKey += Config.mondialRelay.websiteKey;
 
         const hash = md5(securityKey);
@@ -193,7 +193,7 @@ export default class MondialRelayService {
 
             if (localResults.STAT == 0) {
             	
-            	finalRes = "https://www.mondialrelay.com" + localResults.URL_Etiquette.replace('format=A4', 'format=A5');
+            	finalRes = "https://www.mondialrelay.com" + localResults.URL_Etiquette.replace('format=A4', 'format=10x15');
             	const targetFolder = 'uploads/labels';
             	
             		
@@ -209,6 +209,14 @@ export default class MondialRelayService {
 				
 				finalRes = targetPath;
             }
+            else
+            {
+				console.log(localResults);
+            }
+        }
+        else
+        {
+			console.log(targetRes);
         }
         return finalRes;
     }

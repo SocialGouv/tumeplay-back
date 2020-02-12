@@ -39,6 +39,15 @@
 							input(type="checkbox" name="active")
 
 						span.label-text Publié
+						
+				.animated-checkbox
+					label
+						if thematique
+							input(type="checkbox" name="isSpecial" checked=thematique.isSpecial)
+						else
+							input(type="checkbox" name="isSpecial")
+
+						span.label-text Thématique spéciale ( pas de menu affiché )
 	
 				.tile-footer
 					button.btn.btn-primary(type="submit")

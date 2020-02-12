@@ -54,6 +54,15 @@
 									input(type="checkbox" name="active")
 
 								span.label-text Publié
+						
+						.animated-checkbox
+							label
+								if box
+									input(type="checkbox" name="available" checked=box.available)
+								else
+									input(type="checkbox" name="available")
+
+								span.label-text Disponible à la commande
 				
 					.col-md-4
 						.tile

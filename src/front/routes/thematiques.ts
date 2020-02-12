@@ -54,6 +54,7 @@ export default (app: Router) => {
             let thematiqueItem: IThematiqueInputDTO = {
                 title: req.body.title,
                 active: req.body.active,
+                isSpecial: req.body.isSpecial,
                 pictureId: null,
             };
             const picObject = req.file;
@@ -101,6 +102,7 @@ export default (app: Router) => {
             let thematiqueItem: IThematiqueInputDTO = {
                 title: req.body.title,
                 active: req.body.active,
+                isSpecial: req.body.isSpecial,
                 pictureId: undefined,
             };
             const thematiqueServiceInstance = Container.get(ThematiqueService);
