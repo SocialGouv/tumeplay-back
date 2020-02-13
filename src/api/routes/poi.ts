@@ -22,6 +22,31 @@ export default (app: Router) => {
         return bounds;
     }
     
+    function toRad(Value) 
+    {
+        return Value * Math.PI / 180;
+    }
+    
+    function computeDistance(fromLatitude, fromLongitude, toLatitude, toLongitude)
+    {
+	    const fromLat = parseFloat(fromLatitude);
+	    const toLat   = parseFloat(toLatitude);
+	    const fromLon = parseFloat(fromLongitude);
+	    const toLon   = parseFloat(toLongitude);
+	    const R = 6371; // km
+		const dLat = toRad(toLat-fromLat);
+		const dLon = toRad(toLon-fromLon);
+		const lat1 = toRad(fromLat);
+		const lat2 = toRad(toLat);
+		
+		const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+		const d = R * c;
+		
+		return d;
+    }
+    
     
     function formatTimetableRow(row) {
         let _return = null;
@@ -92,8 +117,11 @@ export default (app: Router) => {
                         longitude: point.longitude,
                     },
                     horaires: parsedTimetable,
+                    distance: computeDistance(req.params.latitude, req.params.longitude,point.latitude,point.longitude)
                 };
             });
+
+            parsedPoints.sort((a, b) => a.distance - b.distance);
 
             return res.json(parsedPoints).status(200);
         } catch (e) {
