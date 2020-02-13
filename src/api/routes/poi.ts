@@ -11,13 +11,13 @@ export default (app: Router) => {
     // Compute a rough square of 30km around a geopoint
     // Based on the fact that 1 degree is *roughly* 111.2km
     function computeRoughCoordinates(latitude, longitude) {
-        var latChange = 30 / 111.2;
-        var lonChange = Math.abs(Math.cos(latitude * (Math.PI / 180)));
+        var latChange = parseFloat(30 / 111.2);
+        var lonChange = parseFloat(Math.abs(Math.cos(latitude * (Math.PI / 180))));
         var bounds = {
-            latMin: latitude - latChange,
-            lonMin: longitude - lonChange,
-            latMax: latitude + latChange,
-            lonMax: longitude + lonChange,
+            latMin: parseFloat(latitude) - latChange,
+            lonMin: parseFloat(longitude) - lonChange,
+            latMax: parseFloat(latitude) + latChange,
+            lonMax: parseFloat(longitude) + lonChange,
         };
         return bounds;
     }
@@ -49,11 +49,9 @@ export default (app: Router) => {
 
             const myPoints = await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
 
-            console.log('MY POINTS');
-            console.log(myPoints);
-
             const poiService: any = Container.get('poiModel');
             const bounds = computeRoughCoordinates(req.params.latitude, req.params.longitude);
+            
             const points: [] = await poiService.findAll({
                 where: {
                     active: true,
