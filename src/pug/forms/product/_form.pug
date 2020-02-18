@@ -36,6 +36,13 @@
 					else
 						input.form-control(type="text", name="shortDescription", placeholder="Description courte")
 				
+				.form-group
+					label.control-label Description fournisseur
+					if product && product.supplierDescription
+						input.form-control(type="text", name="supplierDescription", placeholder="Description fournisseur" value=`${product.supplierDescription}`)
+					else
+						input.form-control(type="text", name="supplierDescription", placeholder="Description fournisseur")
+				
 				if product
 					if product.picture && product.picture.path
 						img.pic-image-box-normal(src="../../"+product.picture.path)

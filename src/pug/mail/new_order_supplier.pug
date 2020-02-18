@@ -1,0 +1,28 @@
+extends _layout.pug
+
+block title
+	| Nouvelle commande
+	
+block content
+	- var totalItems = 0
+
+	.col-12
+		.text Voici le détail de la nouvelle commande à préparer :
+		br
+		.text Numéro de commande : #{orderId}-#{boxId}
+		.text Numero d'étiquette : N/A
+		.text Mode de livraison : #{shippingMethodReadable}
+		.text Box « #{boxName} » 
+		br
+		.text Contenu
+			each product in products
+				- var qty = ( product.product_order.qty ? product.product_order.qty : 1 )
+				.text -  #{product.supplierDescription} : #{qty}
+				- totalItems++
+		br
+		.text Total des éléments de la box : #{totalItems}							
+		br
+		br
+		
+	.clearfix
+	

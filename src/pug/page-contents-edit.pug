@@ -33,3 +33,30 @@ block specific-js
 	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
 	script(type='text/javascript').
 		$('#contentsDataTable').DataTable();
+
+		function checkLength(field)
+		{
+			var maxLength = $(field).data("maxlength");
+		    var currentLength = $(field).val().length;
+			var counter = $(field).parent().find('.limited-counter').first();
+			
+		    if( currentLength >= maxLength )
+		    {
+				if( !$(counter).hasClass('counter-danger') )
+				{
+					$(counter).addClass('counter-danger');
+				}
+		    }else
+		    {
+		    	$(counter).removeClass('counter-danger');    
+		    }
+		    $(counter).text( parseInt(maxLength - currentLength) + ' caractère(s) restant(s).');
+		}
+		
+		
+		$('.limited-length').on("input", function(){
+			checkLength($(this));
+		});
+		$('.limited-length').each(function() {
+			checkLength($(this));
+		});

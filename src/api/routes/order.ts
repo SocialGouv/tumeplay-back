@@ -15,7 +15,7 @@ export default (app: Router) => {
     const ORDERS_ROOT = '/orders';
 
     app.use(ORDERS_ROOT, route);
-    
+           
     route.post(
         '/confirm',
         middlewares.isAuth,
@@ -217,8 +217,9 @@ export default (app: Router) => {
 				const variables = {
 					firstName: order.profileFirstName,
 					name: order.profileName,
+                    orderId: String(order.id).padStart(3, '0'),
+                    boxId: order.box.id,
 					boxName: order.box.title,
-					boxId: order.box.id,
 					shippingMethodReadable: (order.shippingModeText == 'home') ? 'À domicile' : 'Point Relais',
 					shippingMethod: order.shippingModeText,
 					pickup: order.pickup,
@@ -241,9 +242,7 @@ export default (app: Router) => {
 				}
 				
 				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔', 'new_order_admin', variables);
-				await mailService.send('info@leroidelacapote.com ', 'Nouvelle commande effectuée ✔', 'new_order_admin', variables);
-
-				
+                await mailService.send('info@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
 
             } catch (err) {
                 console.error(err); // TODO-low: should we notify in case of error here ?

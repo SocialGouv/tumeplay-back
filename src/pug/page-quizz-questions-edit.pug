@@ -29,9 +29,82 @@ block content
 	.row
 		.col-md-12
 			include ./forms/quizz/_form.question.pug
+			
 block specific-js
 	// Data table plugin
 	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
 	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
 	script(type='text/javascript').
 		$('#contentsDataTable').DataTable();
+
+	script(type='text/javascript').
+		function checkLength(field)
+		{
+			var maxLength = parseInt($(field).data("maxlength"));
+		    var currentLength = $(field).val().length;
+			var counter = $(field).parent().find('.limited-counter').first();
+			
+		    if( currentLength >= maxLength )
+		    {
+				if( !$(counter).hasClass('counter-danger') )
+				{
+					$(counter).addClass('counter-danger');
+				}
+		    }else
+		    {
+		    	$(counter).removeClass('counter-danger');    
+		    }
+		    $(counter).text( parseInt(maxLength - currentLength) + ' caractère(s) restant(s).');
+		}
+		
+		var newAnswerBtn_element = document.getElementById("newAnswerBtn");
+		newAnswerBtn_element.addEventListener("click", newAnswer, false);
+
+		var numAnswer = 0;
+		
+		//- @TODO-RNO: Will need to find a more performant way to do the steps below:
+		function newAnswer(){
+			var responseList_UL = document.getElementById("responseList");
+			var responseContainerItem = document.createElement("div");
+			
+
+			//- Creating the input element of response
+			var input_responseName_element = document.createElement("input");
+			input_responseName_element.setAttribute("type","text");
+			input_responseName_element.setAttribute("placeholder",`Reponse No.${numAnswer+1}`);
+			input_responseName_element.setAttribute("data-maxlength", "30");
+			input_responseName_element.setAttribute("name",`answerItems[${numAnswer}][title]`);
+			input_responseName_element.classList.add('limited-length');
+
+			//- Creating the Checkbox element of response (isCorrect)
+			var input_responseIsGoodAnswer_element = document.createElement("input");
+			input_responseIsGoodAnswer_element.setAttribute("type","checkbox");
+			input_responseIsGoodAnswer_element.setAttribute("name",`answerItems[${numAnswer}][isCorrect]`);
+
+			var input_responseIsGoodAnswer_counter = document.createElement("label");
+			input_responseIsGoodAnswer_counter.classList.add("limited-counter");
+			input_responseIsGoodAnswer_counter.classList.add("offset-1");
+
+			input_responseIsGoodAnswer_counter.textContent = "30 caractère(s) restant(s)";
+
+			var breakpoint = document.createElement("br");
+
+			numAnswer++;
+
+			responseContainerItem.appendChild(input_responseIsGoodAnswer_element);
+			responseContainerItem.appendChild(input_responseName_element);
+			responseContainerItem.appendChild(input_responseIsGoodAnswer_counter);
+
+			
+			
+			responseList_UL.appendChild(responseContainerItem);
+			responseList_UL.appendChild(breakpoint);
+			console.log('Clicked on new response')
+		}
+		
+		$('body').on("input", '.limited-length', function(){
+			checkLength($(this));
+		});
+		$('.limited-length').each(function() {
+			checkLength($(this));
+		});

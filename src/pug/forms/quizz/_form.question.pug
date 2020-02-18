@@ -46,16 +46,22 @@ block content
 						label.control-label Question :
 
 						if question
-							textarea.form-control(rows="10" name="content" placeholder="Question")=question.content
+							textarea.form-control.limited-length(rows="10" data-maxlength="92" name="content" placeholder="Question")=question.content
 						else
-							textarea.form-control(rows="10" name="content" placeholder="Question")
+							textarea.form-control.limited-length(rows="10" data-maxlength="92" name="content" placeholder="Question")
+						
+						label.limited-counter 92 caractères restants.
+							
 					.form-group
 						label.control-label Texte de réponse :
 
 						if question
-							textarea.form-control(rows="5" name="answerText" placeholder="Texte de réponse")=question.answerText
+							textarea.form-control.limited-length(rows="5" data-maxlength="360" name="answerText" placeholder="Texte de réponse")=question.answerText
 						else
-							textarea.form-control(rows="5" name="answerText" placeholder="Texte de réponse")
+							textarea.form-control.limited-length(rows="5" data-maxlength="360" name="answerText" placeholder="Texte de réponse")
+						
+						label.limited-counter 360 caractères restants.
+						
 					br
 					
 					.animated-checkbox
@@ -79,7 +85,8 @@ block content
 								each answer, i in answers 
 									div
 										input(type="checkbox" name="answerItems["+i+"][isCorrect]" checked=answer.isCorrect)
-										input(type="text" name="answerItems["+i+"][title]" value=`${answer.title}`)
+										input(type="text" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=`${answer.title}`)
+										label.limited-counter.offset-1 30 caractères restants.
 										br
 										br 
 
@@ -91,44 +98,4 @@ block content
 		a.btn.btn-secondary(href="/quizzs/questions")
 			i.fa.fa-fw.fa-lg.fa-times-circle
 			| Annuler
-
-
-
-block specific-js
-	script(type='text/javascript').
-		var newAnswerBtn_element = document.getElementById("newAnswerBtn");
-		newAnswerBtn_element.addEventListener("click", newAnswer, false);
-
-		var numAnswer = 0;
-		
-		//- @TODO-RNO: Will need to find a more performant way to do the steps below:
-		function newAnswer(){
-			var responseList_UL = document.getElementById("responseList");
-			var responseContainerItem = document.createElement("div");
-			
-
-			//- Creating the input element of response
-			var input_responseName_element = document.createElement("input");
-			input_responseName_element.setAttribute("type","text");
-			input_responseName_element.setAttribute("placeholder",`Reponse No.${numAnswer+1}`);
-			input_responseName_element.setAttribute("name",`answerItems[${numAnswer}][title]`);
-
-			//- Creating the Checkbox element of response (isCorrect)
-			var input_responseIsGoodAnswer_element = document.createElement("input");
-			input_responseIsGoodAnswer_element.setAttribute("type","checkbox");
-			input_responseIsGoodAnswer_element.setAttribute("name",`answerItems[${numAnswer}][isCorrect]`);
-
-			var breakpoint = document.createElement("br");
-
-			numAnswer++;
-
-			responseContainerItem.appendChild(input_responseIsGoodAnswer_element);
-			responseContainerItem.appendChild(input_responseName_element);
-			
-			
-			responseList_UL.appendChild(responseContainerItem);
-			responseList_UL.appendChild(breakpoint);
-			console.log('Clicked on new response')
-		}
-
 

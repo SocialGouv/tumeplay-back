@@ -15,15 +15,35 @@ export default class MondialRelayService {
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
     ) {}
 
-    private buildLabelParams(fullName, pickup)
+    private buildLabelParams(fullName, shippingMode, pickup, shippingAddress)
     {
+	    let localParams = {};
+		
+		if( shippingMode == 'home' )
+		{
+			localParams = {
+				street: shippingAddress.street,
+				city: shippingAddress.city,
+				zipCode: shippingAddress.zipCode,
+			};
+		}
+		else
+		{
+			localParams = {
+				mode: '24R',
+				street: pickup.street,
+				city: pickup.city,
+				zipCode: pickup.zipCode,
+			};
+		}
+		
     	let params = {
             Enseigne: Config.mondialRelay.websiteId,
             ModeCol: 'REL',
-            ModeLiv: '24R',
+            ModeLiv: localParams.mode,
             
             Expe_Langage: 'FR',
-            Expe_Ad1: 'M. PANDORA CORP',
+            Expe_Ad1: 'M. TUMEPLAY',
             Expe_Ad3: '106 Boulevard Richard-Lenoir',
             Expe_Ville: 'Paris',
             Expe_CP: '75011',
@@ -32,9 +52,9 @@ export default class MondialRelayService {
             
             Dest_Langage: 'FR',
             Dest_Ad1: 'M. ' + fullName,
-            Dest_Ad3: pickup.street,
-            Dest_Ville: pickup.city,
-            Dest_CP: pickup.zipCode,
+            Dest_Ad3: localParams.street,
+            Dest_Ville: localParams.city,
+            Dest_CP: localParams.zipCode,
             Dest_Pays: 'FR',
             
             Poids: '400',
@@ -56,7 +76,7 @@ export default class MondialRelayService {
 				securityKey += params[prop];	
         	}
         }
-		console.log(params);
+		
         securityKey += Config.mondialRelay.websiteKey;
 
         const hash = md5(securityKey);
@@ -175,7 +195,7 @@ export default class MondialRelayService {
         }
     }
     
-    async createRemoteLabel(targetFilename, fullName, pickupPoint)
+    async createRemoteLabel(targetFilename, fullName, shippingModeText, pickupPoint, shippingAddress)
     {
 		const websiteId = 'BDTEST13';
 		const websiteKey = 'PrivateK';
@@ -183,7 +203,7 @@ export default class MondialRelayService {
 		const targetUrl = 'http://api.mondialrelay.com/Web_Services.asmx?WSDL';
 
         const soapClient = await soap.createClientAsync(targetUrl);
-        const params = this.buildLabelParams(fullName, pickupPoint);
+        const params = this.buildLabelParams(fullName, shippingModeText, pickupPoint, shippingAddress);
 
         const targetRes = await soapClient.WSI2_CreationEtiquetteAsync(params);
         let finalRes = false;

@@ -22,6 +22,24 @@ export default (app: Router) => {
         return bounds;
     }
     
+    
+    function formatTimetableRow(row) {
+        let _return = null;
+        if (row != null) {
+            let splitted = row.split('-');
+
+            _return =
+                splitted[0].substr(0, 2) +
+                'h' +
+                splitted[0].substr(2) +
+                ' - ' +
+                splitted[1].substr(0, 2) +
+                'h' +
+                splitted[1].substr(2);
+        }
+        return _return;
+    }
+    
     function toRad(Value) 
     {
         return Value * Math.PI / 180;
@@ -47,24 +65,7 @@ export default (app: Router) => {
 		return d;
     }
     
-    
-    function formatTimetableRow(row) {
-        let _return = null;
-        if (row != null) {
-            let splitted = row.split('-');
 
-            _return =
-                splitted[0].substr(0, 2) +
-                'h' +
-                splitted[0].substr(2) +
-                ' - ' +
-                splitted[1].substr(0, 2) +
-                'h' +
-                splitted[1].substr(2);
-        }
-        return _return;
-    }
-    
     app.use('/poi', route);
 
     route.get('/pickup/:latitude/:longitude', async (req: Request, res: Response, next: NextFunction) => {
@@ -118,10 +119,12 @@ export default (app: Router) => {
                     },
                     horaires: parsedTimetable,
                     distance: computeDistance(req.params.latitude, req.params.longitude,point.latitude,point.longitude)
+
                 };
             });
-
+            
             parsedPoints.sort((a, b) => a.distance - b.distance);
+
 
             return res.json(parsedPoints).status(200);
         } catch (e) {

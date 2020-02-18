@@ -27,12 +27,30 @@ export default (app: Router) => {
                 order: [['id', 'ASC']],
             });
 
-            const products = await ProductModel.findAll({
+            const fullProducts = await ProductModel.findAll({
                 where: {
                     deleted: false,
                     active: true,
                 },
                 include: ['picture'],
+            });
+            
+            const products = fullProducts.map(item => {
+	           return {
+		           id: item.id,
+		           title: item.title,
+		           description:item.description,
+		           shortDescription:item.shortDescription,
+		           defaultQty:item.defaultQty,
+		           qty: item.defaultQty,
+		           active:item.active,
+		           pictureId: item.pictureId,
+		           picture: {
+			           id: item.picture.id,
+			           path:item.picture.path,
+			           filename: item.picture.filename,
+		           }
+	           };
             });
 
             for (var i = 0; i < boxs.length; i++) {

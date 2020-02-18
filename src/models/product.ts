@@ -10,6 +10,7 @@ export default (sequelize, type) => {
         title: DataTypes.STRING,
         description: DataTypes.STRING,
         shortDescription: DataTypes.STRING,
+        supplierDescription: DataTypes.STRING,
         defaultQty: DataTypes.DECIMAL,
         active: DataTypes.BOOLEAN,
         deleted: {

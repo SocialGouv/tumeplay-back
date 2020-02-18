@@ -3,6 +3,9 @@ import { IPicture } from './IPicture';
 export interface IProductInputDTO {
     title: string;
     description: string;
+    shortDescription: string;
+    supplierDescription: string;
+    defaultQty: number;
     price: number;
     active: boolean;
     pictureId: number;

@@ -19,10 +19,12 @@
 				.form-group
 					label.control-label Titre
 					if content
-						input.form-control(type="text", name="title", placeholder="Titre du contenu ( usage interne uniquement )" value=`${content.title}`)
+						input.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu" value=`${content.title}`)
 					else
-						input.form-control(type="text", name="title", placeholder="Titre du contenu ( usage interne uniquement )")
-				
+						input.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu")
+					
+					label.limited-counter 92 caractères restants.
+
 				.form-group
 					label.control-label Famille
 					select.form-control(name="theme")
@@ -48,9 +50,12 @@
 					label.control-label Contenu
 					
 					if content
-						textarea.form-control(rows="20", name="text", placeholder="Contenu")=content.text
+						textarea.form-control.limited-length(rows="20", data-maxlength="360", name="text", placeholder="Contenu")=content.text
 					else
-						textarea.form-control(rows="20", name="text", placeholder="Contenu")
+						textarea.form-control.limited-length(rows="20", data-maxlength="360", name="text", placeholder="Contenu")
+						
+					label.limited-counter 360 caractères restants.
+					
 				if content
 					if content.picture && content.picture.path
 						img.pic-image-box-normal(src="../../"+content.picture.path)
