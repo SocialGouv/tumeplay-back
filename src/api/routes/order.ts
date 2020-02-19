@@ -236,8 +236,9 @@ export default (app: Router) => {
 					const mondialRelay = Container.get(MondialRelayService);
 					const datetime  = new Date(order.createdAt);
 		
-					const labelFile = await mondialRelay.createRemoteLabel(datetime.getTime().toString() + '-' + order.id, order.profileFullName, order.pickup);
-					
+					//const labelFile = await mondialRelay.createRemoteLabel(datetime.getTime().toString() + '-' + order.id, order.profileFullName, order.pickup);
+					const labelFile = await mondialRelay.createRemoteLabel(datetime.getTime().toString() + '-' + order.id, order.profileFullName, order.shippingModeText, order.pickup, order.shipping);
+
 					variables.labelFile = labelFile;
 				}
 				
