@@ -123,7 +123,7 @@ export default (app: Router) => {
                 };
             });
             
-            parsedPoints.sort((a, b) => a.distance - b.distance);
+            parsedPoints = parsedPoints.sort((a, b) => a.distance - b.distance).slice(0, 20);
 
 
             return res.json(parsedPoints).status(200);
