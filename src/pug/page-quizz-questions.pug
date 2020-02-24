@@ -61,9 +61,10 @@ block content
 											i.fa.fa-fw.fa-lg.fa-check-circle 
 											| Éditer
 										| &nbsp;&nbsp;&nbsp;
-										a(class='delete-item btn btn-secondary' href="#" data-id=`${question.id}`) 
-											i.fa.fa-fw.fa-lg.fa-times-circle
-											| Supprimer
+										form(action="/quizzs/questions/delete/" + question.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+											button(class='delete-item btn btn-secondary' type="submit") 
+												i.fa.fa-fw.fa-lg.fa-times-circle
+												| Supprimer
 				.tile-footer
 					a(class='btn btn-primary' href="/quizzs/questions/add") 
 						i.fa.fa-fw.fa-lg.fa-plus 
@@ -76,7 +77,7 @@ block specific-js
 	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
 	script(type='text/javascript').
 		$('#questionsDataTable').DataTable();
-		$('.delete-item').click(function(){
+		function deleteConfirmation(form){
 			swal({
 				title				: "Supprimer la question ?",
 				text				: "La suppression d'une question est définitive.",
@@ -91,9 +92,12 @@ block specific-js
 			{
 				if (isConfirm) 
 				{
-					swal("Supprimé", "[WIP/TODO] Supprimer élément", "success");
+					swal("Supprimé", "Elément supprimé", "success");
+					form.submit();
+					return;
 				} else {
 					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
 				}
 			});
-		});
+		}

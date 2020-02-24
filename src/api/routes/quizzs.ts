@@ -69,8 +69,8 @@ export default (app: Router) => {
                     category: questionItem.categoryId,
                     theme: questionItem.themeId,
                     background: questionItem.picture ? questionItem.picture.path : false,
-                    answers: sortedAnswers[questionItem.id]['answers'],
-                    rightAnswer: sortedAnswers[questionItem.id]['rightAnswer'],
+                    answers: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['answers'] : [],
+                    rightAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['rightAnswer'] : [],
                 };
 
                 return questionItemStructured;

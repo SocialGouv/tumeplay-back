@@ -1,0 +1,37 @@
+extends _layout.pug
+
+block title
+	| Ta box « #{boxName} » est arrivée !
+	
+block content
+	.col-4.box-picture-wrapper
+		img.decorate-top-left(src=`${hostname}` + "/pictures/mail/decorate-top-left.png")
+		img.box-picture(src=`${hostname}` + "/pictures/mail/box-" + `${boxId}` + ".png")
+		img.decorate-bottom-right(src=`${hostname}` + "/pictures/mail/decorate-bottom-right.png")
+		
+	.col-8
+		.subtitle #{firstName}, ta box est bien arrivée !
+		br
+		if shippingMethod == 'pickup'
+			.text Tu l'attendais ... et elle est arrivée. Ta box est disponible en point relais, n'oublie pas de te munir de ta pièce d'identité.
+		else
+			.text Tu l'attendais ... et elle est arrivée. Ta box t'attend à ton domicile.
+		br
+		.text.bold.colorised Bonne découverte !
+		
+	.clearfix
+	
+	.col-12
+		.text.bold Tu es (in)satisfait·e ?
+		.text Tu peux répondre à notre questionnaire de satisfaction : 
+			a(href='https://forms.sbc33.com/5d669ec8b95cee56b85dc3fc/-k5Bze2GRnugkjo682ZgDA/RbQOxbUWTKeoVQLh8RZseA/form.html') tu le trouveras ici.
+		br 
+		.text.bold Une question ? Un retour ?
+		.text Notre équipe répond à tes questions à l'adresse 
+			a(href='mailto:contact.tumeplay@fabrique.social.gouv.fr') contact.tumeplay@fabrique.social.gouv.fr
+		br 
+		.text Si jamais tu ne reçois pas ton colis, n’hésite pas à nous le signaler à cette adresse. Nous ferons de notre mieux pour trouver une solution ! 
+		br
+		.text Pour en savoir plus, suis-nous sur Instagram 
+			img.instagram-icon(src=`${hostname}` + "/pictures/mail/instagram-icon.jpg")
+			a(href="https://www.instagram.com/tumeplay/") @tumeplay

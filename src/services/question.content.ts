@@ -18,7 +18,7 @@ export default class QuestionContentService {
 
             let tempQuestionContent: any = questionContentInput;
             if (typeof tempQuestionContent.published === 'string') {
-                tempQuestionContent.published = temp_QuestionContent.published == 'on';
+                tempQuestionContent.published = tempQuestionContent.published == 'on';
             }
             const questionContent: IQuestionContent = await this.questionModel.create({
                 ...tempQuestionContent,

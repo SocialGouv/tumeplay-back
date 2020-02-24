@@ -53,4 +53,10 @@ export default class ContentService {
 
         return { contentRecord };
     }
+    
+    public async delete(contentId: Integer) {
+	    await this.contentModel.destroy({ where: {id: contentId}}) ;
+	    
+	    return;
+    }
 }

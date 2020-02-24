@@ -243,7 +243,7 @@ export default (app: Router) => {
 				}
 				
 				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔', 'new_order_admin', variables);
-                await mailService.send('info@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
+                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
 
             } catch (err) {
                 console.error(err); // TODO-low: should we notify in case of error here ?

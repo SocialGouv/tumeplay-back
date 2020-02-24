@@ -154,4 +154,22 @@ export default (app: Router) => {
             }
         },
     );
+    
+    route.post('/delete/:id', middlewares.isAuth, async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+
+        try {
+            const documentId = req.params.id;
+
+            const contentServiceInstance = Container.get(ContentService);
+            await contentServiceInstance.delete(documentId);
+
+
+            return res.redirect('/contents');
+        } catch (e) {
+            throw e;
+        }
+    });
+
 };

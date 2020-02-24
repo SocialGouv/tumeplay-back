@@ -120,7 +120,7 @@ export default (app: Router) => {
                         return {
                             title: answerItem.title,
                             isCorrect: answerItem.isCorrect === 'on',
-                            published: answerItem.published === 'on', // @TODO: is published really needed in question answer ?
+                            published: true, // @TODO: is published really needed in question answer ?
                             questionContentId,
                         };
                     });
@@ -237,6 +237,28 @@ export default (app: Router) => {
             }
         },
     );
+    
+    
+    
+    route.post(QUIZZ_QUESTION_ROOT + '/delete/:id', middlewares.isAuth, async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+
+        try {
+            const documentId = req.params.id;
+
+            const questionAnswerModel = Container.get('questionAnswerModel');
+            const questionServiceInstance = Container.get('questionModel');
+            
+            await questionAnswerModel.destroy({ where: { questionContentId: documentId } });
+			await questionServiceInstance.destroy({ where: { id: documentId } });
+			
+            return res.redirect(QUIZZ_ROOT + QUIZZ_QUESTION_ROOT);
+        } catch (e) {
+            throw e;
+        }
+    });
+
 
     /*
      *
@@ -379,4 +401,5 @@ export default (app: Router) => {
             }
         },
     );
+    
 };

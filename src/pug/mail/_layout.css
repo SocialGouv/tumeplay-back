@@ -70,6 +70,11 @@ body
 	font-family: 'Chivo-Bold';
 }
 
+.colorised
+{
+	color: #C80352;
+}
+
 .clearfix
 {
 	clear: both;
@@ -197,4 +202,5 @@ footer
 .box-picture
 {
 	max-width: 170px;
+	min-width: 170px;
 }
