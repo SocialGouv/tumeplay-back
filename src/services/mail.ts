@@ -39,7 +39,7 @@ export default class MailService {
 			if( typeof variables.labelFile !== "undefined" )
 			{
 				mailOptions.attachments = [{
-					filename: 'Label-MondialRelay.pdf',
+					filename: variables.labelFilename,
             		path: variables.labelFile,
 				}];
 			}

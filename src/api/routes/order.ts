@@ -8,6 +8,7 @@ import UserService from '../../services/user';
 import BoxService from '../../services/box';
 import MailerService from '../../services/mail';
 import MondialRelayService from '../../services/mondial.relay';
+import ColissimoService from '../../services/colissimo';
 
 const route = Router();
 
@@ -226,20 +227,42 @@ export default (app: Router) => {
 					shippingAddress: order.shipping,
 					products: order.products,
 					hostname: req.protocol + '://' + req.get('host'), // I'm a bit nervous using this one.
+					email: order.profileEmail,
 		        };
 		        
 				await mailService.send(localProfile.email, 'Commande effectuée ✔', 'new_order_user', variables);
 				
+				const datetime  = new Date(order.createdAt);
+				const orderReference = datetime.getTime().toString() + '-' + order.id;
 				
 				if( order.shippingModeText == 'pickup' )
 				{
 					const mondialRelay = Container.get(MondialRelayService);
-					const datetime  = new Date(order.createdAt);
 		
-					//const labelFile = await mondialRelay.createRemoteLabel(datetime.getTime().toString() + '-' + order.id, order.profileFullName, order.pickup);
-					const labelFile = await mondialRelay.createRemoteLabel(datetime.getTime().toString() + '-' + order.id, order.profileFullName, order.shippingModeText, order.pickup, order.shipping);
+					variables.labelFile = await mondialRelay.createRemoteLabel(
+						orderReference, 
+						order.profileFullName, 
+						localProfile.email, 
+						order.shippingModeText, 
+						order.pickup,
+						order.shipping
+					);
+					
+					variables.labelFilename = "Label-MondialRelay.pdf";
+				}
+				else
+				{
+					const colissimo = Container.get(ColissimoService);
+					
+					variables.labelFile = await colissimo.createLabel(
+						orderReference,
+						variables.firstName,
+						variables.name,
+						variables.email,
+						variables.shippingAddress
+					);
 
-					variables.labelFile = labelFile;
+					variables.labelFilename = "Colissimo-Data.csv";
 				}
 				
 				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔', 'new_order_admin', variables);

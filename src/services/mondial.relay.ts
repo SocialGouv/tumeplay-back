@@ -15,7 +15,7 @@ export default class MondialRelayService {
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
     ) {}
 
-    private buildLabelParams(fullName, shippingMode, pickup, shippingAddress)
+    private buildLabelParams(fullName, orderEmail, shippingMode, pickup, shippingAddress)
     {
 	    let localParams = {};
 		
@@ -56,6 +56,7 @@ export default class MondialRelayService {
             Dest_Ville: localParams.city,
             Dest_CP: localParams.zipCode,
             Dest_Pays: 'FR',
+            Dest_Mail: orderEmail,
             
             Poids: '400',
             NbColis: '1',
@@ -195,7 +196,7 @@ export default class MondialRelayService {
         }
     }
     
-    async createRemoteLabel(targetFilename, fullName, shippingModeText, pickupPoint, shippingAddress)
+    async createRemoteLabel(targetFilename, fullName, orderEmail, shippingModeText, pickupPoint, shippingAddress)
     {
 		const websiteId = 'BDTEST13';
 		const websiteKey = 'PrivateK';
@@ -203,7 +204,7 @@ export default class MondialRelayService {
 		const targetUrl = 'http://api.mondialrelay.com/Web_Services.asmx?WSDL';
 
         const soapClient = await soap.createClientAsync(targetUrl);
-        const params = this.buildLabelParams(fullName, shippingModeText, pickupPoint, shippingAddress);
+        const params = this.buildLabelParams(fullName, orderEmail, shippingModeText, pickupPoint, shippingAddress);
 
         const targetRes = await soapClient.WSI2_CreationEtiquetteAsync(params);
         let finalRes = false;
