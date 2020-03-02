@@ -14,6 +14,7 @@ export default (sequelize, type) => {
         city: DataTypes.STRING,
         concatenation: DataTypes.STRING,
         zipCode: DataTypes.STRING,
+        phoneNumber: DataTypes.STRING,
         userId: {
             type: DataTypes.INTEGER,
             reference: {

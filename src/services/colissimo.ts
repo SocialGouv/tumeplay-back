@@ -26,13 +26,13 @@ export default class ColissimoService {
 		    lastName: lastName,
 		    floor: '',
 		    building: '',
-		    streetName: shippingAddress.street,
+		    streetName: shippingAddress.street.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
 		    citySurname: '',
 		    zipCode: shippingAddress.zipCode,
-		    city: shippingAddress.city,
+		    city: shippingAddress.city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
 		    countryCode: 'FR',
 		    phoneNumber: '',
-		    phoneNumber2: '',
+		    phoneNumber2: shippingAddress.phoneNumber,
 		    email: orderEmail,
 		    doorCode1: '',
 		    doorCode2: '',
@@ -58,9 +58,9 @@ export default class ColissimoService {
 
         try
         {
-	        const data = await stringify(params);
+	        const data = await stringify(params, {delimiter: ';'});
 	        
-	        fs.writeFile(targetPath, data, (err) => {
+	        fs.writeFile(targetPath, '\ufeff' + data, { encoding: 'utf8' }, (err) => {
 			  if (err) {
 				targetPath = false;
 			    throw err;

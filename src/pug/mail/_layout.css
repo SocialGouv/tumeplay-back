@@ -204,3 +204,12 @@ footer
 	max-width: 170px;
 	min-width: 170px;
 }
+
+@media (max-width: 768px) {
+	.col-4,
+	.col-8
+	{
+		display: block;
+		width: 100%;
+	}	
+}

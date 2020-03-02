@@ -3,6 +3,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { IPoi } from '../../interfaces/IPoi';
 import { Op } from 'sequelize';
 import MondialRelayService from '../../services/mondial.relay';
+import AddressValidatorService from '../../services/addressValidator';
 
 const route = Router();
 
@@ -72,7 +73,7 @@ export default (app: Router) => {
         const logger: any = Container.get('logger');
         try {
             const mondialRelay: any = Container.get(MondialRelayService);
-
+			const addressValidator = Container.get(AddressValidatorService);
             const myPoints = await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
 
             const poiService: any = Container.get('poiModel');
@@ -93,7 +94,11 @@ export default (app: Router) => {
                 },
             });
 
-            let parsedPoints = points.map(point => {
+			let parsedPoints = points.filter(item => {
+				return addressValidator.isZipCodeAllowed(item.zipCode) ? item : false;
+			})
+			
+            parsedPoints = parsedPoints.map(point => {
             	
                 const localTimetable = ( typeof point.horaires == "string") ? JSON.parse(point.horaires) : point.horaires;
                 const parsedTimetable = {};

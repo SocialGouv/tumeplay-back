@@ -8,6 +8,7 @@ import UserService from '../../services/user';
 import BoxService from '../../services/box';
 import MailerService from '../../services/mail';
 import MondialRelayService from '../../services/mondial.relay';
+import AddressValidatorService from '../../services/addressValidator';
 import ColissimoService from '../../services/colissimo';
 
 const route = Router();
@@ -61,6 +62,7 @@ export default (app: Router) => {
             const BoxProductModelService = Container.get('boxProductModel');
             const ProductService = Container.get('productModel');
             const UserModelService = Container.get(UserService);
+            const addressValidator = Container.get(AddressValidatorService);
             const OrderModelService = Container.get('orderModel');
             const OrderProductModelService = Container.get('productOrderModel');
             const ShippingModeModelService = Container.get('shippingModeModel');
@@ -153,6 +155,11 @@ export default (app: Router) => {
                 localShipping = localShipping[0];
             }
 
+			if( !addressValidator.isZipCodeAllowed(userAdress.zipCode) )
+			{
+				// Need to test a little bit more... 
+			}
+			
             // Step 6 : Get shipping adress for user
             const localAdress = {
                 num: '',
@@ -161,6 +168,7 @@ export default (app: Router) => {
                 concatenation: `${userAdress.zipCode},${userAdress.city},${userAdress.adress}`,
                 street: userAdress.adress,
                 zipCode: userAdress.zipCode,
+                phoneNumber: userAdress.phoneNumber,
                 userId: userId,
             };
             let localUserAdress = await ShippingAddressModelService.findAll({ where: localAdress });
@@ -265,7 +273,7 @@ export default (app: Router) => {
 					variables.labelFilename = "Colissimo-Data.csv";
 				}
 				
-				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔', 'new_order_admin', variables);
+				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
                 await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
 
             } catch (err) {
@@ -275,18 +283,6 @@ export default (app: Router) => {
             return res.json().status(200);
         },
     );
-
-    /**
-     * @todo: delete below when finished (RND)
-     */
-    route.post('/sendMockEmailTest', async (req: Request, res: Response, next: NextFunction) => {
-        // Generate test SMTP service account from ethereal.email
-        // Only needed if you don't have a real mail account for testing
-
-        // create reusable transporter object using the default SMTP transport
-
-        return res.json(info).status(200);
-    });
 
     app.use(errors());
 };
