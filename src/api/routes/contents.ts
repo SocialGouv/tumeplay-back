@@ -26,6 +26,7 @@ export default (app: Router) => {
                     picture: content.picture ? content.picture.destination + '/' + content.picture.filename : false,
                     title: content.title,
                     text: content.text,
+                    link: content.link,
                 };
             });
             return res.json(parsedContent).status(200);

@@ -2,6 +2,7 @@ export interface IContent {
     id: number;
     title: string;
     text: string;
+    link: string;
     published: string;
     pictureId: number;
     themeId: number;
@@ -11,6 +12,7 @@ export interface IContent {
 export interface IContentInputDTO {
     title: string;
     text: string;
+    link: string;
     published: string;
     pictureId: number;
     themeId: number;

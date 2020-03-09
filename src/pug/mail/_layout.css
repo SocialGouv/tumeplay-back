@@ -172,7 +172,7 @@ footer
 .footer-picture
 {
 	max-width: 100%;
-	max-height: 100%;
+	max-height: 100px;
 }
 
 .box-picture-wrapper
@@ -211,5 +211,15 @@ footer
 	{
 		display: block;
 		width: 100%;
+	}
+	.box-picture-wrapper
+	{
+		text-align: center;
 	}	
+	.footer-picture.small-height
+	{
+		height: auto;
+		max-height: 30px;
+		width: auto;
+	}
 }

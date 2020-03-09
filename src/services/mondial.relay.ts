@@ -51,9 +51,9 @@ export default class MondialRelayService {
             Expe_Tel1: '+33142386040',
             
             Dest_Langage: 'FR',
-            Dest_Ad1: 'M. ' + fullName,
-            Dest_Ad3: localParams.street,
-            Dest_Ville: localParams.city,
+            Dest_Ad1: 'M. ' + fullName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
+            Dest_Ad3: localParams.street.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
+            Dest_Ville: localParams.city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
             Dest_CP: localParams.zipCode,
             Dest_Pays: 'FR',
             Dest_Mail: orderEmail,
@@ -196,6 +196,18 @@ export default class MondialRelayService {
         }
     }
     
+    async writeFile(targetUrl, targetPath) {
+	  return new Promise ((resolve, reject) => {
+	    
+		const file = fs.createWriteStream(targetPath);
+		
+		const request = https.get(targetUrl, async function(response) {
+		  response.pipe(file);
+		  resolve(response);
+		});
+	  }); 
+	}
+    
     async createRemoteLabel(targetFilename, fullName, orderEmail, shippingModeText, pickupPoint, shippingAddress)
     {
 		const websiteId = 'BDTEST13';
@@ -223,10 +235,8 @@ export default class MondialRelayService {
 	            }
             	
             	const targetPath =  targetFolder + '/' + targetFilename + '.pdf';
-            	const file = fs.createWriteStream(targetPath);
-				const request = https.get(finalRes, function(response) {
-				  response.pipe(file);
-				});
+            	
+            	await this.writeFile(finalRes, targetPath);
 				
 				finalRes = targetPath;
             }

@@ -9,6 +9,7 @@ export default (sequelize, type) => {
         },
         title: DataTypes.STRING,
         text: DataTypes.STRING(1000),
+        link: DataTypes.STRING(1000),
         published: DataTypes.BOOLEAN,
         pictureId: {
             type: DataTypes.INTEGER,

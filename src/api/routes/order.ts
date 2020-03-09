@@ -17,7 +17,7 @@ export default (app: Router) => {
     const ORDERS_ROOT = '/orders';
 
     app.use(ORDERS_ROOT, route);
-           
+       
     route.post(
         '/confirm',
         middlewares.isAuth,
@@ -72,8 +72,6 @@ export default (app: Router) => {
             // Step 0 : Load User
             const localUser = await UserModelService.findById(userId);
 
-            logger.debug('Local User : %o', localUser);
-
             logger.debug('Order confirmation - Request body : %o', JSON.stringify(req.body));
             if (!localUser) {
                 throw Exception('No user.');
@@ -98,14 +96,10 @@ export default (app: Router) => {
             if (boxProducts.length == 0) {
                 const productsIds = [];
 
-                logger.debug('PRODUCTS  : %o', products);
                 for (let i = 0; i < products.length; i++) {
                     productsIds.push(products[i].id);
                     localProducts[products[i].id] = products[i].qty;
                 }
-
-                logger.debug('ProductIDS : %o', localProducts);
-                logger.debug('ProductIDS 2 : %o', productsIds);
 
                 const allProducts = await ProductService.findAll({
                     where: {
@@ -136,8 +130,6 @@ export default (app: Router) => {
                 where: localProfile,
             });
 
-            logger.debug('Local Box : %o', userProfile);
-
             if (!userProfile || userProfile.length == 0) {
                 userProfile = await UserProfileModelService.create(localProfile);
             } else {
@@ -154,7 +146,7 @@ export default (app: Router) => {
             } else {
                 localShipping = localShipping[0];
             }
-
+			
 			if( !addressValidator.isZipCodeAllowed(userAdress.zipCode) )
 			{
 				// Need to test a little bit more... 
@@ -246,7 +238,7 @@ export default (app: Router) => {
 				if( order.shippingModeText == 'pickup' )
 				{
 					const mondialRelay = Container.get(MondialRelayService);
-		
+							
 					variables.labelFile = await mondialRelay.createRemoteLabel(
 						orderReference, 
 						order.profileFullName, 
@@ -256,7 +248,7 @@ export default (app: Router) => {
 						order.shipping
 					);
 					
-					variables.labelFilename = "Label-MondialRelay.pdf";
+					variables.labelFilename = variables.orderId + '-' + variables.boxId + ".pdf";
 				}
 				else
 				{
@@ -269,8 +261,8 @@ export default (app: Router) => {
 						variables.email,
 						variables.shippingAddress
 					);
-
-					variables.labelFilename = "Colissimo-Data.csv";
+					
+					variables.labelFilename = variables.orderId + '-' + variables.boxId + ".csv";
 				}
 				
 				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);

@@ -65,6 +65,7 @@ export default (app: Router) => {
             let contentItem: IContentInputDTO = {
                 title: req.body.title,
                 text: req.body.text,
+                link: req.body.link,
                 published: req.body.published,
                 themeId: req.body.theme,
                 categoryId: req.body.category,
@@ -130,6 +131,7 @@ export default (app: Router) => {
                 let contentItem: IContentInputDTO = {
                     title: req.body.title,
                     text: req.body.text,
+                    link: req.body.link,
                     published: req.body.published,
                     themeId: req.body.theme,
                     categoryId: req.body.category,

@@ -24,6 +24,13 @@
 						input.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu")
 					
 					label.limited-counter 92 caractères restants.
+				
+				.form-group
+					label.control-label Lien associé
+					if content && content.link
+						input.form-control(type="text", name="link", placeholder="Lien associé" value=`${content.link}`)
+					else
+						input.form-control(type="text", name="link", placeholder="Lien associé")
 
 				.form-group
 					label.control-label Famille
