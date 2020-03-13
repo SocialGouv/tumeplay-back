@@ -62,6 +62,11 @@
 						textarea.form-control.limited-length(rows="20", data-maxlength="360", name="text", placeholder="Contenu")
 						
 					label.limited-counter 360 caractères restants.
+					br
+					label Rappel des éléments disponibles :
+						ul
+							li Lien : #{'<a href="https://www.monsite.com">'}Cliquez ici#{'</a>'}
+							li Gras : #{'<strong>'}Ceci est un test en gras#{'</strong>'}
 					
 				if content
 					if content.picture && content.picture.path

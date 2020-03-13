@@ -17,7 +17,55 @@ export default (app: Router) => {
     const ORDERS_ROOT = '/orders';
 
     app.use(ORDERS_ROOT, route);
-       
+    
+	route.post(
+		'/is-allowed',
+        middlewares.isAuth,
+        celebrate({
+            body: Joi.object({
+                userAdress: Joi.object(),
+                box: Joi.number().integer(),
+            }),
+        }),
+        async (req: Request, res: Response, next: NextFunction) => {
+        	const userId = req.user.id;
+            const userAddress = req.body.userAdress;
+            const boxId = req.body.box;
+            const logger: any = Container.get('logger');
+            const UserProfileModelService = Container.get('profileModel');
+            const orderServiceInstance = Container.get(OrderService);
+            
+            let isAllowed = false;
+            
+            const localProfile = {
+                name: userAddress.lastName,
+                surname: userAddress.firstName,
+                email: userAddress.emailAdress,
+                userId: userId,
+            };
+            
+            let userProfile = await UserProfileModelService.findOne({
+                where: localProfile,
+            });
+            
+            if( !userProfile )
+            {
+				isAllowed = true;
+				
+				userProfile = { id : 'N/A' };
+            }
+            else
+            {
+				const {isOrderAllowed} = await orderServiceInstance.isOrderAllowed(userId, boxId, userProfile);	
+				
+				isAllowed = isOrderAllowed;
+            }
+            
+        	logger.debug('Testing user ' + userId + ' with profile '+ userProfile.id +' for box ' + boxId + ' : ' + isAllowed);
+            
+        	return res.json({isAllowed : isAllowed}).status(200);
+		},
+	)          
     route.post(
         '/confirm',
         middlewares.isAuth,
@@ -126,14 +174,19 @@ export default (app: Router) => {
                 email: userAdress.emailAdress,
                 userId: userId,
             };
-            let userProfile = await UserProfileModelService.findAll({
+            let userProfile = await UserProfileModelService.findOne({
                 where: localProfile,
             });
 
             if (!userProfile || userProfile.length == 0) {
                 userProfile = await UserProfileModelService.create(localProfile);
-            } else {
-                userProfile = userProfile[0];
+            }
+            
+            const {isOrderAllowed} = await Container.get(OrderService).isOrderAllowed(userId, boxId, userProfile);
+            
+            if( !isOrderAllowed )
+            {
+				return res.json({success: false}).status(200);
             }
 
             // Step 5 : Get Shipping Mode
@@ -149,10 +202,10 @@ export default (app: Router) => {
 			
 			if( !addressValidator.isZipCodeAllowed(userAdress.zipCode) )
 			{
-				// Need to test a little bit more... 
+				return res.json({success: false}).status(200);
 			}
 			
-            // Step 6 : Get shipping adress for user
+			// Step 6 : Get shipping adress for user
             const localAdress = {
                 num: '',
                 cp: '',
@@ -190,8 +243,6 @@ export default (app: Router) => {
             const _orderProducts = [];
 
             boxProducts.forEach(product => {
-                logger.debug('Local Box : %o', product);
-
                 _orderProducts.push({
                     productId: product.productId,
                     orderId: order.id,
@@ -272,7 +323,7 @@ export default (app: Router) => {
                 console.error(err); // TODO-low: should we notify in case of error here ?
             }
 
-            return res.json().status(200);
+            return res.json({success: true}).status(200);
         },
     );
 

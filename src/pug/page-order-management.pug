@@ -32,7 +32,8 @@ block content
 							tr
 								th Réference (ID)
 								th Date de commande
-								th Client
+								th Destinataire
+								th E-mail
 								th Address de livraison
 								th Type de livraison
 								th Date de création
@@ -46,6 +47,7 @@ block content
 									td #{order.id}
 									td #{order.orderDate ? prettyDate(order.orderDate) : ""}
 									td #{order.profileFullName}
+									td #{order.profileEmail}
 									if order.shippingModeText == 'pickup'
 										td 
 											| #{order.pickup.name}

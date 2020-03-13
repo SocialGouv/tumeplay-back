@@ -1,0 +1,46 @@
+doctype html
+html
+	head
+		style.
+			@font-face {
+				font-family: 'Chivo-Regular';
+				src: url('#{hostname}/fonts/Chivo-Regular.ttf');
+			}
+			@font-face {
+				font-family: 'Abel-Regular';
+				src: url('#{hostname}/fonts/Abel-Regular.ttf');
+			}
+
+			@font-face {
+				font-family: 'Chivo-Regular';
+				src: url('#{hostname}/fonts/Chivo-Regular.ttf');
+			}
+
+			@font-face {
+				font-family: 'Chivo-Bold';
+				src: url('#{hostname}/fonts/Chivo-Bold.ttf');
+			}
+
+			@font-face {
+				font-family: 'CarterOne-Regular';
+				src: url('#{hostname}/fonts/CarterOne-Regular.ttf');
+			} 
+		style
+			include _layout.css
+			include _layout.small.css
+
+	body
+		.text-center
+			img.header-picture(src=`${hostname}` + "/pictures/mail/header.jpg")
+		
+		.text-center
+			span.underline-wrapper
+				.main-subtitle 
+					block title	
+						| Confirmation de ta commande sur Tumeplay
+				.underline
+			
+		block content
+					
+		include _footer
+			

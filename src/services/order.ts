@@ -3,6 +3,7 @@ import { IOrder, IOrderInputDTO, IOrderMainView } from '../interfaces/IOrder';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 import ProductOrderService from './product.order';
 import { IProductOrderInputDTO } from '../interfaces/IProductOrder';
+import { Op } from 'sequelize';
 
 @Service()
 export default class OrderService {
@@ -130,6 +131,7 @@ export default class OrderService {
                     delivered: item.delivered,
                     shippingModeId: item.shippingModeId,
                     shippingAddressId: item.shippingAddressId,
+                    profileEmail: item.profile ? item.profile.email : '',
                     profileId: item.profileId,
                     userId: item.userId,
                     createdAt: item.createdAt,
@@ -165,5 +167,52 @@ export default class OrderService {
             this.logger.error(e);
             throw e;
         }
+    }
+    
+    /**
+    * Règles boites :
+		les 4 diffiérentes box commandées dans la même semaine
+		1 box de chaque genre par semaine maximum
+		2 box sur mesure par mois
+		comptage par utilisateur ? 
+		IP
+		mail
+		Nom/Prénom
+    */
+    public async isOrderAllowed(userId, boxId, userProfile): Promise<{isOrderAllowed: bool}> {
+		try
+		{
+			const dayModifier 	= ( boxId == 4 ) ? 30 : 7; // Naive implementation for "one month" / "one week"
+			const thresholdTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+						
+			const orders: any = await this.orderModel.findAll({
+                where: { 
+					orderDate: {
+						[Op.gte]: thresholdTime,
+					},
+					userId : userId,
+					profileId: userProfile.id,
+					boxId: boxId,
+                },
+            });
+            
+            // We start from "allowed"
+            let isAllowed = true;
+            console.log("Orders length : " + orders.length );
+            // Do we have any order ? 
+            if( orders && orders.length > 0 )
+            {
+            	// Disallow more than "one order by box by week" and "two order of box 4 by month" 
+            	isAllowed = ( boxId == 4 ) ? ( orders.length < 2 ) : false;				
+            }
+            
+            return { isOrderAllowed : isAllowed };
+		}
+		catch(e)
+		{
+			this.logger.error(e);
+			
+			return { isOrderAllowed : true };
+		}
     }
 }
