@@ -45,6 +45,7 @@ export default (app: Router) => {
 		           qty: item.defaultQty,
 		           active:item.active,
 		           pictureId: item.pictureId,
+		           isOrderable: item.isOrderable,
 		           picture: {
 			           id: item.picture.id,
 			           path:item.picture.path,

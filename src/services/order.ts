@@ -115,7 +115,7 @@ export default class OrderService {
         try {
             this.logger.silly('Finding all orders');
             let ordersResult: IOrder[] = await this.orderModel.findAll({
-                include: ['shippingMode', 'shippingAddress', 'profile', 'pickup'],
+                include: ['shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],
             });
             const orders: IOrderMainView[] = ordersResult.map(item => {
                 let additional_fields = {
@@ -137,6 +137,7 @@ export default class OrderService {
                     createdAt: item.createdAt,
                     updatedAt: item.updatedAt,
                     pickup: item.pickup,
+                    box: item.box,
                     ...additional_fields,
                 };
             });
@@ -198,7 +199,7 @@ export default class OrderService {
             
             // We start from "allowed"
             let isAllowed = true;
-            console.log("Orders length : " + orders.length );
+			this.logger.silly('Found ' + orders.length + ' orders for user.');
             // Do we have any order ? 
             if( orders && orders.length > 0 )
             {

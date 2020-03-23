@@ -6,10 +6,12 @@ import { celebrate, Joi, errors } from 'celebrate';
 import middlewares from '../middlewares';
 import UserService from '../../services/user';
 import BoxService from '../../services/box';
+import ProductService from '../../services/product';
 import MailerService from '../../services/mail';
 import MondialRelayService from '../../services/mondial.relay';
 import AddressValidatorService from '../../services/addressValidator';
 import ColissimoService from '../../services/colissimo';
+import Config from '../../config';
 
 const route = Router();
 
@@ -18,7 +20,7 @@ export default (app: Router) => {
 
     app.use(ORDERS_ROOT, route);
     
-	route.post(
+    route.post(
 		'/is-allowed',
         middlewares.isAuth,
         celebrate({
@@ -65,7 +67,8 @@ export default (app: Router) => {
             
         	return res.json({isAllowed : isAllowed}).status(200);
 		},
-	)          
+	);
+	         
     route.post(
         '/confirm',
         middlewares.isAuth,
@@ -108,7 +111,8 @@ export default (app: Router) => {
             const logger: any = Container.get('logger');
             const BoxModelService = Container.get(BoxService);
             const BoxProductModelService = Container.get('boxProductModel');
-            const ProductService = Container.get('productModel');
+            const ProductModelService = Container.get('productModel');
+            const productService = Container.get(ProductService);
             const UserModelService = Container.get(UserService);
             const addressValidator = Container.get(AddressValidatorService);
             const OrderModelService = Container.get('orderModel');
@@ -149,7 +153,7 @@ export default (app: Router) => {
                     localProducts[products[i].id] = products[i].qty;
                 }
 
-                const allProducts = await ProductService.findAll({
+                const allProducts = await ProductModelService.findAll({
                     where: {
                         id: productsIds,
                     },
@@ -186,22 +190,23 @@ export default (app: Router) => {
             
             if( !isOrderAllowed )
             {
+            	logger.debug('Order is not allowed. Aborting.');
 				return res.json({success: false}).status(200);
             }
 
             // Step 5 : Get Shipping Mode
             const shippingData = { title: deliveryMode };
 
-            let localShipping = await ShippingModeModelService.findAll({ where: shippingData });
+            let localShipping = await ShippingModeModelService.findOne({ where: shippingData });
 
             if (!localShipping || localShipping.length == 0) {
                 localShipping = await ShippingModeModelService.create(shippingData);
-            } else {
-                localShipping = localShipping[0];
-            }
+            } 
+            
 			
 			if( !addressValidator.isZipCodeAllowed(userAdress.zipCode) )
 			{
+				logger.debug('Zipcode is not allowed. Aborting.');
 				return res.json({success: false}).status(200);
 			}
 			
@@ -216,14 +221,12 @@ export default (app: Router) => {
                 phoneNumber: userAdress.phoneNumber,
                 userId: userId,
             };
-            let localUserAdress = await ShippingAddressModelService.findAll({ where: localAdress });
+            let localUserAdress = await ShippingAddressModelService.findOne({ where: localAdress });
 
             if (!localUserAdress || localUserAdress.length == 0) {
                 localUserAdress = await ShippingAddressModelService.create(localAdress);
-            } else {
-                localUserAdress = localUserAdress[0];
             }
-
+            
             // Step 7 : Create order
             const orderData = {
                 sent: false,
@@ -242,20 +245,44 @@ export default (app: Router) => {
             // Step 8 : Create order products
             const _orderProducts = [];
 
-            boxProducts.forEach(product => {
+            boxProducts.forEach( async (product) => {
+                let localQuantity = null;
+				let decreaseQty   = 1;
+				if( localProducts[product.productId] )
+				{
+					logger.debug("Using local product qty : " + localProducts[product.productId]);
+					localQuantity = localProducts[product.productId];
+					decreaseQty	  = localQuantity;
+				}
+				else
+				{
+					if( product.qty )
+					{
+						logger.debug("Using product qty : " + product.qty);
+						localQuantity = product.qty;
+					}
+					else
+					{
+						if( product.defaultQty )
+						{
+							logger.debug("Using default product qty : " + product.defaultQty);
+							localQuantity = product.defaultQty;
+						}
+					}
+				}
+				
                 _orderProducts.push({
                     productId: product.productId,
                     orderId: order.id,
-                    qty: localProducts[product.productId]
-                        ? localProducts[product.productId]
-                        : product.qty
-                        ? product.qty
-                        : product.defaultQty
-                        ? product.defaultQty
-                        : null,
+                    qty: localQuantity,
                 });
-            });
+                
+                await productService.decreaseStock(product.productId, decreaseQty);	
 
+            });
+            
+            logger.debug("We have " + _orderProducts.length + " products.");
+            
             await OrderProductModelService.bulkCreate(_orderProducts);
 
             // Step 9. Send email (confirmation of order)
@@ -286,39 +313,41 @@ export default (app: Router) => {
 				const datetime  = new Date(order.createdAt);
 				const orderReference = datetime.getTime().toString() + '-' + order.id;
 				
-				if( order.shippingModeText == 'pickup' )
+				if( Config.environment == 'prod' )
 				{
-					const mondialRelay = Container.get(MondialRelayService);
-							
-					variables.labelFile = await mondialRelay.createRemoteLabel(
-						orderReference, 
-						order.profileFullName, 
-						localProfile.email, 
-						order.shippingModeText, 
-						order.pickup,
-						order.shipping
-					);
+					if( order.shippingModeText == 'pickup' )
+					{
+						const mondialRelay = Container.get(MondialRelayService);
+								
+						variables.labelFile = await mondialRelay.createRemoteLabel(
+							orderReference, 
+							order.profileFullName, 
+							localProfile.email, 
+							order.shippingModeText, 
+							order.pickup,
+							order.shipping
+						);
+						
+						variables.labelFilename = variables.orderId + '-' + variables.boxId + ".pdf";
+					}
+					else
+					{
+						const colissimo = Container.get(ColissimoService);
+						
+						variables.labelFile = await colissimo.createLabel(
+							orderReference,
+							variables.firstName,
+							variables.name,
+							variables.email,
+							variables.shippingAddress
+						);
+						
+						variables.labelFilename = variables.orderId + '-' + variables.boxId + ".csv";
+					}
 					
-					variables.labelFilename = variables.orderId + '-' + variables.boxId + ".pdf";
+					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
 				}
-				else
-				{
-					const colissimo = Container.get(ColissimoService);
-					
-					variables.labelFile = await colissimo.createLabel(
-						orderReference,
-						variables.firstName,
-						variables.name,
-						variables.email,
-						variables.shippingAddress
-					);
-					
-					variables.labelFilename = variables.orderId + '-' + variables.boxId + ".csv";
-				}
-				
-				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
-                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
-
             } catch (err) {
                 console.error(err); // TODO-low: should we notify in case of error here ?
             }

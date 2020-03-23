@@ -34,8 +34,7 @@ block content
 								th Famille
 								th Thèmatique
 								th Photo
-								th Date de création
-								th Date de mise à jour
+								th Mise à jour
 								th Publié
 								th Actions
 						tbody
@@ -49,7 +48,6 @@ block content
 											img.pic-image-box(src=`/${question.picture.path}`)
 										else if question.defaultPicturePath
 											img.pic-image-box(src=`/${question.defaultPicturePath}`)
-									td #{prettyDate(question.createdAt)}
 									td #{prettyDate(question.updatedAt)}
 									td
 										if question.published

@@ -9,6 +9,11 @@ aside.app-sidebar
 
 	ul.app-menu
 		li
+			a.app-menu__item(href='/home' class={'active': activePage == 'dashboard'})
+				i.app-menu__icon.fa.fa-home
+				span.app-menu__label Dashboard
+				
+		li
 			a.app-menu__item(href='/contents' class={'active': activePage == 'page-contents'})
 				i.app-menu__icon.fa.fa-book
 				span.app-menu__label Contenus

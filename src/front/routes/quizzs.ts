@@ -190,6 +190,7 @@ export default (app: Router) => {
                     content: req.body.content,
                     published: req.body.published,
                     categoryId: req.body.selectedCategory ? JSON.parse(req.body.selectedCategory).id : null,
+                    themeId: req.body.selectedTheme ? JSON.parse(req.body.selectedTheme).id : null,
                     pictureId: undefined,
                 };
 
@@ -316,7 +317,7 @@ export default (app: Router) => {
                 let questionCategoryItem: IQuestionCategoryDTO = {
                     title: req.body.title,
                     content: req.body.content,
-                    published: req.body.published,
+                    published: req.body.published == 'on',
                     pictureId: null,
                     themeId: req.body.selectedThematique ? JSON.parse(req.body.selectedThematique).id : null,
                     deleted: false,
@@ -377,7 +378,7 @@ export default (app: Router) => {
                 let questionCategoryItem: IQuestionCategoryDTO = {
                     title: req.body.title,
                     content: req.body.content,
-                    published: req.body.published,
+                    published: req.body.published == 'on',
                     pictureId: undefined,
                     themeId: req.body.selectedThematique ? JSON.parse(req.body.selectedThematique).id : null,
                     deleted: false,

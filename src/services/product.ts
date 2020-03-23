@@ -68,4 +68,59 @@ export default class ProductService {
             throw e;
         }
     }
+    
+    public async decreaseStock(id: number, numberToDecrease: number): Promise<{ product: IProduct }> {
+		try {
+            const productRecord: any = await this.productModel.findOne({
+                where: { id },
+            });
+			
+            if (!productRecord) {
+                throw new Error('Product #' + id + ' not found.');
+            }
+			
+			const productStock  = productRecord.stock;
+			
+			if( (productStock - numberToDecrease) < 0 ){
+				throw new Error('Cannot change stock for product #' + id + ' : stock too low ( Trying to decrease ' + productStock + ' by ' + numberToDecrease + ')');
+			}
+			
+			const productUpdate = {	stock: ( productStock - numberToDecrease) };
+            this.logger.silly('Decreasing product #'+ id +' stock from ' + productStock + ' to ' + productUpdate.stock);
+
+            const product: IProduct = await productRecord.update(productUpdate);
+
+            return { product };
+        } catch (e) {
+            this.logger.error(e);
+        }
+    }
+    
+    
+    public async increaseStock(id: number, numberToIncrease: number): Promise<{ product: IProduct }> {
+		try {
+            const productRecord: any = await this.productModel.findOne({
+                where: { id },
+            });
+			
+            if (!productRecord) {
+                throw new Error('Product #' + id + ' not found.');
+            }
+			
+			if( !productRecord.stock) {
+				throw new Error('Product #' + id + ' has not stock. Aborting.');
+			}
+			const productStock  = parseInt(productRecord.stock);
+			
+			
+			const productUpdate = {	stock: ( productStock + parseInt(numberToIncrease)) };
+            this.logger.silly('Increasing product #'+ id +' stock from ' + productStock + ' to ' + productUpdate.stock);
+
+            const product: IProduct = await productRecord.update(productUpdate);
+
+            return { product };
+        } catch (e) {
+            this.logger.error(e);
+        }
+    }
 }

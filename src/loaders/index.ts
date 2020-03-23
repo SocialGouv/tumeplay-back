@@ -76,6 +76,10 @@ export default async ({ expressApp }) => {
                 name: 'poiModel',
                 model: models.poiModel,
             },
+            {
+                name: 'productStockModel',
+                model: models.productStockModel,
+            },
         ],
     });
     Logger.info('✌️ Dependency Injector loaded');

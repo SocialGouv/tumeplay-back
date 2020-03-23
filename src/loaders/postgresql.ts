@@ -9,6 +9,7 @@ import ProfileModel from '../models/profile';
 import QuestionAnswerModel from '../models/question.answer';
 import ShippingAddressModel from '../models/ordering-models/shipping.address';
 import ProductModel from '../models/product';
+import ProductStockModel from '../models/product.stock';
 import ShippingModeModel from '../models/ordering-models/shipping.mode';
 import OrderModel from '../models/ordering-models/order';
 import ProductOrderModel from '../models/ordering-models/product.order';
@@ -42,6 +43,7 @@ export default async () => {
     const ShippingMode = ShippingModeModel(sequelize, Sequelize);
     const Order = OrderModel(sequelize, Sequelize);
     const ProductOrder = ProductOrderModel(sequelize, Sequelize);
+    const ProductStock = ProductStockModel(sequelize, Sequelize);
 
     const Box = BoxModel(sequelize, Sequelize);
     const BoxProducts = BoxProductModel(sequelize, Sequelize);
@@ -92,6 +94,8 @@ export default async () => {
     BoxProducts.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
     // -----------------------------
 
+    ProductStock.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+
     const dbForce = {};
     if (config.databaseForce && config.databaseForce == 1) {
         dbForce.force = true;
@@ -118,6 +122,7 @@ export default async () => {
     module.exports = Box;
     module.exports = BoxProducts;
     module.exports = Poi;
+    module.exports = ProductStock;
 
     return {
         userModel: User,
@@ -133,6 +138,7 @@ export default async () => {
         shippingModeModel: ShippingMode,
         orderModel: Order,
         productOrderModel: ProductOrder,
+        productStockModel: ProductStock,
         boxModel: Box,
         boxProductModel: BoxProducts,
         poiModel: Poi,

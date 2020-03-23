@@ -19,50 +19,53 @@ block content
 				a(href='#') Tableau de bord
 
 	.row
-		.col-md-6.col-lg-3
-			.widget-small.primary.coloured-icon
-				i.icon.fa.fa-users.fa-3x
-				div.info
-					h4 Utilisateurs
-					p
-						b 0
-
-		.col-md-6.col-lg-3
-			.widget-small.info.coloured-icon
-				i.icon.fa.fa-thumbs-o-up.fa-3x
-				div.info
-					h4 Contenus en ligne
-					p
-						b 0
-
-		.col-md-6.col-lg-3
-			.widget-small.warning.coloured-icon
-				i.icon.fa.fa-files-o.fa-3x
-				div.info
-					h4 Commandes "Shops"
-					p
-						b 0
-
-		.col-md-6.col-lg-3
-			.widget-small.danger.coloured-icon
-				i.icon.fa.fa-star.fa-3x
-				div.info
-					h4 Visites
-					p
-						b 0
-	.row
 		.col-md-6
 			.tile
-				h3.tile-title Monthly Sales
-				.embed-responsive.embed-responsive-16by9
-					canvas.embed-responsive-item(id="lineChartDemo")
-
+				h3.tile-title Boxs - Capacités disponibles
+				
+				.row 
+					.col-md-12
+						.embed-responsive.embed-responsive-16by9
+							canvas.embed-responsive-item(id="stock_chart_boxs")
+						
+					each box in boxs
+						.col-md-12
+							if box.capacity < 50
+								h6.text-danger #{box.title} : #{box.capacity} unité(s)
+							else
+								h6 #{box.title} : #{box.capacity} unité(s)
 		.col-md-6
 			.tile
-				h3.tile-title Support Requests
-				.embed-responsive.embed-responsive-16by9
-					canvas.embed-responsive-item(id="pieChartDemo")
-
+				h3.tile-title Boxs - #{totalOrders} commandes
+				
+				.row
+					.col-md-12
+						.embed-responsive.embed-responsive-16by9
+							canvas.embed-responsive-item(id="orders_chart_boxs")
+							
+				
+					each box in boxsOrders
+						.col-md-12
+							h6 #{box.title} : #{box.orders} commande(s)
+	.row 
+		.col-md-12
+			.tile
+				h3.tile-title Stocks des produits
+				
+				.row
+					each product in products
+						if product && product.stock
+							.col-md-4
+								.tile
+									if product.stock && product.stock < 50 
+										h6.text-danger #{product.shortDescription} : #{product.stock} unités
+									else
+										h6 #{product.shortDescription} : #{product.stock} unités
+									
+									div.embed-responsive.embed-responsive-16by9
+										canvas.embed-responsive-item(id="stock_chart_" + product.id)
+									
+									
 	.row
 
 		.col-md-6
@@ -102,48 +105,95 @@ block content
 block specific-js
 	script(type='text/javascript', src="/js/plugins/chart.js")
 	script(type='text/javascript').
-		var data = {
-			labels: ["January", "February", "March", "April", "May"],
-			datasets: [
-				{
-					label: "My First dataset",
-					fillColor: "rgba(220,220,220,0.2)",
-					strokeColor: "rgba(220,220,220,1)",
-					pointColor: "rgba(220,220,220,1)",
-					pointStrokeColor: "#fff",
-					pointHighlightFill: "#fff",
-					pointHighlightStroke: "rgba(220,220,220,1)",
-					data: [65, 59, 80, 81, 56]
-				},
-				{
-					label: "My Second dataset",
-					fillColor: "rgba(151,187,205,0.2)",
-					strokeColor: "rgba(151,187,205,1)",
-					pointColor: "rgba(151,187,205,1)",
-					pointStrokeColor: "#fff",
-					pointHighlightFill: "#fff",
-					pointHighlightStroke: "rgba(151,187,205,1)",
-					data: [28, 48, 40, 19, 86]
-				}
-			]
-		};
-		var pdata = [
+		
+		Pace.on('done', function() {
+			generateGraphs();
+		});
+		
+		function generateGraphs() 
+		{
+			var colors 	  = [
+				{ color : '#46BFBD', highlight: '#5AD3D1' },
+				{ color : '#F7464A', highlight: '#FF5A5E' },
+				{ color : '#2196F3', highlight: '#64baff' },
+				{ color : '#ffc107', highlight: '#ffd452' },
+				
+			];
+			var boxStocks	 = JSON.parse('!{JSON.stringify(boxs)}');
+			var boxOrders	 = JSON.parse('!{JSON.stringify(boxsOrders)}');
+			var boxStocksPie = [];
+			var boxOrdersPie = [];
+			
+			var i = 0;
+			for( var boxId in boxStocks )
 			{
-				value: 300,
-				color: "#46BFBD",
-				highlight: "#5AD3D1",
-				label: "Complete"
-			},
-			{
-				value: 50,
-				color:"#F7464A",
-				highlight: "#FF5A5E",
-				label: "In-Progress"
+				var boxData = boxStocks[boxId];
+				
+				boxStocksPie.push({
+					value: boxData.capacity,
+					label: boxData.title,
+					color: colors[i].color,
+					highlight: colors[i].highlight,
+				});
+				
+				i++;
 			}
-		]
+			
+			var i = 0;
+			for( var boxId in boxOrders )
+			{
+				var boxData = boxOrders[boxId];
+				
+				boxOrdersPie.push({
+					value: boxData.orders,
+					label: boxData.title,
+					color: colors[i].color,
+					highlight: colors[i].highlight,
+				}); 
+				
+				i++;
+			}
+			
+			var ctxp = $("#stock_chart_boxs").get(0).getContext("2d");
+			new Chart(ctxp).Pie(boxStocksPie);
+			
+			var ctxp = $("#orders_chart_boxs").get(0).getContext("2d");
+			new Chart(ctxp).Pie(boxOrdersPie);
+			
+			
+			var stocks = JSON.parse('!{JSON.stringify(productStocks)}');
+			
+			for( var productId in stocks )
+			{
+				var productStocks = stocks[productId];
+				
+				var localStocks   = [];
+				var labels 		  = [];
+				$(productStocks).each(function(key, value) {
+					var localDate  = new Date(value.stockDate);
+					var day 	   = ( localDate.getDate() < 10 ) ? '0' + localDate.getDate() : localDate.getDate();
+					var month 	   = ( ( localDate.getMonth() + 1 ) < 10 ) ? '0' + ( localDate.getMonth()+1) : (localDate.getMonth()+1);
 
-		var ctxl = $("#lineChartDemo").get(0).getContext("2d");
-		var lineChart = new Chart(ctxl).Line(data);
-
-		var ctxp = $("#pieChartDemo").get(0).getContext("2d");
-		var pieChart = new Chart(ctxp).Pie(pdata);
+					labels.push(day + '/' + month);
+					localStocks.push(value.stock);
+					
+				});
+				
+				var data = {
+					labels: labels,
+					datasets: [
+						{
+							fillColor: "rgba(151,187,205,0.2)",
+							strokeColor: "rgba(151,187,205,1)",
+							pointColor: "rgba(151,187,205,1)",
+							pointStrokeColor: "#fff",
+							pointHighlightFill: "#fff",
+							pointHighlightStroke: "rgba(151,187,205,1)",
+							data: localStocks,
+						}					
+					]
+				};
+				var ctxl = $("#stock_chart_" + productId).get(0).getContext("2d");
+				new Chart(ctxl).Line(data);
+			}
+		}

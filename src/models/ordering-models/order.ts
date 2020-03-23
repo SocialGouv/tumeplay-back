@@ -8,6 +8,11 @@ export default (sequelize, type) => {
             autoIncrement: true,
         },
         orderDate: DataTypes.DATE,
+        deleted: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
         sent: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

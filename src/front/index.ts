@@ -1,6 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { Container } from 'typedi';
+import { Op } from 'sequelize';
+
 import AuthService from '../services/auth';
+import BoxService from '../services/box';
 
 import { celebrate, Joi } from 'celebrate';
 import path from 'path';
@@ -76,7 +79,7 @@ export default () => {
                 req.session.name = user.name;
                 req.session.roles = JSON.parse(user.roles);
 
-                return res.redirect('/contents');
+                return res.redirect('/home');
             } catch (e) {
                 logger.error('🔥 error: %o', e);
 
@@ -89,9 +92,59 @@ export default () => {
     route.get('/home', async (req: any, res: Response) => {
         try {
             if (req.session.loggedin) {
-                return res.redirect('/contents');
+            	const logger: any 	= Container.get('logger');
+            	
+            	const dayModifier 	= 7; 
+				const thresholdTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+			
+            	const productModel 	= Container.get('productModel');
+                const products 		= await productModel.findAll();
+                
+                let stockMap 			= {};                
+                const productStockModel = Container.get('productStockModel');
+                const productStocks 	= await productStockModel.findAll({
+					where: {
+						stockDate: {
+							[Op.gte]: thresholdTime,
+						}
+					},
+					order: [
+			            ['stockDate', 'ASC'], // It'll get reversed in keyed by
+			        ],
+                });
+                
+                productStocks.map( productStock => {					
+                	if( typeof stockMap[productStock.productId] == "undefined" )
+                	{
+						stockMap[productStock.productId] = [];
+                	}
+                	
+					stockMap[productStock.productId].push(productStock);
+                });
+                                
+                products.map( item => {
+					if( typeof stockMap[item.id] != "undefined" )
+                	{
+						stockMap[item.id].push({
+							stockDate: new Date(),
+							stock: item.stock,
+						});
+                	}
+                	
+                });
+                
+                const boxService  = Container.get(BoxService);
+                
+                const boxs 		  = await boxService.computeCapacities();
+                const { boxOrders, totalOrders } = await boxService.computeOrdersStatistics();
+                
                 return res.render('index', {
                     username: req.session.name,
+                    products: products,
+                    productStocks: stockMap,
+                    boxs: boxs,
+                    boxsOrders: boxOrders,
+                    totalOrders: totalOrders,
                 });
                 //return res.sendFile(path.join(__dirname + '../../../public/index.html'));
             } else {

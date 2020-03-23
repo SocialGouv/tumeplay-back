@@ -79,7 +79,9 @@ export default (app: Router) => {
                 shortDescription: req.body.shortDescription,
                 supplierDescription: req.body.supplierDescription,
                 price: null,
+                stock: req.body.stock ? req.body.stock : 0,
                 active: req.body.active == 'on',
+                isOrderable: req.body.isOrderable == 'on',
                 deleted: false,
                 pictureId: null,
             };
@@ -121,6 +123,8 @@ export default (app: Router) => {
                     supplierDescription: ( req.body.supplierDescription ? req.body.supplierDescription : '' ),
                     price: req.body.price,
                     active: req.body.active == 'on',
+                    isOrderable: req.body.isOrderable == 'on',
+                    stock: req.body.stock ? req.body.stock : 0,
                     deleted: false,
                     pictureId: undefined,
                 };

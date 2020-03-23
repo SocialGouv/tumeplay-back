@@ -31,21 +31,30 @@ block content
 								th Titre
 								th Description
 								th Qté par défaut
+								th Qté disponible
 								th Photo
-								th Date de création
-								th Date de mise à jour
+								th Mis à jour
 								th Actif
 								th Actions
 						tbody
 							each product in products
-								tr
+								- currentClass = ''
+								
+								if product.stock && product.stock < 50
+									- currentClass = 'text-danger'
+									
+								tr(class=" " + currentClass)
 									td #{product.title}
 									td #{product.shortDescription}
 									td #{product.defaultQty}
+									td 
+										if product.stock && product.stock < 50
+											span.h6.text-danger #{product.stock}
+										else
+											span #{product.stock}
 									td
 										if product.picture && product.picture.path
 											img.pic-image-box(src=product.picture.path)
-									td #{prettyDate(product.createdAt)}
 									td #{prettyDate(product.updatedAt)}
 									td
 										if product.active
@@ -97,7 +106,4 @@ block specific-js
 				}
 			});
 		}
-		$('#productsDataTable').DataTable();
-		$('.delete-item').click(async function(e){
-			
-		});
+		$('#productsDataTable').DataTable();		

@@ -46,4 +46,19 @@ export default class ProductOrderService {
             throw e;
         }
     }
+    
+    public async findByOrder(orderId): Promise<{ orderProducts: IProductOrder[] }> 
+    {
+		try {
+            this.logger.silly('Finding productOrders by Order');
+            const orderProducts: IProductOrder[] = await this.productOrderModel.findAll({
+            	where: { orderId: orderId },            	
+			});
+
+            return { orderProducts };
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
 }

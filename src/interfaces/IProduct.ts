@@ -7,6 +7,8 @@ export interface IProductInputDTO {
     supplierDescription: string;
     defaultQty: number;
     price: number;
+    stock: number;
+    isOrderable: boolean;
     active: boolean;
     pictureId: number;
     deleted: boolean;

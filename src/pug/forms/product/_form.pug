@@ -24,6 +24,12 @@
 					else
 						input.form-control(type="text", name="title", placeholder="Nom du produit")
 				.form-group
+					label.control-label Stock actuel
+					if product && product.stock
+						input.form-control(type="text", name="stock", placeholder="Quantité en stock" value=`${product.stock}`)
+					else
+						input.form-control(type="text", name="stock", placeholder="Quantité en stock")
+				.form-group
 					label.control-label Description
 					if product
 						input.form-control(type="text", name="description", placeholder="Description" value=`${product.description}`)
@@ -43,10 +49,14 @@
 					else
 						input.form-control(type="text", name="supplierDescription", placeholder="Description fournisseur")
 				
+				hr
+				
 				if product
 					if product.picture && product.picture.path
 						img.pic-image-box-normal(src="../../"+product.picture.path)
 				input.form-control(type="file" name="productPicture")
+			
+				hr
 			
 				.animated-checkbox
 					label
@@ -56,6 +66,15 @@
 							input(type="checkbox" name="active")
 
 						span.label-text Publié
+						
+				.animated-checkbox
+					label
+						if product
+							input(type="checkbox" name="isOrderable" checked=product.isOrderable)
+						else
+							input(type="checkbox" name="isOrderable")
+
+						span.label-text Accessible à la commande ( "Box sur mesure" )
 	
 				.tile-footer
 					button.btn.btn-primary(type="submit")

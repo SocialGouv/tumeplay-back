@@ -10,6 +10,8 @@ export default class BoxService {
     public constructor(
         @Inject('boxModel') private boxModel: any,
         @Inject('boxProductModel') private boxProductModel: any,
+        @Inject('productModel') private productModel: any,
+        @Inject('orderModel') private orderModel: any,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
     ) {}
@@ -89,7 +91,7 @@ export default class BoxService {
 
     public async bulkDelete(boxId: number): Promise<{}> {
         try {
-            this.logger.silly('Deletign boxProducts');
+            this.logger.silly('Deleting boxProducts');
             const boxProducts: IBoxProduct[] = await this.boxProductModel.destroy({
                 where: {
                     boxId: boxId,
@@ -101,5 +103,88 @@ export default class BoxService {
             this.logger.error(e);
             throw e;
         }
+    }
+    
+    public async computeOrdersStatistics(): Promise<{}> {
+		try
+		{
+			const allOrders	  = await this.orderModel.findAll({include: ['box']});
+			const boxs 		  = {};
+			let   totalOrders = 0;
+			
+			allOrders.map( item => {
+				if( typeof boxs[item.box.id] == "undefined" )
+                {
+					boxs[item.box.id] = {
+						id: item.box.id,
+						title: item.box.title,
+						orders: 0,
+					};
+                }
+                
+                // Pretty naive implementation...
+                boxs[item.box.id].orders++; 
+                totalOrders++;               
+			});
+			
+			return { boxOrders: boxs, totalOrders: totalOrders };
+		}
+		catch (e) 
+		{
+			this.logger.error(e);	
+			
+			return {};
+		}
+    }
+    
+    public async computeCapacities(): Promise<{}> {
+		try
+		{
+			const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
+			const boxs 		  = {};
+			
+			allBoxsProducts.map( item => {
+				if( typeof boxs[item.box.id] == "undefined" )
+                {
+					boxs[item.box.id] = {
+						id: item.box.id,
+						title: item.box.title,
+						orders: 0,
+					};
+                }
+                
+                if( typeof boxs[item.box.id].localProducts == "undefined" )
+                {
+					boxs[item.box.id].localProducts = [];
+                }
+                
+                const capacity = Math.floor(item.product.stock / item.qty);
+                
+                if( typeof boxs[item.box.id].capacity == "undefined" )
+                {
+					boxs[item.box.id].capacity = capacity;
+                }
+                
+                if( capacity < boxs[item.box.id].capacity )
+                {
+					boxs[item.box.id].capacity = capacity;
+                }
+                
+                boxs[item.box.id].localProducts.push({ 
+					'product' : item.product.id,
+					'qty' 	  : item.qty,
+					'stock'	  : item.product.stock,
+					'available' : ( item.product.stock / item.qty ),
+                });                
+			});
+			
+			return boxs;
+		}
+		catch (e) 
+		{
+			this.logger.error(e);
+			
+			return {};	
+		}
     }
 }

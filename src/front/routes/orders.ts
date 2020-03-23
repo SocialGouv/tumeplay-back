@@ -6,6 +6,8 @@ import ShippingModeService from '../../services/shipping.mode';
 import { celebrate, Joi } from 'celebrate';
 import middlewares from '../middlewares';
 import OrderService from '../../services/order';
+import ProductService from '../../services/product';
+import ProductOrderService from '../../services/product.order';
 const route = Router();
 
 export default (app: Router) => {
@@ -72,7 +74,7 @@ export default (app: Router) => {
         }),
         async (req: Request, res: Response) => {
             const logger: any = Container.get('logger');
-            logger.debug('Calling API edit order with body: %o', req.body);
+            logger.debug('Calling Front edit order with body: %o', req.body);
 
             try {
                 const orderInput: Partial<IOrderInputDTO> = {
@@ -90,6 +92,44 @@ export default (app: Router) => {
             }
         },
     );
+    
+
+    route.post(`${routes.ORDER_MANAGEMENT_ROOT}/delete/:id`, middlewares.isAuth, async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Delete Order endpoint with body: %o', req.body);
+
+        try {
+            const orderId = req.params.id;
+
+            const orderInput: Partial<IOrderInputDTO> = {
+                deleted: true,
+                updatedAt: new Date(),
+            };
+            
+            const orderModelService: OrderService = Container.get(OrderService);
+            await orderModelService.update(orderId, orderInput);
+            
+            const productService: ProductService = Container.get(ProductService);
+            const productOrderService: ProductOrderService = Container.get(ProductOrderService);
+            
+            const { orderProducts } = await productOrderService.findByOrder(orderId);
+            
+            logger.debug("Got " + orderProducts.length + " item to increase.");
+            
+            if( orderProducts && orderProducts.length > 0 )
+            {
+				for( let i = 0; i < orderProducts.length; i++ )
+				{
+					const product = orderProducts[i];
+					await productService.increaseStock(product.productId, product.qty); 
+				}
+            }
+            
+            return res.redirect(routes.ORDERS_ROOT + routes.ORDER_MANAGEMENT_ROOT);
+        } catch (e) {
+            throw e;
+        }
+    });
 
     /**
      * @description Shipping mode routes
