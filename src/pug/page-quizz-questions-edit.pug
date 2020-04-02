@@ -41,7 +41,8 @@ block specific-js
 		function checkLength(field)
 		{
 			var maxLength = parseInt($(field).data("maxlength"));
-		    var currentLength = $(field).val().length;
+		    var currentText   = $(field).val();
+		    var currentLength = $( '<div>' + currentText + '</div>' ).text().length;
 			var counter = $(field).parent().find('.limited-counter').first();
 			
 		    if( currentLength >= maxLength )

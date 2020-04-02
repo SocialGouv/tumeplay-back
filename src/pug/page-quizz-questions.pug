@@ -48,7 +48,7 @@ block content
 											img.pic-image-box(src=`/${question.picture.path}`)
 										else if question.defaultPicturePath
 											img.pic-image-box(src=`/${question.defaultPicturePath}`)
-									td #{prettyDate(question.updatedAt)}
+									td(data-sort=question.updatedAt) #{prettyDate(question.updatedAt)}
 									td
 										if question.published
 											i.fa.fa-check.fa-lg

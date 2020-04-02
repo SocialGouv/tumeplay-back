@@ -46,8 +46,8 @@ block content
 											//- Going back to the root to get the picture using ../
 											img.pic-image-box(src=`../${category.picture.path}`)
 									td #{category.itsTheme ? category.itsTheme.title : null}
-									td #{prettyDate(category.createdAt)}
-									td #{prettyDate(category.updatedAt)}
+									td(data-sort=category.createdAt) #{prettyDate(category.createdAt)}
+									td(data-sort=category.updatedAt) #{prettyDate(category.updatedAt)}
 									td
 										if category.published
 											i.fa.fa-check.fa-lg

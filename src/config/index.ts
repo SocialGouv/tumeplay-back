@@ -15,6 +15,7 @@ export default {
     databaseName: process.env.DATABASE_NAME,
     databaseForce: process.env.DATABASE_FORCE,
     jwtSecret: process.env.JWT_SECRET,
+    environment: process.env.ENVIRONMENT || 'prod',
 
     // Email setups:
     mailer: {

@@ -42,7 +42,7 @@ block content
 							each order in orders
 								tr
 									td #{order.id}
-									td #{order.orderDate ? prettyDate(order.orderDate) : ""}
+									td(data-sort=order.orderDate) #{order.orderDate ? prettyDate(order.orderDate) : ""}
 									td #{order.profileFullName}
 									td #{order.profileEmail}
 									if order.shippingModeText == 'pickup'

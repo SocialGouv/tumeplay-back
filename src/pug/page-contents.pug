@@ -47,8 +47,8 @@ block content
 									td
 										if content.picture && content.picture.path
 											img.pic-image-box(src=content.picture.path)
-									td #{prettyDate(content.createdAt)}
-									td #{prettyDate(content.updatedAt)}
+									td(data-sort=content.createdAt) #{prettyDate(content.createdAt)}
+									td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
 									td
 										if content.published
 											i.fa.fa-check.fa-lg
