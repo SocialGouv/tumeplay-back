@@ -58,9 +58,9 @@ block content
 							.col-md-4
 								.tile
 									if product.stock && product.stock < 50 
-										h6.text-danger #{product.shortDescription} : #{product.stock} unités
+										h6.text-danger #{product.title} : #{product.stock} unités
 									else
-										h6 #{product.shortDescription} : #{product.stock} unités
+										h6 #{product.title} : #{product.stock} unités
 									
 									div.embed-responsive.embed-responsive-16by9
 										canvas.embed-responsive-item(id="stock_chart_" + product.id)
