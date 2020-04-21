@@ -61,46 +61,55 @@ block specific-js
 		var newAnswerBtn_element = document.getElementById("newAnswerBtn");
 		newAnswerBtn_element.addEventListener("click", newAnswer, false);
 
-		var numAnswer = 0;
+		var numAnswer = $('tr.question-row').length;
+		
+		function createInput(type, name, value)
+		{
+			return $('<td >')
+				.addClass('pl-2')
+				.addClass('pr-2')
+				.append( 
+					$('<input />')
+						.attr('type',  type)
+						.attr('name',  name)
+						.attr('value', value));
+		}
 		
 		//- @TODO-RNO: Will need to find a more performant way to do the steps below:
 		function newAnswer(){
-			var responseList_UL = document.getElementById("responseList");
-			var responseContainerItem = document.createElement("div");
+			var targetList = document.getElementById("responseList");
+			var responseContainerItem = document.createElement("tr");
 			
-
-			//- Creating the input element of response
-			var input_responseName_element = document.createElement("input");
-			input_responseName_element.setAttribute("type","text");
-			input_responseName_element.setAttribute("placeholder",`Reponse No.${numAnswer+1}`);
-			input_responseName_element.setAttribute("data-maxlength", "30");
-			input_responseName_element.setAttribute("name",`answerItems[${numAnswer}][title]`);
-			input_responseName_element.classList.add('limited-length');
-
-			//- Creating the Checkbox element of response (isCorrect)
-			var input_responseIsGoodAnswer_element = document.createElement("input");
-			input_responseIsGoodAnswer_element.setAttribute("type","checkbox");
-			input_responseIsGoodAnswer_element.setAttribute("name",`answerItems[${numAnswer}][isCorrect]`);
-
-			var input_responseIsGoodAnswer_counter = document.createElement("label");
-			input_responseIsGoodAnswer_counter.classList.add("limited-counter");
-			input_responseIsGoodAnswer_counter.classList.add("offset-1");
-
-			input_responseIsGoodAnswer_counter.textContent = "30 caractère(s) restant(s)";
-
-			var breakpoint = document.createElement("br");
-
-			numAnswer++;
-
-			responseContainerItem.appendChild(input_responseIsGoodAnswer_element);
-			responseContainerItem.appendChild(input_responseName_element);
-			responseContainerItem.appendChild(input_responseIsGoodAnswer_counter);
-
+			var _tr 	 = $('<tr >');
 			
+			var _type  	 = 'radio';
+			var _name    = `answerItems[${numAnswer}][questionState]`;
+			var _neutral = createInput(_type, _name, 'isNeutral' );
+			var _correct = createInput(_type, _name, 'isCorrect' );
+			var _wrong   = createInput(_type, _name, 'isWrong' );
 			
-			responseList_UL.appendChild(responseContainerItem);
-			responseList_UL.appendChild(breakpoint);
-			console.log('Clicked on new response')
+			var _text 	 = $('<input />')
+								.attr('type', 'text')
+								.attr('data-maxlength', '30')
+								.attr('placeholder',`Réponse n°${numAnswer+1}`)
+								.attr('name', `answerItems[${numAnswer}][title]`)
+								.addClass('limited-length');
+			
+			var _limited = $('<label >')
+								.addClass('limited-counter')
+								.addClass('offset-1')
+								.text('30 caractère(s) restant(s)');	
+								
+			var breakpoint = $('<br />');
+			
+			$(_tr).append( _neutral );
+			$(_tr).append( _correct );
+			$(_tr).append( _wrong );
+			$(_tr).append( $('<td >').append(_text).append(_limited) );
+			
+			$('#responseList').append( $(_tr) );
+			 
+			numAnswer++; 
 		}
 		
 		$('body').on("input", '.limited-length', function(){

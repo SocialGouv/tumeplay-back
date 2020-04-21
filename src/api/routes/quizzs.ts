@@ -46,6 +46,7 @@ export default (app: Router) => {
                     sortedAnswers[localAnswer.questionContentId] = {
                         answers: [],
                         rightAnswer: false,
+                        neutralAnswer: false,
                     };
                 }
 
@@ -56,6 +57,10 @@ export default (app: Router) => {
 
                 if (localAnswer.isCorrect) {
                     sortedAnswers[localAnswer.questionContentId]['rightAnswer'] =
+                        sortedAnswers[localAnswer.questionContentId]['answers'].length;
+                }
+                if (localAnswer.isNeutral) {
+                    sortedAnswers[localAnswer.questionContentId]['neutralAnswer'] =
                         sortedAnswers[localAnswer.questionContentId]['answers'].length;
                 }
             }
@@ -71,6 +76,7 @@ export default (app: Router) => {
                     background: questionItem.picture ? questionItem.picture.path : false,
                     answers: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['answers'] : [],
                     rightAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['rightAnswer'] : [],
+                    neutralAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['neutralAnswer'] : [],
                 };
 
                 return questionItemStructured;

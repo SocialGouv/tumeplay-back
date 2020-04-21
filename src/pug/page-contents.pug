@@ -27,42 +27,108 @@ block content
 		.col-md-12
 			.tile
 				.tile-body
+					.toolbar.mb-3
+						label.mr-3 Actions : 
+						a.btn.btn-sm.btn-primary(href="/contents/add") Ajouter 
+						.btn.ml-3.btn-sm.btn-primary.filter Filtrer
+						.btn.ml-3.btn-sm.btn-primary.state.disabled État
+						.btn.ml-3.btn-sm.btn-primary.archive.disabled Archiver
+						.btn.ml-3.btn-sm.btn-primary.duplicate.disabled Dupliquer
+						.btn.ml-3.btn-sm.btn-primary.assign.disabled Assigner à
+						
+						.toolbar-filter.mt-3.form-inline(style="display:none;")
+							label.mr-3 Thématique : 
+							select.col-2.form-control-sm.mr-3(name="filter_thematique")
+								option(value="") - Sélectionner -
+								each theme in thematiques
+									option(value=theme.id) #{theme.title}
+			
+							
+							span.mr-3 |
+							
+							label.mr-3 Catégorie : 
+							select.col-2.form-control-sm.mr-3(name="filter_category")
+								option(value="") - Sélectionner -
+								each category in categories
+									option(value=category.id) #{category.title}
+							
+							span.mr-3 |
+							
+							label.mr-3 État :
+							select.col-2.form-control-sm.mr-3(name="filter_state")
+								option(value="") - Sélectionner -
+								each contentState in contentStates
+									option(value=contentState.id) #{contentState.title}
+									
+						.toolbar-state.mt-3.form-inline(style="display:none;")
+							label.mr-3 Modifier l'état :
+							select.col-2.form-control-sm.mr-3(name="assign_state")
+								option(value="") - Sélectionner -
+								each contentState in contentStates
+									option(value=contentState.id) #{contentState.title}
+							
+							span.mr-3 |
+							
+							.btn.btn-sm.btn-primary.assign-validate.disabled Valider
+						
+						.toolbar-assign.mt-3.form-inline(style="display:none;")
+							label.mr-3 Thématique : 
+							select.col-2.form-control-sm.mr-3(name="assign_thematique")
+								option(value="") - Sélectionner -
+								each theme in thematiques
+									option(value=theme.id) #{theme.title}
+									
+							span.mr-3 |
+							
+							label.mr-3 Catégorie : 
+							select.col-2.form-control-sm.mr-3(name="assign_category")
+								option(value="") - Sélectionner -
+								each category in categories
+									option(value=category.id) #{category.title}
+							
+							span.mr-3 |
+							
+							.btn.btn-sm.btn-primary.assign-validate.disabled Valider
+							
+						hr
+						
 					table.table.table-hover.table-bordered#contentsDataTable
 						thead
 							tr
+								th.sorting_disabled(data-sortable="false", data-orderable="false")
+								th ID
 								th Titre
 								th Famille
+								th Catégorie
 								th Photo
-								th Date de création
 								th Date de mise à jour
-								th Publié
-								th Actions
+								th État
 						tbody
 							each content in contents
 								tr
-									td #{content.title}
+									td.text-center
+										.animated-checkbox
+											label
+												input.product-checkbox(type="checkbox" value="" + content.id +"")
+												span.label-text 
+                                    	
+									td #{content.id}
+									td 
+										a(href="/contents/edit/" + content.id data-id=`${content.id}`) 
+											| #{content.title}
 									td 
 										if content.itsTheme
 											| #{content.itsTheme.title}
 									td
+										if content.itsQuestionCategory
+											| #{content.itsQuestionCategory.title}
+									td
 										if content.picture && content.picture.path
 											img.pic-image-box(src=content.picture.path)
-									td(data-sort=content.createdAt) #{prettyDate(content.createdAt)}
 									td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
 									td
-										if content.published
-											i.fa.fa-check.fa-lg
-										else
-											i.fa.fa-cross.fa-lg
-									td
-										a(class='btn btn-primary' href="/contents/edit/" + content.id data-id=`${content.id}`) 
-											i.fa.fa-fw.fa-lg.fa-check-circle 
-											| Éditer
-										| &nbsp;&nbsp;&nbsp;
-										form(action="/contents/delete/" + content.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
-											button(class='delete-item btn btn-secondary' type="submit") 
-												i.fa.fa-fw.fa-lg.fa-times-circle
-												| Supprimer
+										| #{contentStatesArray[content.published]}
+
 				.tile-footer
 					a(class='btn btn-primary' href="/contents/add") 
 						i.fa.fa-fw.fa-lg.fa-plus 
@@ -74,14 +140,271 @@ block specific-js
 	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
 	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
 	script(type='text/javascript').
-		$('#contentsDataTable').DataTable();
-		function deleteConfirmation(form){
+		var _mainDataTable = $('#contentsDataTable').DataTable();
+		
+		$('.btn-primary.filter').on('click', function() {
+			$('.toolbar > .btn').removeClass('active');
+			$('.toolbar-state').slideUp();
+			$('.toolbar-assign').slideUp();
+			
+			var _toolbar = $('.toolbar-filter');
+			
+			if( $(this).hasClass('active') )
+			{
+				$(this).removeClass('active');
+				
+				$(_toolbar).slideUp();
+			}
+			else
+			{
+				$(this).addClass('active');
+				
+				$(_toolbar).slideDown();
+			}
+			              
+		});
+		
+		$('.btn-primary.state').on('click', function() {
+			$('.toolbar > .btn').removeClass('active');
+			$('.toolbar-filter').slideUp();
+			$('.toolbar-assign').slideUp();
+			
+			var _toolbar = $('.toolbar-state');
+			
+			if( $(this).hasClass('active') )
+			{
+				$(this).removeClass('active');
+				
+				$(_toolbar).slideUp();
+			}
+			else
+			{
+				$(this).addClass('active');
+				
+				$(_toolbar).slideDown();
+			}
+			              
+		});
+		
+		
+		$('.btn-primary.assign').on('click', function() {
+			$('.toolbar > .btn').removeClass('active');
+			$('.toolbar-filter').slideUp();
+			$('.toolbar-state').slideUp();
+			
+			var _toolbar = $('.toolbar-assign');
+			
+			if( $(this).hasClass('active') )
+			{
+				$(this).removeClass('active');
+				
+				$(_toolbar).slideUp();
+			}
+			else
+			{
+				$(this).addClass('active');
+				
+				$(_toolbar).slideDown();
+			}
+			              
+		});
+		
+		$('.toolbar-filter select').on('change', function() {
+			var _source = $(this).attr('name');
+			
+			var _target = false;
+			
+			if( _source == 'filter_thematique' )
+			{
+				_target = 3;
+			}
+			
+			if( _source == 'filter_category' )
+			{
+				_target = 4;
+			}
+			
+			if( _source == 'filter_state' )
+			{
+				_target = 7;
+			}
+			
+			var _value  = $(this).find('option:selected').val();
+			
+			if( _value == '' )
+			{
+				_mainDataTable
+					.columns(_target)
+					.search('')
+					.draw();	
+				
+				return;
+			}
+			
+			var _filter = $(this).find('option:selected').text();
+			
+			_mainDataTable
+				.columns(_target)
+				.search(_filter)
+				.draw();
+		});
+		
+		$('.toolbar-assign select').on('change', function() {
+			var _handled = false;
+			
+			$('.toolbar-assign select').each(function(){
+				var _value  = $(this).find('option:selected').val();	
+				
+				if( _value != '' )
+				{
+					$('.toolbar-assign > .btn').removeClass('disabled');	
+					_handled = true;
+				}
+			});
+			
+			if( !_handled )
+			{
+			    $('.toolbar-assign > .btn').addClass('disabled');
+			}                                                    			                                                     
+		});
+		
+		$('.toolbar-state select').on('change', function() {
+			
+			var _value  = $(this).find('option:selected').val();	
+				
+			if( _value != '' )
+			{
+				$('.toolbar-state > .btn').removeClass('disabled');	
+			
+			}
+			else
+			{
+			    $('.toolbar-state > .btn').addClass('disabled');
+			}                                                    			                                                     
+		});
+		
+		
+		$('.toolbar > .btn.duplicate').on('click', function() {
+			if( $(this).hasClass('disabled') )
+			{
+				return;
+			}
+			
+			if( $(_contents).length == 0 )
+			{
+				return;
+			}
+			
+			var _data = {
+				'contents' : _contents,
+			};
+			askConfirmation(function() {
+				$.post('/contents/duplicate', _data, successHandler());
+			});
+		});
+		
+		$('.toolbar > .btn.archive').on('click', function() {
+			if( $(this).hasClass('disabled') )
+			{
+				return;
+			}
+			
+			if( $(_contents).length == 0 )
+			{
+				return;
+			}
+			var _data = {
+				'contents' : _contents,
+				'targetState' : 0, // Target State = Archivé
+			};
+			askConfirmation(function() {
+				$.post('/contents/change-state', _data, successHandler());
+			});
+		});
+		
+		$('.toolbar-state > .btn').on('click', function() {
+			if( $(this).hasClass('disabled') )
+			{
+				return;
+			}
+			
+			if( $(_contents).length == 0 )
+			{
+				return;
+			}
+			
+			var _value  = $('.toolbar-state select').find('option:selected').val();	
+				
+			if( _value == '' )
+			{
+				return;
+			}
+			
+			var _data = {
+				'contents' : _contents,
+				'targetState' : _value, // Target State = Archivé
+			};
+			askConfirmation(function() {
+				$.post('/contents/change-state', _data, successHandler());
+			});
+		});
+		
+		$('.toolbar-assign > .btn').on('click', function() {
+			if( $(this).hasClass('disabled') )
+			{
+				return;
+			}
+			
+			if( $(_contents).length == 0 )
+			{
+				return;
+			}
+			
+			var _thematique = $('.toolbar-assign select[name="assign_thematique"] option:selected').val();
+			var _category	= $('.toolbar-assign select[name="assign_category"] option:selected').val();
+			
+			var _data = {
+				'contents' 	 : _contents,
+				'thematique' : _thematique,
+				'category' 	 : _category
+			};
+			askConfirmation(function() {
+				$.post('/contents/change-category', _data, successHandler());
+			});
+		});
+		
+		var _contents = [];
+		$(document).on('click', '.product-checkbox', function() {
+			if( $(this).is(':checked') )
+			{
+				_contents.push($(this).val())
+			}
+			else
+			{
+				var _target = $(this).val();
+				_contents = _contents.filter(function (element) {
+					return element != _target;
+				});
+			}
+			
+			if( $(_contents).length == 0 )
+			{
+				$('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign').addClass('disabled');				
+			}
+			else
+			{
+				$('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign').removeClass('disabled');
+			}
+		}); 
+		
+		function askConfirmation(submitHandler){
+			
 			swal({
-				title				: "Supprimer le contenu ?",
-				text				: "La suppression d'un contenu est définitive.",
+				title				: "Effectuer cette action ?",
+				text				: "Souhaitez-vous réellement effectuer cette action ? ",
 				type				: "warning",
 				showCancelButton	: true,
-				confirmButtonText	: "Supprimer",
+				confirmButtonText	: "Confirmer",
 				cancelButtonText	: "Annuler",
 				closeOnConfirm		: false,
 				closeOnCancel		: false
@@ -90,8 +413,7 @@ block specific-js
 			{
 				if (isConfirm) 
 				{
-					swal("Supprimé", "Elément supprimé", "success");
-					form.submit();
+				    submitHandler();
 					return;
 				} else {
 					swal("Annulé", "Aucune action n'a été réalisée.", "error");
@@ -99,3 +421,20 @@ block specific-js
 				}
 			});
 		}
+		
+		function successHandler()
+		{
+		    swal({
+				title				: "Confirmé",
+				text				: "L'action a bien été effectuée.",
+				type				: "success",
+				showCancelButton	: false,
+				confirmButtonText	: "Fermer",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				location.reload();
+			});
+		}                       

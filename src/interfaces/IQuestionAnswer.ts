@@ -8,6 +8,7 @@ interface IQuestionAnswerMain {
     title: string;
     questionContentId: number;
     isCorrect: boolean;
+    isNeutral: boolean;
     published: boolean | string;
     idFictitiousInTheQuestion?: number;
     isDefaultData?: boolean;

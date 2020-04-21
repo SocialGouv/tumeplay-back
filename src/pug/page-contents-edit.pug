@@ -29,10 +29,7 @@ block content
 			include ./forms/content/_form.pug
 block specific-js
 	// Data table plugin
-	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
-	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
 	script(type='text/javascript').
-		$('#contentsDataTable').DataTable();
 
 		function checkLength(field)
 		{

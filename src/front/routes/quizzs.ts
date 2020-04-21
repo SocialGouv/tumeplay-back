@@ -119,7 +119,8 @@ export default (app: Router) => {
                     let answerItems: IQuestionAnswerDTO[] = req.body.answerItems.map(answerItem => {
                         return {
                             title: answerItem.title,
-                            isCorrect: answerItem.isCorrect === 'on',
+                            isCorrect: answerItem.questionState === 'isCorrect',
+                            isNeutral: answerItem.questionState === 'isNeutral',
                             published: true, // @TODO: is published really needed in question answer ?
                             questionContentId,
                         };
@@ -183,7 +184,7 @@ export default (app: Router) => {
             const logger: any = Container.get('logger');
             try {
                 const documentId = +req.params.id;
-
+                
                 let questionContentItem: IQuestionContentDTO = {
                     title: req.body.title,
                     answerText: req.body.answerText,
@@ -209,9 +210,11 @@ export default (app: Router) => {
                 if (req.body.answerItems && Array.isArray(req.body.answerItems)) {
                     let answerItems: IQuestionAnswerDTO[] = req.body.answerItems.map(answerItem => {
                         if (answerItem.title != '') {
-                            return {
+                        	
+                            return {                            	
                                 title: answerItem.title,
-                                isCorrect: answerItem.isCorrect === 'on',
+                                isCorrect: answerItem.questionState === 'isCorrect',
+                                isNeutral: answerItem.questionState === 'isNeutral',
                                 published: true, // @TODO: is published really needed in question answer ?
                                 questionContentId: documentId,
                             };

@@ -20,9 +20,9 @@ block content
 							input.form-control(type="text" name="title" placeholder="Titre de la question ( usage interne uniquement )")
 							
 					if themes
-						.form-group
-							label.control-label Famille
-							select.form-control(name="selectedTheme")
+						.form-group.form-inline
+							label.col-3.pl-0.control-label(style="justify-content: left;") Famille
+							select.col-9.form-control(name="selectedTheme")
 								optgroup(label="Famille")
 									each theme in themes
 										if question && question.themeId == theme.id
@@ -30,18 +30,19 @@ block content
 										else
 											option(value=theme) #{theme.title}
 					if categories
-						.form-group
-							label.control-label Thèmatique associé
-							select.form-control(name="selectedCategory")
+						.form-group.form-inline
+							label.col-3.pl-0.control-label(style="justify-content: left;") Thèmatique associé
+							select.col-9.form-control(name="selectedCategory")
 								optgroup(label="Thèmatique associé")
 									each category in categories
 										if question && question.categoryId == category.id
 											option(value=category, selected="selected") #{category.title}
 										else
 											option(value=category) #{category.title}
-					.form-group
-						label.control-label Photo de la question:
-						input.form-control(type="file" name="questionContentPicture")
+					
+					.form-group.form-inline
+						label.col-3.pl-0.control-label(style="justify-content: left;") Photo de la question:
+						input.col-9.form-control(type="file" name="questionContentPicture")
 					.form-group
 						label.control-label Question :
 
@@ -79,17 +80,42 @@ block content
 						a.btn.btn-secondary(id="newAnswerBtn", style="color: #FFF") Créer une réponse et cocher les bonnes réponses
 					br
 					div()
-						ul#responseList
-							
-							if answers
-								each answer, i in answers 
-									div
-										input(type="checkbox" name="answerItems["+i+"][isCorrect]" checked=answer.isCorrect)
-										input(type="text" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=`${answer.title}`)
-										label.limited-counter.offset-1 30 caractères restants.
-										br
-										br 
-
+						table.col-md-12
+							thead
+								tr
+									th.pl-2.pr-2
+										i.fa.fa-question
+									th.pl-2.pr-2
+										i.fa.fa-check
+									th.pl-2.pr-2
+										i.fa.fa-times
+									th Texte
+							tbody#responseList
+								if answers
+									each answer, i in answers
+										- var _isWrong = ( answer.isCorrect == false && answer.isNeutral == false )
+										tr.question-row
+											td.pl-2.pr-2
+												input(type="radio" name="answerItems["+i+"][questionState]" value="isNeutral" checked=answer.isNeutral)
+											td.pl-2.pr-2
+												input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect" checked=answer.isCorrect)
+											td.pl-2.pr-2
+												input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong" checked=_isWrong)
+											td 
+												input(type="text" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=`${answer.title}`)
+												label.limited-counter.offset-1 30 caractères restants.
+								else
+									tr.question-row
+										td.pl-2.pr-2
+											input(type="radio" name="answerItems["+i+"][questionState]" value="isNeutral")
+										td.pl-2.pr-2
+											input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect")
+										td.pl-2.pr-2
+											input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong")
+										td 
+											input(type="text" placeholder="Réponse n°1" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=``)
+											label.limited-counter.offset-1 30 caractères restants.
+									
 			.clearfix
 		button.btn.btn-primary(type="submit")
 			i.fa.fa-fw.fa-lg.fa-check-circle

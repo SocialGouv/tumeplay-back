@@ -11,7 +11,7 @@ export default (app: Router) => {
             const ContentModel: any = Container.get('contentModel');
             const contents = await ContentModel.findAll({
                 where: {
-                    published: true,
+                    published: 1,
                 },
                 include: ['picture'],
             });

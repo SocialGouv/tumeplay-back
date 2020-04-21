@@ -16,25 +16,28 @@
 				if content
 					input(type="hidden" value=`${content.id}`)
 								
-				.form-group
-					label.control-label Titre
-					if content
-						input.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu" value=`${content.title}`)
-					else
-						input.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu")
+				.form-group.form-inline
+					label.col-1.control-label.pl-0(style="justify-content: left;") Titre
 					
-					label.limited-counter 92 caractères restants.
-				
-				.form-group
-					label.control-label Lien associé
-					if content && content.link
-						input.form-control(type="text", name="link", placeholder="Lien associé" value=`${content.link}`)
+					if content
+						input.col-6.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu" value=`${content.title}`)
 					else
-						input.form-control(type="text", name="link", placeholder="Lien associé")
+						input.col-6.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu")
+					
+					br
+					label.limited-counter(style="padding-left: 15px;") 92 caractères restants.
+							
+				.form-group.form-inline
+					label.col-1.control-label.pl-0(style="justify-content: left;") Lien associé
+					
+					if content && content.link
+						input.col-6.form-control(type="text", name="link", placeholder="Lien associé" value=`${content.link}`)
+					else
+						input.col-6.form-control(type="text", name="link", placeholder="Lien associé")
 
-				.form-group
-					label.control-label Famille
-					select.form-control(name="theme")
+				.form-group.form-inline
+					label.col-1.control-label.pl-0(style="justify-content: left;") Famille
+					select.col-3.form-control(name="theme")
 						option(value=0) - Sélectionner -
 							each theme in themes
 								if content && theme.id == content.themeId
@@ -42,9 +45,9 @@
 								else
 									option(value=theme.id) #{theme.title}    
 				
-				.form-group
-					label.control-label Thème
-					select.form-control(name="category")
+				.form-group.form-inline
+					label.col-1.control-label(style="justify-content: left; padding-left: 0;") Thème
+					select.col-3.form-control(name="category")
 						option(value=0) - Sélectionner -
 							each category in categories
 								if content && category.id == content.categoryId
@@ -72,15 +75,20 @@
 					if content.picture && content.picture.path
 						img.pic-image-box-normal(src="../../"+content.picture.path)
 				input.form-control(type="file" name="contentPicture")
-				.animated-checkbox
-					label
-						if content
-							input(type="checkbox" name="published" checked=content.published)
-						else
-							input(type="checkbox" name="published")
-
-						span.label-text Publié
-	
+				
+				hr 
+				
+				.form-group.form-inline
+					label.control-label État :
+					
+					select.col-2.form-control.ml-3(name="published")
+						option(value=0) - Sélectionner -
+							each contentState in contentStates
+								if content && contentState.id == content.published
+									option(value=contentState.id, selected="selected")  #{contentState.title}    
+								else
+									option(value=contentState.id) #{contentState.title}
+		
 				.tile-footer
 					button.btn.btn-primary(type="submit")
 						i.fa.fa-fw.fa-lg.fa-check-circle

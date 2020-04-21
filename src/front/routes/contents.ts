@@ -27,11 +27,29 @@ export default (app: Router) => {
         try {
             const ContentModel: any = Container.get('contentModel');
 
-            const contents = await ContentModel.findAll({ include: ['picture', 'itsTheme'] });
+            const contents = await ContentModel.findAll({ include: ['picture', 'itsTheme', 'itsQuestionCategory'] });
+            
+            const logger: any = Container.get('logger');
 
+            
+            const contentServiceInstance = Container.get(ContentService);
+            const contentStates = await contentServiceInstance.getContentStates();
+            const contentStatesArray = await contentServiceInstance.getContentStatesAsArray();
+            
+            const CategoryModelService: any = Container.get('questionCategoryModel');
+            const categories = await CategoryModelService.findAll();
+            
+            const ThemeModelService: any = Container.get('thematiqueModel');
+            const themes = await ThemeModelService.findAll();
+
+            
             return res.render('page-contents', {
                 username: req['session'].name,
                 contents: contents,
+                contentStates: contentStates,
+                thematiques: themes,
+                categories: categories,
+                contentStatesArray: contentStatesArray
             });
         } catch (e) {
             throw e;
@@ -44,6 +62,11 @@ export default (app: Router) => {
             const CategoryModelService: any = Container.get('questionCategoryModel');
             const categories = await CategoryModelService.findAll();
 
+            
+            const contentServiceInstance = Container.get(ContentService);
+            const contentStates = await contentServiceInstance.getContentStates();
+            
+            
             const ThemeModelService: any = Container.get('thematiqueModel');
             const themes = await ThemeModelService.findAll();
 
@@ -51,6 +74,7 @@ export default (app: Router) => {
                 username: req['session'].name,
                 themes: themes,
                 categories: categories,
+                contentStates: contentStates
             });
         } catch (e) {
             throw e;
@@ -99,6 +123,10 @@ export default (app: Router) => {
             const CategoryModelService: any = Container.get('questionCategoryModel');
             const categories = await CategoryModelService.findAll();
 
+            const contentServiceInstance = Container.get(ContentService);
+            const contentStates = await contentServiceInstance.getContentStates();
+            
+            
             const ThemeModelService: any = Container.get('thematiqueModel');
             const themes = await ThemeModelService.findAll();
 
@@ -112,7 +140,8 @@ export default (app: Router) => {
                 username: req['session'].name,
                 content: content,
                 themes: themes,
-                categories: categories,
+                categories: categories,     
+                contentStates: contentStates
             });
         } catch (e) {
             throw e;
@@ -174,4 +203,67 @@ export default (app: Router) => {
         }
     });
 
+    route.post('/duplicate', middlewares.isAuth, async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+
+        try {
+        	const ContentModel: any = Container.get('contentModel');
+        	const contentService = Container.get(ContentService);
+        	
+            const documentsId = req.body.contents;
+            
+            documentsId.forEach( async documentId => {
+            	// We leave the same pictureID, and this is a normal effect ( if we update through form, new picture is created )
+				const content = await contentService.duplicate(documentId);
+				
+				logger.debug(content);
+            });
+            
+            return res.json().status(200);
+        } catch (e) {
+            throw e;
+        }
+    });
+    
+    route.post('/change-state', middlewares.isAuth, async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+
+        try {
+            const targetState = req.body.targetState;
+            const documentsId = req.body.contents;
+            
+            const contentService = Container.get(ContentService);
+            
+            documentsId.forEach( async documentId => {
+				await contentService.changeState(documentId, targetState);
+            });
+            
+            return res.json({success : true}).status(200);
+        } catch (e) {
+            throw e;
+        }
+    });
+    
+    route.post('/change-category', middlewares.isAuth, async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+
+        try {
+            const targetThematique = req.body.thematique;
+            const targetCategory   = req.body.category;
+            const documentsId 	= req.body.contents;
+            
+            const contentService = Container.get(ContentService);
+            
+            documentsId.forEach( async documentId => {
+				await contentService.changeCategory(documentId, targetCategory, targetThematique);
+            });                                                                                   
+            
+            return res.json({success : true}).status(200);
+        } catch (e) {
+            throw e;
+        }
+    });
 };

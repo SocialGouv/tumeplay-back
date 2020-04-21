@@ -21,6 +21,7 @@ export default (sequelize, type) => {
             },
         },
         isCorrect: DataTypes.BOOLEAN,
+        isNeutral: DataTypes.BOOLEAN,
         published: DataTypes.BOOLEAN,
     });
 
