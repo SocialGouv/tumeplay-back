@@ -70,6 +70,16 @@ body
 	font-family: 'Chivo-Bold';
 }
 
+.small 
+{
+	font-size: 12px;
+}
+
+.light 
+{
+	color: #5C5C5C;
+}
+
 .colorised
 {
 	color: #C80352;
