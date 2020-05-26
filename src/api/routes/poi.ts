@@ -138,25 +138,4 @@ export default (app: Router) => {
             return next(e);
         }
     });
-
-    route.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
-        const logger: any = Container.get('logger');
-        try {
-            const documentId = req.params.id;
-            const ThematiqueModel: any = Container.get('thematiqueModel');
-
-            const thematique: IThematique = await ThematiqueModel.findOne({
-                where: {
-                    id: documentId,
-                },
-                include: ['picture'],
-            });
-            return res.json({ thematique }).status(200);
-        } catch (e) {
-            logger.error('🔥 error: %o', e);
-            return next(e);
-        }
-    });
-
-
 };

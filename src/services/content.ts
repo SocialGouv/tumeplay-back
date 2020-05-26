@@ -93,6 +93,7 @@ export default class ContentService {
 			text: contentRecord.text,
 			link: contentRecord.link,
 			published: contentRecord.published,
+			comment: contentRecord.comment,
 			pictureId: contentRecord.pictureId,
 			themeId: contentRecord.themeId,
 			categoryId: contentRecord.categoryId,	

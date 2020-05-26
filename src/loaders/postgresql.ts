@@ -54,6 +54,7 @@ export default async () => {
     Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
     Content.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
     Content.belongsTo(questionCategory, { foreignKey: 'categoryId', as: 'itsQuestionCategory' });
+    Content.belongsTo(QuestionContent, { foreignKey: 'questionId', as: 'itsQuestionContent' });
 
     questionCategory.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
     questionCategory.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });

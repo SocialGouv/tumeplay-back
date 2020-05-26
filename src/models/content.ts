@@ -10,6 +10,7 @@ export default (sequelize, type) => {
         title: DataTypes.STRING,
         text: DataTypes.STRING(1000),
         link: DataTypes.STRING(1000),
+        comment: DataTypes.STRING(1000),
         published: DataTypes.INTEGER,
         pictureId: {
             type: DataTypes.INTEGER,
@@ -32,5 +33,13 @@ export default (sequelize, type) => {
                 key: 'id',
             },
         },
+        questionId: {
+            type: DataTypes.INTEGER,
+            reference: {
+                model: 'question_content',
+                key: 'id',
+            },
+        },
+        
     });
 };

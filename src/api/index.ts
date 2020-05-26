@@ -1,4 +1,8 @@
 import { Router } from 'express';
+
+import swaggerUi from 'swagger-ui-express';
+import documentation from './documentation';
+
 import auth from './routes/auth';
 import box from './routes/boxs';
 import contents from './routes/contents';
@@ -15,6 +19,8 @@ import poi from './routes/poi';
 export default () => {
     const app = Router();
 
+    app.use('/doc', swaggerUi.serve, swaggerUi.setup(documentation));
+    
     auth(app);
     box(app);
     contents(app);

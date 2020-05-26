@@ -6,6 +6,8 @@ import ShippingModeService from '../../services/shipping.mode';
 import { celebrate, Joi } from 'celebrate';
 import middlewares from '../middlewares';
 import OrderService from '../../services/order';
+import ExportGeneratorService from '../../services/export.generator';
+import DateFormatterService from '../../services/date.formatter';
 import ProductService from '../../services/product';
 import ProductOrderService from '../../services/product.order';
 const route = Router();
@@ -34,6 +36,56 @@ export default (app: Router) => {
      * @description Order management routes
      */
 
+    route.get(`${routes.ORDER_MANAGEMENT_ROOT}/export/csv`, middlewares.isAuth, async (req: Request, res: Response) => {
+    	try {
+    		const logger: any 	= Container.get('logger');
+    		
+    		
+    		const dateService   = Container.get(DateFormatterService);
+			const exportService = Container.get(ExportGeneratorService);	
+			
+			const orderModel  	= Container.get("orderModel");
+			
+			const  dbOrders		= await orderModel.findAll({ include: ['shippingAddress', 'profile']});
+			
+			const orders = dbOrders.map(item => {
+				const dateObject = new Date(item.orderDate);
+				const date 		 = dateService.format(item.orderDate);
+				
+				return [
+					item.id,
+					date.day + "/" + date.month + "/" + date.year,
+					item.boxId,
+					item.profile.name,
+					item.profile.surname,
+					item.profile.email,
+				]
+			});
+			
+			const headers = [
+				"Num",
+				"Date",
+				"Box commandée",
+				"Prénom",
+				"Nom",
+				"E-Mail"
+			]; 
+			
+			orders.unshift(headers);
+			   
+			logger.debug("Got orders.");
+			
+			const { tmpFile }   = await exportService.generateCsv(orders);
+			
+			const date  = dateService.format(new Date());
+			
+			res.download(tmpFile, 'Export-Commandes-' + date.year + date.month + date.day + '.csv');
+    	}
+    	catch(e) {
+			console.log(e);	
+    	}
+	});
+    
     route.get(routes.ORDER_MANAGEMENT_ROOT, middlewares.isAuth, async (req: Request, res: Response) => {
         try {
             const OrderModel_service: OrderService = Container.get(OrderService);
