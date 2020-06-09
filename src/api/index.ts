@@ -6,6 +6,7 @@ import documentation from './documentation';
 import auth from './routes/auth';
 import box from './routes/boxs';
 import contents from './routes/contents';
+import contact from './routes/contact';
 import order from './routes/order';
 import product from './routes/products';
 import quizzs from './routes/quizzs';
@@ -27,6 +28,7 @@ export default () => {
     order(app);
     product(app);
     quizzs(app);
+    contact(app);
 
     shippingMode(app);
     thematiques(app);

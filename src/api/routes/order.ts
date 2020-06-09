@@ -203,6 +203,12 @@ export default (app: Router) => {
                 localShipping = await ShippingModeModelService.create(shippingData);
             } 
             
+		    let selectedZipCode = ( deliveryMode == 'pickup' ? selectedPickup.zipCode : userAdress.zipCode );
+            if( !addressValidator.isZipCodeAllowed(selectedZipCode) )
+            {
+                logger.debug('Zipcode is not allowed. Aborting. ( testing ' + selectedZipCode + ' )' );
+                return res.json({success: false}).status(200);
+            }
 			
 			if( !addressValidator.isZipCodeAllowed(userAdress.zipCode) )
 			{
@@ -217,6 +223,7 @@ export default (app: Router) => {
                 city: userAdress.city,
                 concatenation: `${userAdress.zipCode},${userAdress.city},${userAdress.adress}`,
                 street: userAdress.adress,
+                streetMore: userAdress.adressMore,
                 zipCode: userAdress.zipCode,
                 phoneNumber: userAdress.phoneNumber,
                 userId: userId,

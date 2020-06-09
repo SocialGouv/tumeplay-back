@@ -80,6 +80,10 @@ export default async ({ expressApp }) => {
                 name: 'productStockModel',
                 model: models.productStockModel,
             },
+            {
+                name: 'contactModel',
+                model: models.contactModel,
+            },
         ],
     });
     Logger.info('✌️ Dependency Injector loaded');

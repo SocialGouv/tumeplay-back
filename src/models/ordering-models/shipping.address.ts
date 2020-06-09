@@ -10,6 +10,7 @@ export default (sequelize, type) => {
 
         num: DataTypes.STRING,
         street: DataTypes.STRING,
+        streetMore: DataTypes.STRING,
         cp: DataTypes.STRING,
         city: DataTypes.STRING,
         concatenation: DataTypes.STRING,

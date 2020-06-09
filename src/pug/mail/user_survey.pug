@@ -1,0 +1,34 @@
+extends _layout.pug
+
+block title
+	| On a besoin de ton avis !
+	
+block content
+	.col-4.box-picture-wrapper
+		img.box-picture(src=`${hostname}` + "/pictures/mail/sondage.png")
+		
+	.col-8
+		.subtitle Salut #{firstName}
+			img.instagram-icon(src=`${hostname}` + "/pictures/mail/hand.png")
+		br
+		.text Il y a quelques temps, tu as commandé une de nos box Tumeplay. On espère que tu l'as bien reçue et que tu en as profité comme il se doit !
+			
+		br
+		.text Pour qu'on soit toujours au plus près de tes attentes, on te propose de 
+			span.text.bold répondre à notre questionnaire 
+				a(href='https://forms.gle/MNr6ohf9JRm4wYht9') ici
+			span.text . Promis, ça ne te prendra que quelques minutes. Ton avis est M-É-G-A précieux.
+				img.instagram-icon(src=`${hostname}` + "/pictures/mail/heart.png")
+		br
+		.text.small.light (Si tu n'arrives pas à accéder au lien, tu peux copier/coller cette adresse : https://forms.gle/MNr6ohf9JRm4wYht9)
+	.clearfix
+	
+	.col-12
+		br
+		.text.bold Une question ? Un retour ?
+		.text Notre équipe répond à tes questions par mail à l'adresse 
+			a(href='mailto:contact.tumeplay@fabrique.social.gouv.fr') contact.tumeplay@fabrique.social.gouv.fr
+		br
+		.text Suis-nous sur Instagram 
+			img.instagram-icon(src=`${hostname}` + "/pictures/mail/instagram-icon.jpg")
+			a(href="https://www.instagram.com/tumeplay/") @tumeplay

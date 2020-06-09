@@ -1,6 +1,7 @@
 var Sequelize = require('sequelize');
 import UserModel from '../models/user';
 import ContentModel from '../models/content';
+import ContactModel from '../models/contact';
 import QuestionContentModel from '../models/question.content';
 import QuestionCategoryModel from '../models/question.category';
 import ThematiqueModel from '../models/thematiques';
@@ -13,6 +14,7 @@ import ProductStockModel from '../models/product.stock';
 import ShippingModeModel from '../models/ordering-models/shipping.mode';
 import OrderModel from '../models/ordering-models/order';
 import ProductOrderModel from '../models/ordering-models/product.order';
+
 
 import BoxModel from '../models/box';
 import BoxProductModel from '../models/box.products';
@@ -30,6 +32,7 @@ export default async () => {
         logging: false,
     });
 
+    const Contact = ContactModel(sequelize, Sequelize);
     const User = UserModel(sequelize, Sequelize);
     const Profile = ProfileModel(sequelize, Sequelize);
     const ShippingAddress = ShippingAddressModel(sequelize, Sequelize);
@@ -124,6 +127,7 @@ export default async () => {
     module.exports = BoxProducts;
     module.exports = Poi;
     module.exports = ProductStock;
+    module.exports = Contact;
 
     return {
         userModel: User,
@@ -143,5 +147,6 @@ export default async () => {
         boxModel: Box,
         boxProductModel: BoxProducts,
         poiModel: Poi,
+        contactModel: Contact,
     };
 };
