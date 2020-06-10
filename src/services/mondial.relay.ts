@@ -53,6 +53,7 @@ export default class MondialRelayService {
             Dest_Langage: 'FR',
             Dest_Ad1: 'M. ' + fullName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
             Dest_Ad3: localParams.street.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
+            Dest_Ad4: localParams.streetMore.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
             Dest_Ville: localParams.city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
             Dest_CP: localParams.zipCode,
             Dest_Pays: 'FR',

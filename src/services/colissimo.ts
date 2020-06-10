@@ -25,7 +25,7 @@ export default class ColissimoService {
 		    firstName: firstName,
 		    lastName: lastName,
 		    floor: '',
-		    building: '',
+		    building: shippingAddress.streetMore.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
 		    streetName: shippingAddress.street.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
 		    citySurname: '',
 		    zipCode: shippingAddress.zipCode,
