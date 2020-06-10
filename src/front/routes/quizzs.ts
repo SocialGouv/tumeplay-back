@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
 import middlewares from '../middlewares';
+import pug from 'pug';
 import QuestionContentService from '../../services/question.content';
 import QuestionAnswerService from '../../services/question.answer';
 import QuestionCategoryService from '../../services/question.category';
@@ -41,6 +42,63 @@ export default (app: Router) => {
 
     app.use(QUIZZ_ROOT, route);
 
+    route.get(QUIZZ_QUESTION_ROOT + '/ajax/list', middlewares.isAuth, async (req: Request, res: Response) => {
+        try {
+            const questionContent: any = Container.get('questionModel');
+
+            const questions: IQuestionContent[] = await questionContent.findAll({
+                include: ['itsQuestionCategory', 'itsTheme', 'picture'],
+            });
+
+            let parsedQuestions = questions.map((item) => {
+				return {
+					id: item.id,
+					title: item.title + " ( " + item.itsTheme.title + " ) "
+				}
+            });
+            
+            parsedQuestions = parsedQuestions.sort((a, b) => {
+				if(a.title < b.title) { return -1; }
+			    if(a.title > b.title) { return 1; }
+			    return 0;	
+            });
+            
+            return res.json({questions : parsedQuestions});
+        } catch (e) {
+            throw e;
+        }
+    });
+    
+    route.get(QUIZZ_QUESTION_ROOT + '/ajax/form/:id', middlewares.isAuth, async (req: Request, res: Response) => {
+        try {
+            const documentId = req.params.id;
+            const QuestionModel: any = Container.get('questionModel');
+
+            const question = await QuestionModel.findOne({
+                where: {
+                    id: documentId,
+                },
+            });
+
+            const questionAnswerModel = Container.get('questionAnswerModel');
+
+            const answers = await questionAnswerModel.findAll({
+                where: {
+                    questionContentId: documentId,
+                },
+            });
+
+            const _html = await pug.renderFile(__dirname + '/../../pug/forms/quizz/_form.question.pug', {
+                question,
+                answers,
+            });
+            
+            return res.json({form : _html});
+        } catch (e) {
+            throw e;
+        }
+    });
+    
     route.get(QUIZZ_QUESTION_ROOT + '/', middlewares.isAuth, async (req: Request, res: Response) => {
         try {
             const questionContent: any = Container.get('questionModel');

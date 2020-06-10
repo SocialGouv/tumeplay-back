@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
 import middlewares from '../middlewares';
+
 import ContentService from '../../services/content';
+import QuestionContentService from '../../services/question.content';
+import QuestionAnswerService from '../../services/question.answer';
+
 import PictureService from '../../services/picture';
 import { IContentInputDTO } from '../../interfaces/IContent';
 import { IPictureInputDTO } from '../../interfaces/IPicture';
@@ -10,7 +14,13 @@ import { celebrate, Joi } from 'celebrate';
 var multer = require('multer');
 
 var contentMulterStorage = multer.diskStorage({
-    destination: 'uploads/pictures/content',
+    destination: (req, file, cb) => {
+      if (file.fieldname === "contentPicture") {
+        cb(null, 'uploads/pictures/content');
+      } else { 
+        cb(null, 'uploads/pictures/question');
+      }
+  	},
     filename: function(req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     },
@@ -81,7 +91,21 @@ export default (app: Router) => {
         }
     });
 
-    route.post('/add', middlewares.isAuth, uploadContent.single('contentPicture'), async (req: any, res: Response) => {
+    route.post('/add', 
+    	middlewares.isAuth, 
+    	uploadContent.fields(
+		  [
+		      { 
+		        name: 'contentPicture', 
+		        maxCount: 1 
+		      }, 
+		      { 
+		        name: 'questionContentPicture', 
+		        maxCount: 1 
+		      }
+		    ]
+		),
+		async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
         logger.debug('Calling Front Create endpoint with body: %o', req.body);
 
@@ -91,6 +115,7 @@ export default (app: Router) => {
                 text: req.body.text,
                 link: req.body.link,
                 published: req.body.published,
+	                comment: req.body.comment,
                 themeId: req.body.theme,
                 categoryId: req.body.category,
                 pictureId: null,
@@ -106,6 +131,9 @@ export default (app: Router) => {
                 // Assigning pic id to the thematique item
                 contentItem.pictureId = picture.id;
             }
+	            
+	            contentItem.questionId = await handleQuestionData(req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems);
+	            
             const contentServiceInstance = Container.get(ContentService);
             await contentServiceInstance.create(contentItem);
 
@@ -113,7 +141,8 @@ export default (app: Router) => {
         } catch (e) {
             throw e;
         }
-    });
+		}
+    );
 
     route.get('/edit/:id', middlewares.isAuth, async (req: Request, res: Response) => {
         try {
@@ -134,14 +163,33 @@ export default (app: Router) => {
                 where: {
                     id: documentId,
                 },
+                include: [
+                	'itsQuestionContent'
+                ]
             });
 
+            let questionAnswers = null;
+            
+            if( content.itsQuestionContent )
+            {
+				const questionAnswerModel = Container.get('questionAnswerModel');
+
+	            questionAnswers = await questionAnswerModel.findAll({
+	                where: {
+	                    questionContentId: content.itsQuestionContent.id,
+	                },
+	            });
+
+            }                                                           
+            
             return res.render('page-contents-edit', {
                 username: req['session'].name,
                 content: content,
                 themes: themes,
                 categories: categories,     
-                contentStates: contentStates
+                contentStates: contentStates,
+                question: content.itsQuestionContent,
+                answers: questionAnswers
             });
         } catch (e) {
             throw e;
@@ -151,7 +199,18 @@ export default (app: Router) => {
     route.post(
         '/edit/:id',
         middlewares.isAuth,
-        uploadContent.single('contentPicture'),
+        uploadContent.fields(
+		  [
+		      { 
+		        name: 'contentPicture', 
+		        maxCount: 1 
+		      }, 
+		      { 
+		        name: 'questionContentPicture', 
+		        maxCount: 1 
+		      }
+		    ]
+		),
         async (req: any, res: Response) => {
             try {
                 const logger = Container.get<any>('logger');
@@ -162,12 +221,13 @@ export default (app: Router) => {
                     text: req.body.text,
                     link: req.body.link,
                     published: req.body.published,
+                    comment: req.body.comment,
                     themeId: req.body.theme,
                     categoryId: req.body.category,
                     pictureId: undefined,
                 };
 
-                const picObject: IPictureInputDTO = req.file;
+                const picObject: IPictureInputDTO = req.files.contentPicture;
 
                 if (picObject) {
                     // Processing the file if any file in req.file (PICTURE)
@@ -176,6 +236,9 @@ export default (app: Router) => {
                     // Assigning pic id to the thematique item
                     contentItem.pictureId = picture.id;
                 }
+                                                                                                                                                                                
+                contentItem.questionId = await handleQuestionData(req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems);
+                
                 const contentServiceInstance = Container.get(ContentService);
                 await contentServiceInstance.update(documentId, contentItem);
 
@@ -266,4 +329,79 @@ export default (app: Router) => {
             throw e;
         }
     });
+    
+    
+    const handleQuestionData = async (requestQuestion, selectedCategory, selectedTheme, picObject, requestAnswerItems) => {
+        const logger: any = Container.get('logger');
+        
+        let questionId = null;
+        
+        if( requestQuestion.content == '' )
+        {
+			return questionId;
+        }
+        
+        let questionContentItem: IQuestionContentDTO = {
+            title: 		requestQuestion.title,
+            answerText: requestQuestion.answerText,
+            content: 	requestQuestion.content,
+            published: 	( requestQuestion.published ? requestQuestion.published : "false" ),
+            categoryId: selectedCategory ? selectedCategory : null,
+            themeId: 	selectedTheme ? selectedCategory : null,
+            pictureId: 	undefined,
+        };
+        logger.silly('%o', questionContentItem);
+
+        // Processing picture
+        if (picObject) {
+            // Processing the file if any file in req.file (PICTURE)
+            const pictureServiceInstance = Container.get(PictureService);
+            const { picture } = await pictureServiceInstance.create(picObject as IPictureInputDTO);
+            // Assigning pic id to the thematique item
+            questionContentItem.pictureId = picture.id;
+        }
+
+        const questionServiceInstance = Container.get(QuestionContentService);
+        
+        if( requestQuestion.id )
+        {			
+	        await questionServiceInstance.update(requestQuestion.id, questionContentItem);        		
+	        
+	        questionId = requestQuestion.id;
+        }
+        else
+        {
+			const { questionContent } = await questionServiceInstance.create(questionContentItem);	
+			
+			questionId = questionContent.id;
+        }
+        
+        if (requestAnswerItems && Array.isArray(requestAnswerItems)) {
+            let answerItems: IQuestionAnswerDTO[] = requestAnswerItems.map(answerItem => {
+                if (answerItem.title != '') {
+                    
+                    return {                            	
+                        title: answerItem.title,
+                        isCorrect: answerItem.questionState === 'isCorrect',
+                        isNeutral: answerItem.questionState === 'isNeutral',
+                        published: true, // @TODO: is published really needed in question answer ?
+                        questionContentId: questionId,
+                    };
+                }
+            });
+            if (answerItems.length > 0) {
+                // Creating answers
+                const questionAnswerService = Container.get(QuestionAnswerService);
+                const questionAnswerModel = Container.get('questionAnswerModel');
+
+                await questionAnswerModel.destroy({ where: { questionContentId: questionId } });
+
+                await questionAnswerService.bulkcreate(answerItems);
+            }
+        }
+        
+        logger.silly('Updated a question');
+
+        return questionId;
+    };
 };

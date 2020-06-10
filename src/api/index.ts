@@ -1,7 +1,12 @@
 import { Router } from 'express';
+
+import swaggerUi from 'swagger-ui-express';
+import documentation from './documentation';
+
 import auth from './routes/auth';
 import box from './routes/boxs';
 import contents from './routes/contents';
+import contact from './routes/contact';
 import order from './routes/order';
 import product from './routes/products';
 import quizzs from './routes/quizzs';
@@ -15,12 +20,15 @@ import poi from './routes/poi';
 export default () => {
     const app = Router();
 
+    app.use('/doc', swaggerUi.serve, swaggerUi.setup(documentation));
+    
     auth(app);
     box(app);
     contents(app);
     order(app);
     product(app);
     quizzs(app);
+    contact(app);
 
     shippingMode(app);
     thematiques(app);

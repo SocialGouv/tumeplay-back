@@ -19,6 +19,11 @@ aside.app-sidebar
 				span.app-menu__label Contenus
 				
 		li
+			a.app-menu__item(href='/contacts' class={'active': activePage == 'page-contacts'})
+				i.app-menu__icon.fa.fa-dashboard
+				span.app-menu__label Contacts
+		
+		li
 			a.app-menu__item(href='/profiles' class={'active': activePage == 'page-profiles'})
 				i.app-menu__icon.fa.fa-dashboard
 				span.app-menu__label Utilisateurs

@@ -15247,3 +15247,12 @@ be a descendant of the grid when it is being dragged.
 {
   color: var(--red);
 }
+
+.select2-container {
+	z-index: 999999;
+	
+}
+
+body > .select2-container {
+	padding-top: 50px;
+}

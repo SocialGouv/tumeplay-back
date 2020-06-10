@@ -1,127 +1,98 @@
 block content
 	if question
 		- var targetUrl = "/quizzs/questions/edit/" + question.id
-		h3.tile-title Modifier une question
+		
 	else
 		- var targetUrl = "/quizzs/questions/add"
-		h3.tile-title Créer une nouvelle question
+		
 
-	form.content-form(action=`${targetUrl}`, method="POST" name="myForm" enctype="multipart/form-data")#mainForm
-		.row
-			.col-md-6
-				.tile
+	.row
+		.col-md-6
+			.tile
+				if question
+					input(type="hidden", name="question[id]" value=`${question.id}`)
+				.form-group
+					label.control-label Titre
 					if question
-						input(type="hidden",	value=`${question.id}`)
-					.form-group
-						label.control-label Titre
-						if question
-							input.form-control(type="text" name="title" placeholder="Titre de la question ( usage interne uniquement )" value=`${question.title}`)
-						else
-							input.form-control(type="text" name="title" placeholder="Titre de la question ( usage interne uniquement )")
-							
-					if themes
-						.form-group.form-inline
-							label.col-3.pl-0.control-label(style="justify-content: left;") Famille
-							select.col-9.form-control(name="selectedTheme")
-								optgroup(label="Famille")
-									each theme in themes
-										if question && question.themeId == theme.id
-											option(value=theme, selected="selected") #{theme.title}
-										else
-											option(value=theme) #{theme.title}
-					if categories
-						.form-group.form-inline
-							label.col-3.pl-0.control-label(style="justify-content: left;") Thèmatique associé
-							select.col-9.form-control(name="selectedCategory")
-								optgroup(label="Thèmatique associé")
-									each category in categories
-										if question && question.categoryId == category.id
-											option(value=category, selected="selected") #{category.title}
-										else
-											option(value=category) #{category.title}
+						input.form-control(type="text" name="question[title]" placeholder="Titre de la question ( usage interne uniquement )" value=`${question.title}`)
+					else
+						input.form-control(type="text" name="question[title]" placeholder="Titre de la question ( usage interne uniquement )")
+						
+				
+				.form-group.form-inline
+					label.col-3.pl-0.control-label(style="justify-content: left;") Photo de la question:
+					input.col-9.form-control(type="file" name="questionContentPicture")
+				.form-group
+					label.control-label Question :
+
+					if question
+						textarea.form-control.limited-length(rows="5" data-maxlength="92" name="question[content]" placeholder="Question")=question.content
+					else
+						textarea.form-control.limited-length(rows="5" data-maxlength="92" name="question[content]" placeholder="Question")
 					
-					.form-group.form-inline
-						label.col-3.pl-0.control-label(style="justify-content: left;") Photo de la question:
-						input.col-9.form-control(type="file" name="questionContentPicture")
-					.form-group
-						label.control-label Question :
+					label.limited-counter 92 caractères restants.
+						
+				.form-group
+					label.control-label Texte de réponse :
 
-						if question
-							textarea.form-control.limited-length(rows="10" data-maxlength="92" name="content" placeholder="Question")=question.content
-						else
-							textarea.form-control.limited-length(rows="10" data-maxlength="92" name="content" placeholder="Question")
-						
-						label.limited-counter 92 caractères restants.
-							
-					.form-group
-						label.control-label Texte de réponse :
-
-						if question
-							textarea.form-control.limited-length(rows="5" data-maxlength="360" name="answerText" placeholder="Texte de réponse")=question.answerText
-						else
-							textarea.form-control.limited-length(rows="5" data-maxlength="360" name="answerText" placeholder="Texte de réponse")
-						
-						label.limited-counter 360 caractères restants.
-						
-					br
+					if question
+						textarea.form-control.limited-length(rows="10" data-maxlength="360" name="question[answerText]" placeholder="Texte de réponse")=question.answerText
+					else
+						textarea.form-control.limited-length(rows="10" data-maxlength="360" name="question[answerText]" placeholder="Texte de réponse")
 					
-					.animated-checkbox
-						label
-							if question
-								input(type="checkbox" name="published" checked=question.published)
-							else
-								input(type="checkbox" name="published")
+					label.limited-counter 360 caractères restants.
+					
+				br
+				
+				.animated-checkbox
+					label
+						if question
+							input(type="checkbox" name="question[published]" checked=question.published)
+						else
+							input(type="checkbox" name="question[published]")
 
-							span.label-text Publié
-			.col-md-6
-				.tile
-					h4 Gérer les réponses
-					div
-						a.btn.btn-secondary(id="newAnswerBtn", style="color: #FFF") Créer une réponse et cocher les bonnes réponses
-					br
-					div()
-						table.col-md-12
-							thead
-								tr
-									th.pl-2.pr-2
-										i.fa.fa-question
-									th.pl-2.pr-2
-										i.fa.fa-check
-									th.pl-2.pr-2
-										i.fa.fa-times
-									th Texte
-							tbody#responseList
-								if answers
-									each answer, i in answers
-										- var _isWrong = ( answer.isCorrect == false && answer.isNeutral == false )
-										tr.question-row
-											td.pl-2.pr-2
-												input(type="radio" name="answerItems["+i+"][questionState]" value="isNeutral" checked=answer.isNeutral)
-											td.pl-2.pr-2
-												input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect" checked=answer.isCorrect)
-											td.pl-2.pr-2
-												input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong" checked=_isWrong)
-											td 
-												input(type="text" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=`${answer.title}`)
-												label.limited-counter.offset-1 30 caractères restants.
-								else
+						span.label-text Publié
+		.col-md-6
+			.tile
+				h4 Gérer les réponses
+				div
+					a.btn.btn-secondary(id="newAnswerBtn", style="color: #FFF") Créer une réponse et cocher les bonnes réponses
+				br
+				div()
+					table.col-md-12
+						thead
+							tr
+								th.pl-2.pr-2
+									i.fa.fa-question
+								th.pl-2.pr-2
+									i.fa.fa-check
+								th.pl-2.pr-2
+									i.fa.fa-times
+								th Texte
+						tbody#responseList
+							if answers
+								each answer, i in answers
+									- var _isWrong = ( answer.isCorrect == false && answer.isNeutral == false )
 									tr.question-row
 										td.pl-2.pr-2
-											input(type="radio" name="answerItems["+i+"][questionState]" value="isNeutral")
+											input(type="radio" name="answerItems["+i+"][questionState]" value="isNeutral" checked=answer.isNeutral)
 										td.pl-2.pr-2
-											input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect")
+											input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect" checked=answer.isCorrect)
 										td.pl-2.pr-2
-											input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong")
+											input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong" checked=_isWrong)
 										td 
-											input(type="text" placeholder="Réponse n°1" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=``)
+											input(type="text" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=`${answer.title}`)
 											label.limited-counter.offset-1 30 caractères restants.
-									
-			.clearfix
-		button.btn.btn-primary(type="submit")
-			i.fa.fa-fw.fa-lg.fa-check-circle
-			| Valider
-		| &nbsp;&nbsp;&nbsp;
-		a.btn.btn-secondary(href="/quizzs/questions")
-			i.fa.fa-fw.fa-lg.fa-times-circle
-			| Annuler
-
+							else
+								tr.question-row
+									td.pl-2.pr-2
+										input(type="radio" name="answerItems["+i+"][questionState]" value="isNeutral")
+									td.pl-2.pr-2
+										input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect")
+									td.pl-2.pr-2
+										input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong")
+									td 
+										input(type="text" placeholder="Réponse n°1" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=``)
+										label.limited-counter.offset-1 30 caractères restants.
+								
+		.clearfix

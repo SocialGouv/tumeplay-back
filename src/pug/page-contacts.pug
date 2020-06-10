@@ -1,0 +1,55 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-contacts'
+	// - var activeGroup = 'tables'
+
+block title
+	title Contacts - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Contacts
+			p Contacts receuillis via l'application
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") Contacts
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+						
+					table.table.table-hover.table-bordered#contactsDataTable
+						thead
+							tr
+								th ID
+								th Nom
+								th E-mail
+								th Département
+								th Date de mise à jour
+						tbody
+							each contact in contacts
+								tr
+									td #{contact.id}
+									td #{contact.name}
+									td #{contact.email} 
+									td #{contact.zipCode}
+									td(data-sort=contact.updatedAt) #{prettyDate(contact.updatedAt)}
+				.tile-footer
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		var _mainDataTable = $('#contactsDataTable').DataTable();
+		
+		                       

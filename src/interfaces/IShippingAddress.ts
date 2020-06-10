@@ -3,6 +3,7 @@ import { IUser } from './IUser';
 export interface IShippingAddressInputDTO {
   num: string;
   street: string;
+    streetMore: string;
   cp: string;
   city: string;
   concatenation: string;

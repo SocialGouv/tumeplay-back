@@ -18,6 +18,7 @@ import profiles from './routes/profiles';
 import boxs from './routes/boxs';
 import sync from './routes/sync';
 import poi from './routes/poi';
+import contacts from './routes/contacts';
 
 import config from '../config';
 
@@ -37,6 +38,7 @@ export default () => {
     boxs(app);
     sync(app);
     poi(app);
+    contacts(app);
 
     app.use('/', route);
 

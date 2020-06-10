@@ -26,7 +26,8 @@
 					
 					br
 					label.limited-counter(style="padding-left: 15px;") 92 caractères restants.
-							
+				
+				
 				.form-group.form-inline
 					label.col-1.control-label.pl-0(style="justify-content: left;") Lien associé
 					
@@ -34,7 +35,18 @@
 						input.col-6.form-control(type="text", name="link", placeholder="Lien associé" value=`${content.link}`)
 					else
 						input.col-6.form-control(type="text", name="link", placeholder="Lien associé")
-
+                
+				.form-group.form-inline
+					label.col-1.control-label.pl-0(style="justify-content: left;")  État :
+					
+					select.col-3.form-control(name="published")
+						option(value=0) - Sélectionner -
+							each contentState in contentStates
+								if content && contentState.id == content.published
+									option(value=contentState.id, selected="selected")  #{contentState.title}    
+								else
+									option(value=contentState.id) #{contentState.title}
+		        
 				.form-group.form-inline
 					label.col-1.control-label.pl-0(style="justify-content: left;") Famille
 					select.col-3.form-control(name="theme")
@@ -70,6 +82,15 @@
 						ul
 							li Lien : #{'<a href="https://www.monsite.com">'}Cliquez ici#{'</a>'}
 							li Gras : #{'<strong>'}Ceci est un test en gras#{'</strong>'}
+				
+				.form-group
+					label.control-label Commentaire
+					
+					if content
+						textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")=content.comment
+					else
+						textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")
+					label.limited-counter 1000 caractères restants.
 					
 				if content
 					if content.picture && content.picture.path
@@ -78,17 +99,20 @@
 				
 				hr 
 				
-				.form-group.form-inline
-					label.control-label État :
-					
-					select.col-2.form-control.ml-3(name="published")
-						option(value=0) - Sélectionner -
-							each contentState in contentStates
-								if content && contentState.id == content.published
-									option(value=contentState.id, selected="selected")  #{contentState.title}    
-								else
-									option(value=contentState.id) #{contentState.title}
-		
+				.accordion.md-accordion#accordionOne
+					.card
+						.card-header#headerOne
+							a(data-toggle="collapse", data-parent="#accordionOne", href="#collapseOne")
+								h5.mb-0 
+									| Question associée
+									i.fa.ml-1.fa-angle-down.rotate-icon
+									span.search-question.btn.ml-3.btn-sm.btn-primary(href="#") Lier une question existante
+								
+						.collapse#collapseOne(data-parent="accordionOne")
+							.card-body
+								
+								include ../quizz/_form.question.pug
+            
 				.tile-footer
 					button.btn.btn-primary(type="submit")
 						i.fa.fa-fw.fa-lg.fa-check-circle
@@ -96,9 +120,11 @@
 					| &nbsp;&nbsp;&nbsp;
 					a.btn.btn-secondary(href="/contents")
 						i.fa.fa-fw.fa-lg.fa-times-circle
-						| Annuler                                
+						| Annuler
+				
 	.clearfix
-        
+	    
 
 block specific-js
-	
+	script(type='text/javascript').
+		

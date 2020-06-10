@@ -20,9 +20,18 @@ export default class QuestionContentService {
             if (typeof tempQuestionContent.published === 'string') {
                 tempQuestionContent.published = tempQuestionContent.published == 'on';
             }
-            const questionContent: IQuestionContent = await this.questionModel.create({
+            
+            let questionContent = null;
+            try
+            {
+	            questionContent = await this.questionModel.create({
                 ...tempQuestionContent,
             });
+			}
+			catch(err)
+			{
+				console.log(err);
+			}
 
             if (!questionContent) {
                 throw new Error('Question Content cannot be created');
