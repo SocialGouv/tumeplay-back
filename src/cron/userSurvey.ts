@@ -17,7 +17,6 @@ async function userSurveys() {
     	}
     	
     	await mailServiceInstance.send(variables.email, '=?utf-8?Q?On_a_besoin_de_ton_avis_=F0=9F=99=82?=', 'user_survey', variables);
-    	await mailServiceInstance.send('romainpetiteville@gmail.com', '=?utf-8?Q?On_a_besoin_de_ton_avis_=F0=9F=99=82?=', 'user_survey', variables);
     		
 		console.log(variables);
     });
