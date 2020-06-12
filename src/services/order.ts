@@ -184,7 +184,12 @@ export default class OrderService {
 		try
 		{
 			const dayModifier 	= ( boxId == 4 ) ? 30 : 7; // Naive implementation for "one month" / "one week"
-			const thresholdTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+			let thresholdTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+
+
+			var a = new Date().getTimezoneOffset();
+		
+			thresholdTime.setTime(thresholdTime.getTime() - (a * 60 * 1000 ));						
 						
 			const orders: any = await this.orderModel.findAll({
                 where: { 
@@ -215,5 +220,33 @@ export default class OrderService {
 			
 			return { isOrderAllowed : true };
 		}
+    }
+    
+    public async findSurveyAbleOrders()
+    {
+    	const dayModifier 	= 20;
+    	
+		let minTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+		let maxTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+		
+		minTime.setHours(0,0,0);
+		maxTime.setHours(23,59,59);
+		
+		var a = new Date().getTimezoneOffset();
+		
+		minTime.setTime(minTime.getTime() - (a * 60 * 1000 ));
+		maxTime.setTime(maxTime.getTime() - (a * 60 * 1000 ));
+
+		const orders: any = await this.orderModel.findAll({
+            where: { 
+				orderDate: {
+					[Op.gte]: minTime,
+					[Op.lte]: maxTime,
+				},				
+            },
+            include: ['profile'],
+        });
+        
+        return orders;
     }
 }
