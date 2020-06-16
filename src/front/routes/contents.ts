@@ -169,6 +169,7 @@ export default (app: Router) => {
             });
 
             let questionAnswers = null;
+            let questionPicture = null;
             
             if( content.itsQuestionContent )
             {
@@ -179,7 +180,19 @@ export default (app: Router) => {
 	                    questionContentId: content.itsQuestionContent.id,
 	                },
 	            });
-
+				
+				if( content.itsQuestionContent.pictureId )
+				{
+					const pictureModel = Container.get('pictureModel');
+					
+					questionPicture = await pictureModel.findOne({
+		                where: {
+		                    id: content.itsQuestionContent.pictureId
+		                }
+					});
+					
+					console.log(questionPicture);
+				}
             }                                                           
             
             return res.render('page-contents-edit', {
@@ -189,7 +202,8 @@ export default (app: Router) => {
                 categories: categories,     
                 contentStates: contentStates,
                 question: content.itsQuestionContent,
-                answers: questionAnswers
+                answers: questionAnswers,
+                questionPicture: questionPicture,
             });
         } catch (e) {
             throw e;
@@ -232,7 +246,7 @@ export default (app: Router) => {
                 if (picObject) {
                     // Processing the file if any file in req.file (PICTURE)
                     let pictureServiceInstance = Container.get(PictureService);
-                    const { picture } = await pictureServiceInstance.create(picObject);
+                    const { picture } = await pictureServiceInstance.create(picObject[0]);
                     // Assigning pic id to the thematique item
                     contentItem.pictureId = picture.id;
                 }
@@ -356,7 +370,7 @@ export default (app: Router) => {
         if (picObject) {
             // Processing the file if any file in req.file (PICTURE)
             const pictureServiceInstance = Container.get(PictureService);
-            const { picture } = await pictureServiceInstance.create(picObject as IPictureInputDTO);
+            const { picture } = await pictureServiceInstance.create(picObject[0] as IPictureInputDTO);
             // Assigning pic id to the thematique item
             questionContentItem.pictureId = picture.id;
         }

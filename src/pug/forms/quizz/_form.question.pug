@@ -21,7 +21,13 @@ block content
 				
 				.form-group.form-inline
 					label.col-3.pl-0.control-label(style="justify-content: left;") Photo de la question:
-					input.col-9.form-control(type="file" name="questionContentPicture")
+					
+					
+					if questionPicture
+						input.col-6.form-control(type="file" name="questionContentPicture")
+						img.col-3(src=`/${questionPicture.path}`)
+					else
+						input.col-9.form-control(type="file" name="questionContentPicture")
 				.form-group
 					label.control-label Question :
 
