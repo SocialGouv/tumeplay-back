@@ -209,13 +209,7 @@ export default (app: Router) => {
                 logger.debug('Zipcode is not allowed. Aborting. ( testing ' + selectedZipCode + ' )' );
                 return res.json({success: false}).status(200);
             }
-			
-			if( !addressValidator.isZipCodeAllowed(userAdress.zipCode) )
-			{
-				logger.debug('Zipcode is not allowed. Aborting.');
-				return res.json({success: false}).status(200);
-			}
-			
+            
 			// Step 6 : Get shipping adress for user
             const localAdress = {
                 num: '',
