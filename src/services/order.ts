@@ -204,7 +204,7 @@ export default class OrderService {
             
             // We start from "allowed"
             let isAllowed = true;
-			this.logger.silly('Found ' + orders.length + ' orders for user.');
+			this.logger.silly('Found ' + orders.length + ' orders for user with time '+ thresholdTime +'.');
             // Do we have any order ? 
             if( orders && orders.length > 0 )
             {
@@ -236,6 +236,9 @@ export default class OrderService {
 		
 		minTime.setTime(minTime.getTime() - (a * 60 * 1000 ));
 		maxTime.setTime(maxTime.getTime() - (a * 60 * 1000 ));
+		
+		this.logger.silly('Searching between ' + minTime + ' and '+ maxTime +'.');
+
 
 		const orders: any = await this.orderModel.findAll({
             where: { 

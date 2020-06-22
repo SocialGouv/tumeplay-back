@@ -106,41 +106,41 @@ export default (app: Router) => {
 		    ]
 		),
 		async (req: any, res: Response) => {
-        const logger: any = Container.get('logger');
-        logger.debug('Calling Front Create endpoint with body: %o', req.body);
+	        const logger: any = Container.get('logger');
+	        logger.debug('Calling Front Create endpoint with body: %o', req.body);
 
-        try {
-            let contentItem: IContentInputDTO = {
-                title: req.body.title,
-                text: req.body.text,
-                link: req.body.link,
-                published: req.body.published,
+	        try {
+	            let contentItem: IContentInputDTO = {
+	                title: req.body.title,
+	                text: req.body.text,
+	                link: req.body.link,
+	                published: req.body.published,
 	                comment: req.body.comment,
-                themeId: req.body.theme,
-                categoryId: req.body.category,
-                pictureId: null,
-            };
+	                themeId: req.body.theme,
+	                categoryId: req.body.category,
+	                pictureId: null,
+	            };
 
-            // Setup picture
-            const picObject: IPictureInputDTO = req.file;
+	            // Setup picture
+	            const picObject: IPictureInputDTO = req.file;
 
-            if (picObject) {
-                // Processing the file if any file in req.file (PICTURE)
-                let pictureServiceInstance = Container.get(PictureService);
-                const { picture } = await pictureServiceInstance.create(picObject);
-                // Assigning pic id to the thematique item
-                contentItem.pictureId = picture.id;
-            }
+	            if (picObject) {
+	                // Processing the file if any file in req.file (PICTURE)
+	                let pictureServiceInstance = Container.get(PictureService);
+	                const { picture } = await pictureServiceInstance.create(picObject);
+	                // Assigning pic id to the thematique item
+	                contentItem.pictureId = picture.id;
+	            }
 	            
 	            contentItem.questionId = await handleQuestionData(req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems);
 	            
-            const contentServiceInstance = Container.get(ContentService);
-            await contentServiceInstance.create(contentItem);
+	            const contentServiceInstance = Container.get(ContentService);
+	            await contentServiceInstance.create(contentItem);
 
-            return res.redirect('/contents');
-        } catch (e) {
-            throw e;
-        }
+	            return res.redirect('/contents');
+	        } catch (e) {
+	            throw e;
+	        }
 		}
     );
 
@@ -164,10 +164,10 @@ export default (app: Router) => {
                     id: documentId,
                 },
                 include: [
-                	'itsQuestionContent'
+                	'itsQuestionContent',
                 ]
             });
-
+            
             let questionAnswers = null;
             let questionPicture = null;
             
@@ -240,7 +240,7 @@ export default (app: Router) => {
                     categoryId: req.body.category,
                     pictureId: undefined,
                 };
-
+                
                 const picObject: IPictureInputDTO = req.files.contentPicture;
 
                 if (picObject) {
@@ -255,7 +255,7 @@ export default (app: Router) => {
                 
                 const contentServiceInstance = Container.get(ContentService);
                 await contentServiceInstance.update(documentId, contentItem);
-
+                
                 return res.redirect('/contents');
             } catch (e) {
                 throw e;

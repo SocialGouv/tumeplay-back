@@ -1,5 +1,7 @@
 import { Service, Inject } from 'typedi';
+import { Container } from 'typedi';
 import BoxModel from '../models/box';
+import MailerService from './mail';
 import BoxProductModel from '../models/box.products';
 import { IBox, IBoxInputDTO } from '../interfaces/IBox';
 import { IBoxProduct, IBoxProductInputDTO } from '../interfaces/IBoxProduct';
@@ -176,6 +178,36 @@ export default class BoxService {
 					'stock'	  : item.product.stock,
 					'available' : ( item.product.stock / item.qty ),
                 });                
+			});
+			
+			return boxs;
+		}
+		catch (e) 
+		{
+			this.logger.error(e);
+			
+			return {};	
+		}
+    }
+    
+    public async disableEmptyBoxes(): Promise<{}> {
+		try
+		{
+			const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
+			const boxs 		  = {};
+			
+			allBoxsProducts.map( async item => {
+				if( item.product.stock <= 0 ) 
+				{
+					this.logger.silly('Product #' + item.product.id + ' is not available anymore. Disabling boxes.');
+					
+					await this.update(item.box.id, { available : false });
+					
+					const mailTitle   = 'Box désactivée - ' + item.box.title;
+					const mailService = Container.get(MailerService);
+				
+					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', mailTitle, 'product_disabled_box', { box : item.box  });
+				}				            
 			});
 			
 			return boxs;

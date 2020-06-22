@@ -45,7 +45,7 @@ export default (app: Router) => {
 		           qty: item.defaultQty,
 		           active:item.active,
 		           pictureId: item.pictureId,
-		           isOrderable: item.isOrderable,
+		           isOrderable: item.stock > 0 ? item.isOrderable : false,
 		           picture: {
 			           id: item.picture.id,
 			           path:item.picture.path,
@@ -74,8 +74,15 @@ export default (app: Router) => {
                     },
                     include: ['product'],
                 });
-
+				
                 for (var z = 0; z < localProducts.length; z++) {
+                	console.log("STOCK : " + localProducts[z].product.stock);
+                	
+                	if( localProducts[z].product.stock <= 0 )
+                	{
+						localBox.available = false;
+                	}
+                	
                     localBox.products.push({
                         title: localProducts[z].product.title,
                         shortTitle: localProducts[z].product.shortDescription,

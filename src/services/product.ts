@@ -1,5 +1,8 @@
 import { Service, Inject } from 'typedi';
+import { Container } from 'typedi';
 import ProductModel from '../models/product';
+import MailerService from './mail';
+import BoxService from './box';
 import { IProduct, IProductInputDTO } from '../interfaces/IProduct';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 
@@ -87,6 +90,21 @@ export default class ProductService {
 			
 			const productUpdate = {	stock: ( productStock - numberToDecrease) };
             this.logger.silly('Decreasing product #'+ id +' stock from ' + productStock + ' to ' + productUpdate.stock);
+            
+            if( productUpdate.stock < 10 )
+            {
+            	const mailTitle   = 'Stock bas - ' + productRecord.title;
+				const mailService = Container.get(MailerService);
+				
+				await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', mailTitle, 'product_low_stock', { product : productRecord, newStock : productUpdate.stock  });
+				
+				if( productUpdate.stock <= 0 )
+				{
+					const boxService = Container.get(BoxService);
+					
+					await boxService.disableEmptyBoxes();
+				}
+            }
 
             const product: IProduct = await productRecord.update(productUpdate);
 

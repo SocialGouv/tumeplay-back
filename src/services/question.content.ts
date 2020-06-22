@@ -25,8 +25,8 @@ export default class QuestionContentService {
             try
             {
 	            questionContent = await this.questionModel.create({
-                ...tempQuestionContent,
-            });
+	                ...tempQuestionContent,
+	            });
 			}
 			catch(err)
 			{

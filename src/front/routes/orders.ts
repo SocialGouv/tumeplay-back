@@ -45,13 +45,13 @@ export default (app: Router) => {
 			const exportService = Container.get(ExportGeneratorService);	
 			
 			const orderModel  	= Container.get("orderModel");
-			           
+			
 			const  dbOrders		= await orderModel.findAll({ include: ['shippingAddress', 'profile']});
 			
 			const orders = dbOrders.map(item => {
 				const dateObject = new Date(item.orderDate);
 				const date 		 = dateService.format(item.orderDate);
-
+				
 				return [
 					item.id,
 					date.day + "/" + date.month + "/" + date.year,
@@ -61,7 +61,7 @@ export default (app: Router) => {
 					item.profile.email,
 				]
 			});
-			 
+			
 			const headers = [
 				"Num",
 				"Date",
@@ -85,7 +85,7 @@ export default (app: Router) => {
 			console.log(e);	
     	}
 	});
-     
+    
     route.get(routes.ORDER_MANAGEMENT_ROOT, middlewares.isAuth, async (req: Request, res: Response) => {
         try {
             const OrderModel_service: OrderService = Container.get(OrderService);

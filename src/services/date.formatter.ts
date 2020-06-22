@@ -8,7 +8,7 @@ export default class DateFormatterService {
     ) {}
             
     public format(dateObject) {
-    	const month = String(dateObject.getMonth()).padStart(2, '0');
+    	const month = String(dateObject.getMonth() + 1).padStart(2, '0');
 	    const day 	= String(dateObject.getDate()).padStart(2, '0');
 	    const year  = dateObject.getFullYear();
 		

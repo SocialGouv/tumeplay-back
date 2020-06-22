@@ -1,8 +1,8 @@
 export interface IShippingModeDTO {
-  title: string;
-  deleted: boolean;
+    title: string;
+    deleted: boolean;
 }
 
 export interface IShippingMode extends IShippingModeDTO {
-  id: number;
+    id: number;
 }

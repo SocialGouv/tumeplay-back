@@ -33,7 +33,8 @@ block content
 								th Photo
 								th Date de création
 								th Date de mise à jour
-								th Actif
+								th Publiée
+								th Dispo. à la commande
 								th Actions
 						tbody
 							each box in boxs
@@ -47,6 +48,11 @@ block content
 									td #{prettyDate(box.updatedAt)}
 									td
 										if box.active
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+									td
+										if box.available
 											i.fa.fa-check.fa-lg
 										else
 											i.fa.fa-cross.fa-lg

@@ -1,0 +1,21 @@
+extends _layout.pug
+
+block title
+	| Stock bas - #{product.title}
+	
+block content
+
+	.col-12
+		.subtitle Bonjour,
+		br
+		.text Le produit suivant approche de la rupture de stock : #{product.title} - reste #{newStock} unités
+		br
+		br
+	.clearfix
+	
+	.col-12
+		.text Merci !
+		br 
+		.text Cordialement,
+		.text L'équipe Tumeplay
+		br

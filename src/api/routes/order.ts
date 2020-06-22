@@ -267,6 +267,7 @@ export default (app: Router) => {
 					{
 						logger.debug("Using product qty : " + product.qty);
 						localQuantity = product.qty;
+						decreaseQty	  = product.qty;
 					}
 					else
 					{
