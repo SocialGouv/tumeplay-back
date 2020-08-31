@@ -9,82 +9,122 @@ aside.app-sidebar
 
 	ul.app-menu
 		li
-			a.app-menu__item(href='/home' class={'active': activePage == 'dashboard'})
+			a.app-menu__item(href='/home' class={'active': activePage === 'dashboard'})
 				i.app-menu__icon.fa.fa-home
 				span.app-menu__label Dashboard
-				
-		li
-			a.app-menu__item(href='/contents' class={'active': activePage == 'page-contents'})
-				i.app-menu__icon.fa.fa-book
-				span.app-menu__label Contenus
-
-		li
-			a.app-menu__item(href='/contacts' class={'active': activePage == 'page-contacts'})
-				i.app-menu__icon.fa.fa-dashboard
-				span.app-menu__label Contacts
 		
-		li
-			a.app-menu__item(href='/profiles' class={'active': activePage == 'page-profiles'})
-				i.app-menu__icon.fa.fa-dashboard
-				span.app-menu__label Utilisateurs
+		if isAllowed(req, "contents", "global", "view")		
+			li
+				a.app-menu__item(href='/contents' class={'active': activePage === 'page-contents'})
+					i.app-menu__icon.fa.fa-book
+					span.app-menu__label Contenus
 
-		li
-			a.app-menu__item(href='/thematiques' class={'active': activePage == 'thematiques'})
-				i.app-menu__icon.fa.fa-dashboard
-				span.app-menu__label Familles
-				
-		li
-			a.app-menu__item(href='/quizzs/categories' class={'active': activePage.indexOf('page-quizz-categories') != -1})
-				i.app-menu__icon.fa.fa-dashboard
-				span.app-menu__label Thématiques    
+		if isAllowed(req, "contacts", "global", "view")
+			li
+				a.app-menu__item(href='/contacts' class={'active': activePage === 'page-contacts'})
+					i.app-menu__icon.fa.fa-dashboard
+					span.app-menu__label Contacts
 
-		li
-			a.app-menu__item(href='/products' class={'active': activePage == 'page-products'})
-				i.app-menu__icon.fa.fa-book
-				span.app-menu__label Produits
+		if isAllowed(req, "global", "users", "view")
+			li
+				a.app-menu__item(href='/profiles' class={'active': activePage === 'page-profiles'})
+					i.app-menu__icon.fa.fa-dashboard
+					span.app-menu__label Utilisateurs
 
-		li
-			a.app-menu__item(href='/boxs' class={'active': activePage.indexOf('page-box') != -1 })
-				i.app-menu__icon.fa.fa-book
-				span.app-menu__label Boxs
-		li
-			a.app-menu__item(href='/poi' class={'active': activePage.indexOf('page-poi') != -1 })
-				i.app-menu__icon.fa.fa-book
-				span.app-menu__label POI
-				
-		li.treeview(class={'is-expanded': activePage.indexOf('page-quizz-questions') != -1})
-			a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-quizz-questions') != -1})
-				i.app-menu__icon.fa.fa-table
-				span.app-menu__label Quizz
-				i.treeview-indicator.fa.fa-angle-right
-				
-			ul.treeview-menu
-				li
-					a.treeview-item(href='/quizzs/questions' class={'active': activePage.indexOf('page-quizz-questions') != -1})
-						i.icon.fa.fa-circle-o
-						span Questions
+		if isAllowed(req, "families", "global", "view")					
+			li
+				a.app-menu__item(href='/thematiques' class={'active': activePage === 'thematiques'})
+					i.app-menu__icon.fa.fa-dashboard
+					span.app-menu__label Familles
+		
+		if isAllowed(req, "thematics", "global", "view")								
+			li
+				a.app-menu__item(href='/quizzs/categories' class={'active': activePage.indexOf('page-quizz-categories') !== -1})
+					i.app-menu__icon.fa.fa-dashboard
+					span.app-menu__label Thématiques    
+
+		if isAllowed(req, "products", "global", "view")								
+			li
+				a.app-menu__item(href='/products' class={'active': activePage === 'page-products'})
+					i.app-menu__icon.fa.fa-book
+					span.app-menu__label Produits
+
+		if isAllowed(req, "boxs", "global", "view")								
+			li
+				a.app-menu__item(href='/boxs' class={'active': activePage.indexOf('page-box') !== -1 })
+					i.app-menu__icon.fa.fa-book
+					span.app-menu__label Boxs
+					
+		if isAllowed(req, "poi", "global", "view")								
+			li
+				a.app-menu__item(href='/poi' class={'active': activePage.indexOf('page-poi') !== -1 })
+					i.app-menu__icon.fa.fa-book
+					span.app-menu__label POI
+		
+		if isAllowed(req, "questions", "global", "view")											
+			li.treeview(class={'is-expanded': activePage.indexOf('page-quizz-questions') !== -1})
+				a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-quizz-questions') !== -1})
+					i.app-menu__icon.fa.fa-table
+					span.app-menu__label Quizz
+					i.treeview-indicator.fa.fa-angle-right
+					
+				ul.treeview-menu
+					li
+						a.treeview-item(href='/quizzs/questions' class={'active': activePage.indexOf('page-quizz-questions') !== -1})
+							i.icon.fa.fa-circle-o
+							span Questions
+
+		if isAllowed(req, "orders", "global", "view")											
+			li.treeview(class={'is-expanded': activePage.indexOf('page-order') !== -1})
+				a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-order') !== -1})
+					i.app-menu__icon.fa.fa-table
+					span.app-menu__label Commandes
+					i.treeview-indicator.fa.fa-angle-right
+					
+				ul.treeview-menu
+					li
+						a.treeview-item(href='/orders/management' class={'active': activePage.indexOf('page-order-management') !== -1})
+							i.icon.fa.fa-circle-o
+							span Gestion des commandes
+							
+					if isAllowed(req, "orders", "global", "delete")											
+						li
+							a.treeview-item(href='/orders/shipping-mode' class={'active': activePage.indexOf('page-shipping-mode') !== -1})
+								i.icon.fa.fa-circle-o
+								span Type de livraison
+							
+		if isAllowed(req, "reviews", "global", "view")											
+			li.treeview(class={'is-expanded': activePage.indexOf('page-user-review') !== -1})
+				a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-user-review') !== -1})
+					i.app-menu__icon.fa.fa-commenting-o
+					span.app-menu__label Avis utilisateur
+					i.treeview-indicator.fa.fa-angle-right
+
+				ul.treeview-menu
+					if isAllowed(req, "reviews", "global", "edit")											
+						li
+							a.treeview-item(href='/feedback' class={'active': activePage.indexOf('page-feedback') !== -1})
+								i.icon.fa.fa-circle-o
+								span Types d'avis
+					if isAllowed(req, "reviews", "global", "view")
+					li
+						a.treeview-item(href='/feedback/list' class={'active': activePage.indexOf('page-user-review') !== -1})
+							i.icon.fa.fa-circle-o
+							span Avis recensés
+        
+		if isAllowed(req, "global", "zones", "view")											
+			li
+				a.app-menu__item(href='/zones')
+					i.app-menu__icon.fa.fa-map-marker.fa-lg
+					span.app-menu__label Zone de disponibilité
 
 
-		li.treeview(class={'is-expanded': activePage.indexOf('page-order') != -1})
-			a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-order') != -1})
-				i.app-menu__icon.fa.fa-table
-				span.app-menu__label Commandes
-				i.treeview-indicator.fa.fa-angle-right
-				
-			ul.treeview-menu
-				li
-					a.treeview-item(href='/orders/management' class={'active': activePage.indexOf('page-order-management') != -1})
-						i.icon.fa.fa-circle-o
-						span Gestion des commandes
-				li
-					a.treeview-item(href='/orders/shipping-mode' class={'active': activePage.indexOf('page-shipping-mode') != -1})
-						i.icon.fa.fa-circle-o
-						span Type de livraison
-
-		li
-			a.reset-data.app-menu__item(href='/synchronize/sync')
-				i.app-menu__icon.fa.fa-warning.fa-lg
-				span.app-menu__label RAZ - Import
+		if isAllowed(req, "global", "reset", "exec")
+			li
+				a.reset-data.app-menu__item(href='/synchronize/sync')
+					i.app-menu__icon.fa.fa-warning.fa-lg
+					span.app-menu__label RAZ - Import
+					
 		li
 			a.app-menu__item(href='/logout')
 				i.app-menu__icon.fa.fa-sign-out.fa-lg

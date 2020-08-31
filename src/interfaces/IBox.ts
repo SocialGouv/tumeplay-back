@@ -3,6 +3,7 @@ import { IPicture } from './IPicture';
 export interface IBoxInputDTO {
     title: string;
     description: string;
+    shortDescription: string;
     price: number;
     active: boolean;
     available: boolean;

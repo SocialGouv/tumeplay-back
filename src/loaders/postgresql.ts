@@ -14,6 +14,16 @@ import ProductStockModel from '../models/product.stock';
 import ShippingModeModel from '../models/ordering-models/shipping.mode';
 import OrderModel from '../models/ordering-models/order';
 import ProductOrderModel from '../models/ordering-models/product.order';
+import FeedbackModel from '../models/feedback';
+import QuestionFeedbackModel from '../models/question.feedback';
+
+import AvailabilityZoneModel from '../models/availability.zone';
+import ContentZoneModel from '../models/zone-models/content';
+import BoxZoneModel from '../models/zone-models/box';
+import OrderZoneModel from '../models/zone-models/order';
+import ProductZoneModel from '../models/zone-models/product';
+import UserZoneModel from '../models/zone-models/user';
+import QuestionZoneModel from '../models/zone-models/quiz';
 
 
 import BoxModel from '../models/box';
@@ -47,11 +57,22 @@ export default async () => {
     const Order = OrderModel(sequelize, Sequelize);
     const ProductOrder = ProductOrderModel(sequelize, Sequelize);
     const ProductStock = ProductStockModel(sequelize, Sequelize);
+    
+    const AvailabilityZone = AvailabilityZoneModel(sequelize, Sequelize);
+    const ContentZone = ContentZoneModel(sequelize, Sequelize);
+    const BoxZone = BoxZoneModel(sequelize, Sequelize);
+    const OrderZone = OrderZoneModel(sequelize, Sequelize);
+    const ProductZone = ProductZoneModel(sequelize, Sequelize);
+    const UserZone = UserZoneModel(sequelize, Sequelize);
+    const QuestionZone = QuestionZoneModel(sequelize, Sequelize);
 
     const Box = BoxModel(sequelize, Sequelize);
     const BoxProducts = BoxProductModel(sequelize, Sequelize);
 
     const Poi = PoiModel(sequelize, Sequelize);
+    const Feedback = FeedbackModel(sequelize, Sequelize);
+    const QuestionFeedback = QuestionFeedbackModel(sequelize, Sequelize);
+
 
     // Setup of relationships
     Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
@@ -99,9 +120,61 @@ export default async () => {
     // -----------------------------
 
     ProductStock.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+    QuestionFeedback.belongsTo(QuestionContent, { foreignKey: 'questionContentId', as: 'question' });
+    QuestionFeedback.belongsTo(Feedback, { foreignKey: 'feedbackId', as: 'feedback' });
+
+    Content.belongsToMany(AvailabilityZone, {
+        through: ContentZone,
+        as: 'availability_zone',
+        foreignKey: 'contentId',
+    });
+    ContentZone.belongsTo(Content, { foreignKey: 'contentId', as: 'content' });
+    ContentZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
+
+    Box.belongsToMany(AvailabilityZone, {
+        through: BoxZone,
+        as: 'availability_zone',
+        foreignKey: 'boxId',
+    });
+    BoxZone.belongsTo(Box, { foreignKey: 'boxId', as: 'box' });
+    BoxZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
+
+    Order.belongsToMany(AvailabilityZone, {
+        through: OrderZone,
+        as: 'availability_zone',
+        foreignKey: 'orderId',
+    });
+    OrderZone.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+    OrderZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
+
+    Product.belongsToMany(AvailabilityZone, {
+        through: ProductZone,
+        as: 'availability_zone',
+        foreignKey: 'productId',
+    });
+    ProductZone.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+    ProductZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
+
+    User.belongsToMany(AvailabilityZone, {
+        through: UserZone,
+        as: 'availability_zone',
+        foreignKey: 'userId',
+    });
+
+    UserZone.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    UserZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
+
+    QuestionContent.belongsToMany(AvailabilityZone, {
+        through: QuestionZone,
+        as: 'availability_zone',
+        foreignKey: 'questionContentId',
+    });
+
+    QuestionZone.belongsTo(QuestionContent, { foreignKey: 'questionContentId', as: 'questionContent' });
+    QuestionZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
 
     const dbForce = {};
-    if (config.databaseForce && config.databaseForce == 1) {
+    if (config.databaseForce && config.databaseForce === 1) {
         dbForce.force = true;
     }
 
@@ -109,8 +182,9 @@ export default async () => {
         let syncDefaultData = Container.get(SyncDefaultData);
         await syncDefaultData.createInitAdmin();
     });
-
+                                 
     module.exports = User;
+    module.exports = UserZone;
     module.exports = Profile;
     module.exports = ShippingAddress;
     module.exports = Content;
@@ -128,9 +202,19 @@ export default async () => {
     module.exports = Poi;
     module.exports = ProductStock;
     module.exports = Contact;
+    module.exports = Feedback;
+    module.exports = QuestionFeedback;
+    module.exports = AvailabilityZone;
+    module.exports = ContentZone;
+    module.exports = BoxZone;
+    module.exports = OrderZone;
+    module.exports = ProductZone;
+    module.exports = QuestionZone;
+
 
     return {
         userModel: User,
+        userZoneModel: UserZone,
         profileModel: Profile,
         shippingAddressModel: ShippingAddress,
         contentModel: Content,
@@ -148,5 +232,13 @@ export default async () => {
         boxProductModel: BoxProducts,
         poiModel: Poi,
         contactModel: Contact,
+        feedbackModel: Feedback,
+        questionFeedbackModel: QuestionFeedback,
+        availabilityZoneModel: AvailabilityZone,
+        contentZoneModel: ContentZone,
+        boxZoneModel: BoxZone,
+        orderZoneModel: OrderZone,
+        productZoneModel: ProductZone,
+        questionZoneModel: QuestionZone,
     };
 };

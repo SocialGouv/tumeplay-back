@@ -36,4 +36,40 @@ export default (app: Router) => {
             return next(e);
         }
     });
+
+    route.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+        const logger: any = Container.get('logger');
+        try {
+            const ContentZoneModel: any = Container.get('contentZoneModel');
+            const zone =req.params.id;
+
+            const contents = await ContentZoneModel.findAll({
+                where: {
+                    availabilityZoneId: zone,
+                },  include: ['zone','content'],
+                });
+            let parsedContent = contents.map(content => {
+                if(content.content.published ===1){
+                    return {
+                        key: content.content.id,
+                        id: content.content.id,
+                        numberOfLines: 3,
+                        theme: content.content.themeId,
+                        category: content.content.categoryId,
+                        picture: content.content.picture ? content.content.picture.destination + '/' + content.content.picture.filename : false,
+                        title: content.content.title,
+                        text: content.content.text,
+                        link: content.content.link,
+                        availabilityZoneId:content.availabilityZoneId
+                    };
+                }
+
+            });
+            return res.json(parsedContent).status(200);
+        } catch (e) {
+            logger.error('🔥 error: %o', e);
+
+            return next(e);
+        }
+    });
 };

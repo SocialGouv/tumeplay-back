@@ -22,7 +22,7 @@ export default class QuestionCategoryService {
             });
 
             if (!questionRecord) {
-                throw new Error('Question Content cannot be created');
+                throw new Error('Question Category cannot be created');
             }
             return { questionRecord };
         } catch (e) {

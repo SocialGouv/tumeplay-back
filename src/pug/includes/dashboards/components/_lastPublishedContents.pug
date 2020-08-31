@@ -1,0 +1,18 @@
+table.table.table-hover.table-bordered#contentsDataTable
+    thead
+        tr
+            th Titre          
+            th Famille            
+            th Date de mise à jour
+    tbody
+        each content in contentStatistics['lastPublished']
+            tr
+                td
+                    a(href="/contents/edit/" + content.id data-id=`${content.id}`)
+                        | #{content.title}
+                td
+                    if content.itsTheme
+                        | #{content.itsTheme}
+                        
+                td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
+                

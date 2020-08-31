@@ -5,6 +5,6 @@ export interface IContactInputDTO {
     zipCode: string;
 }
 
-export interface IProfile extends IContactInputDTO {
+export interface IContact extends IContactInputDTO {
     id: number;                              
 }

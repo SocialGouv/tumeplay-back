@@ -1,0 +1,40 @@
+.row
+    .col-md-12
+        .tile
+            if feedback
+                h3.tile-title Modifier un avis
+            else
+                h3.tile-title Créer un nouveau avis
+
+            if feedback
+                - var targetUrl = "/feedback/edit/" + feedback.id
+            else
+                - var targetUrl = "/feedback/add"
+
+
+            form.feedback-form(action=`${targetUrl}`, method="POST", enctype="multipart/form-data")
+
+
+                if feedback
+                    input(type="hidden" value=`${feedback.id}`)
+
+                .form-group
+                    label.control-label Titre
+                    if feedback
+                        input.form-control(type="text", name="title", placeholder="Titre de l'avis ( usage interne uniquement )" value=`${feedback.title}`)
+                    else
+                        input.form-control(type="text", name="title", placeholder="Titre de l'avis ( usage interne uniquement )")
+
+
+                .tile-footer
+                    button.btn.btn-primary(type="submit")
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Valider
+                    | &nbsp;&nbsp;&nbsp;
+                    a.btn.btn-secondary(href="/feedback")
+                        i.fa.fa-fw.fa-lg.fa-times-circle
+                        | Annuler
+    .clearfix
+
+
+block specific-js

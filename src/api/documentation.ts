@@ -8,6 +8,7 @@
 // SHIPPING-MODE
 // [OK] THEMATIQUES
 // [OK] USER
+// [OK] FEEDBACK
 export default {
 	openapi: '3.0.1',
 	info: {
@@ -417,6 +418,34 @@ export default {
 					},
 				}
 			},
+			FeedbackQuestion: {
+				type: 'object',
+				properties: {
+					id: {
+						$ref: '#/components/schemas/genericId'
+					},
+					question: {
+						type: 'integer',
+						description: 'Question content',
+					},
+					isLiked: {
+						type: 'string',
+						description: 'feedback isLiked',
+					},
+					isDisliked: {
+						type: 'string',
+						description: 'feedback isDisliked',
+					},
+					comment: {
+						type: 'string',
+						description: 'feedback comment',
+					},
+					feedback: {
+						type: 'integer',
+						description: "Question's feedback ID.",
+					},
+				}
+			},
 			securitySchemes: {
 				ApiKeyAuth: {
 					type: 'apiKey',
@@ -699,6 +728,65 @@ export default {
 					}
 				}	
 			}
-		},		
+		},
+		'/feedback/confirm': {
+			post: {
+				description: "Confirm feedback from user",
+				requestBody: {
+		          content: {
+		            'application/json': {
+		              schema: {
+		              	type: 'object',
+		              	properties: {
+							questionContent: {
+								type: 'integer',
+								description: 'questionContent ID',
+								example: 123,
+							},
+							isLiked: {
+								type: 'string',
+								description: 'feedback liked',
+							},
+							isDisliked: {
+								type: 'string',
+								description: 'feedback disliked',
+							},
+							comment: {
+								type: 'string',
+								description: 'feedback comment',
+							},
+							feedback: {
+								type: 'integer',
+								description: 'feedback ID',
+								example: 12,
+							},
+						},
+						required: true
+		              }
+		            }
+		          },
+		          required: true
+		        },
+				responses: {
+					'200': {
+						description: 'feedback validated or not',
+						content: {
+							'application/json': {
+								schema: {
+									type: 'object',
+									properties: {
+										success: {
+											type: 'boolean',
+											description: 'feedback successful'
+										}
+									}
+
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 	}
 };

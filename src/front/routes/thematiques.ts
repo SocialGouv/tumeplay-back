@@ -22,8 +22,14 @@ var uploadTheme = multer({ storage: themeMulterStorage });
 const route = Router();
 
 export default (app: Router) => {
+	const aclSection = 'thematics';
+	
     app.use('/thematiques', route);
-    route.get('/', middlewares.isAuth, async (req: Request, res: Response) => {
+    
+    route.get('/', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'view'),  
+    	async (req: Request, res: Response) => {
         try {
             const thematiqueService: any = Container.get('thematiqueModel');
 
@@ -37,7 +43,10 @@ export default (app: Router) => {
         //res.end();
     });
 
-    route.get('/add', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get('/add', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),
+    	async (req: Request, res: Response) => {
         try {
             return res.render('page-thematique-edit', {});
         } catch (e) {
@@ -45,7 +54,11 @@ export default (app: Router) => {
         }
     });
 
-    route.post('/add', middlewares.isAuth, uploadTheme.single('themePicture'), async (req: any, res: Response) => {
+    route.post(
+    	'/add', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),
+    	uploadTheme.single('themePicture'), async (req: any, res: Response) => {
         const logger = Container.get<any>('logger');
         logger.debug('Calling Front Create endpoint with body: %o', req.body);
         console.log('Got photo in req.file: ', req.file);
@@ -76,7 +89,11 @@ export default (app: Router) => {
         }
     });
 
-    route.get('/edit/:id', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	'/edit/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),
+    	async (req: Request, res: Response) => {
         try {
             const documentId = req.params.id;
             const ThematiqueModel: any = Container.get('thematiqueModel');
@@ -95,7 +112,11 @@ export default (app: Router) => {
         }
     });
 
-    route.post('/edit/:id', middlewares.isAuth, uploadTheme.single('themePicture'), async (req: any, res: Response) => {
+    route.post(
+    	'/edit/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),
+    	uploadTheme.single('themePicture'), async (req: any, res: Response) => {
         try {
             const documentId = +req.params.id;
 

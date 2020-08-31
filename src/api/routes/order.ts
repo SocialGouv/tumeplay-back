@@ -109,20 +109,16 @@ export default (app: Router) => {
             const localProducts = [];
 
             const logger: any = Container.get('logger');
-            const BoxModelService = Container.get(BoxService);
-            const BoxProductModelService = Container.get('boxProductModel');
-            const ProductModelService = Container.get('productModel');
+
             const productService = Container.get(ProductService);
-            const UserModelService = Container.get(UserService);
-            const addressValidator = Container.get(AddressValidatorService);
-            const OrderModelService = Container.get('orderModel');
+                                                                          
             const OrderProductModelService = Container.get('productOrderModel');
             const ShippingModeModelService = Container.get('shippingModeModel');
             const ShippingAddressModelService = Container.get('shippingAddressModel');
             const UserProfileModelService = Container.get('profileModel');
 
             // Step 0 : Load User
-            const localUser = await UserModelService.findById(userId);
+            const localUser = await Container.get(UserService).findById(userId);
 
             logger.debug('Order confirmation - Request body : %o', JSON.stringify(req.body));
             if (!localUser) {
@@ -130,14 +126,14 @@ export default (app: Router) => {
             }
 
             // Step 1 : Load box
-            const { box } = await BoxModelService.findById(boxId);
+            const { box } = await Container.get(BoxService).findById(req, boxId);
 
             if (!box) {
                 throw Exception('No box');
             }
 
             // Step 2
-            let boxProducts = await BoxProductModelService.findAll({
+            let boxProducts = await Container.get('boxProductModel').findAll({
                 where: {
                     boxId: box.id,
                 },
@@ -153,7 +149,7 @@ export default (app: Router) => {
                     localProducts[products[i].id] = products[i].qty;
                 }
 
-                const allProducts = await ProductModelService.findAll({
+                const allProducts = await Container.get('productModel').findAll({
                     where: {
                         id: productsIds,
                     },
@@ -204,17 +200,12 @@ export default (app: Router) => {
             } 
             
 		    let selectedZipCode = ( deliveryMode == 'pickup' ? selectedPickup.zipCode : userAdress.zipCode );
-            if( !addressValidator.isZipCodeAllowed(selectedZipCode) )
+            if( !Container.get(AddressValidatorService).isZipCodeAllowed(selectedZipCode) )
             {
                 logger.debug('Zipcode is not allowed. Aborting. ( testing ' + selectedZipCode + ' )' );
                 return res.json({success: false}).status(200);
             }
 			
-			if( !addressValidator.isZipCodeAllowed(userAdress.zipCode) )
-			{
-				logger.debug('Zipcode is not allowed. Aborting.');
-				return res.json({success: false}).status(200);
-			}
 			
 			// Step 6 : Get shipping adress for user
             const localAdress = {
@@ -247,7 +238,7 @@ export default (app: Router) => {
                 pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,
             };
 
-            const order = await OrderModelService.create(orderData);
+            const order = await Container.get('orderModel').create(orderData);
 
             // Step 8 : Create order products
             const _orderProducts = [];

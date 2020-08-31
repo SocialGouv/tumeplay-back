@@ -6,6 +6,7 @@ import apiRoutes from '../api';
 import frontRoutes from '../front';
 import config from '../config';
 import path from 'path';
+import AclService from '../services/acl';             
 
 export default ({ app }: { app: express.Application }) => {
     /**
@@ -36,7 +37,7 @@ export default ({ app }: { app: express.Application }) => {
 
     app.set('view engine', 'pug');
     app.set('views', path.join(__dirname, '../pug'));
-
+    
     app.enable('trust proxy');
 
     app.use(cors());
@@ -50,6 +51,14 @@ export default ({ app }: { app: express.Application }) => {
             saveUninitialized: true,
         }),
     );
+    
+    app.use(function (req, res, next) {
+	    res.locals.req = req;
+	    next();
+	});
+    app.locals.isAllowed = (req, section, subSection, operation) => {
+    	return AclService.checkAllRoles(req.session.roles, section, subSection, operation);	    	
+    }
 
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());

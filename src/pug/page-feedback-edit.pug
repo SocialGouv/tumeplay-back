@@ -1,0 +1,35 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-feedback-edit'
+	// - var activeGroup = 'tables'
+
+block title
+	if feedback
+		title Modifier un avis - Tumeplay
+	else
+		title Créer un avis - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-commenting-o
+				|  Avis
+			p Liste des avis accessibles dans la section "Informations"
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") Avis
+
+	.row
+		.col-md-12
+			include ./forms/feedback/_form.pug
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript').
+		$('#feedbackDataTable').DataTable();

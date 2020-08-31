@@ -1,10 +1,10 @@
 block content
 	if question
 		- var targetUrl = "/quizzs/questions/edit/" + question.id
-		
+
 	else
 		- var targetUrl = "/quizzs/questions/add"
-		
+
 
 	.row
 		.col-md-6
@@ -17,8 +17,8 @@ block content
 						input.form-control(type="text" name="question[title]" placeholder="Titre de la question ( usage interne uniquement )" value=`${question.title}`)
 					else
 						input.form-control(type="text" name="question[title]" placeholder="Titre de la question ( usage interne uniquement )")
-						
-				
+
+
 				.form-group.form-inline
 					label.col-3.pl-0.control-label(style="justify-content: left;") Photo de la question:
 					
@@ -35,9 +35,9 @@ block content
 						textarea.form-control.limited-length(rows="5" data-maxlength="92" name="question[content]" placeholder="Question")=question.content
 					else
 						textarea.form-control.limited-length(rows="5" data-maxlength="92" name="question[content]" placeholder="Question")
-					
+
 					label.limited-counter 92 caractères restants.
-						
+
 				.form-group
 					label.control-label Texte de réponse :
 
@@ -45,11 +45,11 @@ block content
 						textarea.form-control.limited-length(rows="10" data-maxlength="360" name="question[answerText]" placeholder="Texte de réponse")=question.answerText
 					else
 						textarea.form-control.limited-length(rows="10" data-maxlength="360" name="question[answerText]" placeholder="Texte de réponse")
-					
+
 					label.limited-counter 360 caractères restants.
-					
+
 				br
-				
+
 				.animated-checkbox
 					label
 						if question
@@ -58,6 +58,20 @@ block content
 							input(type="checkbox" name="question[published]")
 
 						span.label-text Publié
+
+				br
+				if hasManyZones
+					.form-group.form-inline
+						label.col-4.pl-0.control-label(style="justify-content: left;") Zones disponibles
+						each zone in allZones
+							label
+								.animated-checkbox.mr-3
+									if question
+										input(type="checkbox" name="zoneId" checked=zone.isZoned value=zone.id)
+									else
+										input(type="checkbox" name="zoneId" value=zone.id)
+
+									span.label-text #{zone.name}
 		.col-md-6
 			.tile
 				h4 Gérer les réponses
@@ -86,7 +100,7 @@ block content
 											input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect" checked=answer.isCorrect)
 										td.pl-2.pr-2
 											input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong" checked=_isWrong)
-										td 
+										td
 											input(type="text" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=`${answer.title}`)
 											label.limited-counter.offset-1 30 caractères restants.
 							else
@@ -97,8 +111,8 @@ block content
 										input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect")
 									td.pl-2.pr-2
 										input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong")
-									td 
+									td
 										input(type="text" placeholder="Réponse n°1" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=``)
 										label.limited-counter.offset-1 30 caractères restants.
-								
+
 		.clearfix

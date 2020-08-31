@@ -50,17 +50,20 @@ block content
 										else
 											i.fa.fa-cross.fa-lg
 									td
-										a(class='btn btn-primary' href="/thematiques/edit/" + thematique.id data-id=`${thematique.id}`) 
-											i.fa.fa-fw.fa-lg.fa-check-circle 
-											| Éditer
-										| &nbsp;&nbsp;&nbsp;
-										a(class='delete-item btn btn-secondary' href="#" data-id=`${thematique.id}`) 
-											i.fa.fa-fw.fa-lg.fa-times-circle
-											| Supprimer
-				.tile-footer
-					a(class='btn btn-primary' href="/thematiques/add") 
-						i.fa.fa-fw.fa-lg.fa-plus 
-						| Créer une thematique						
+										if isAllowed(req, "families", "global", "edit")
+											a(class='btn btn-primary' href="/thematiques/edit/" + thematique.id data-id=`${thematique.id}`) 
+												i.fa.fa-fw.fa-lg.fa-check-circle 
+												| Éditer
+										if isAllowed(req, "families", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											a(class='delete-item btn btn-secondary' href="#" data-id=`${thematique.id}`) 
+												i.fa.fa-fw.fa-lg.fa-times-circle
+												| Supprimer
+				if isAllowed(req, "families", "global", "add")
+					.tile-footer
+						a(class='btn btn-primary' href="/thematiques/add") 
+							i.fa.fa-fw.fa-lg.fa-plus 
+							| Créer une thematique						
 
 block specific-js
 	// Data table plugin

@@ -1,0 +1,32 @@
+.row
+	.col-md-6
+		.tile
+			h3.tile-title Boxs - Capacités disponibles
+			
+			.row 
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="stock_chart_boxs")
+					
+				each box in boxs
+					.col-md-12
+						if box.capacity < 50
+							h6.text-danger #{box.title} : #{box.capacity} unité(s)
+						else
+							h6 #{box.title} : #{box.capacity} unité(s)
+	
+	.col-md-6
+		.tile
+			h3.tile-title Boxs - #{totalOrders} commandes
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="orders_chart_boxs")
+						
+			
+				each box in boxsOrders
+					.col-md-12
+						h6 #{box.title} : #{box.orders} commande(s)
+						
+include ./components/_stockView.pug

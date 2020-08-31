@@ -19,6 +19,7 @@ export interface IQuestionContentDTO extends IFictitiousExtension {
     categoryId: number;
     pictureId: number;
     rightAnswer?: number;
+    themeId?: number;
 }
 
 export interface IQuestionContentForDefault {

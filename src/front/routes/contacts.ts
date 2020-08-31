@@ -6,10 +6,15 @@ const route = Router();
 
 export default (app: Router) => {
     const ROOT_URL = '/contacts';
+    const aclSection = 'contacts';
 
     app.use(ROOT_URL, route);
 
-    route.get('/', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	'/', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'view'),  
+    	async (req: Request, res: Response) => {
         try {
             const ContactModel: any = Container.get('contactModel');
 

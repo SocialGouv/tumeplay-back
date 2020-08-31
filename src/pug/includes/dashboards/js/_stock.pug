@@ -1,0 +1,106 @@
+script(type='text/javascript').
+	
+	Pace.on('done', function() {
+		generateStockGraphs();
+	});
+	  
+	function generateProductStockGraph(productData)
+	{
+		var _values = [];
+		var _labels = [];
+		
+		$(productData).each(function(key, value) 
+		{
+			_values.push(value.stock);
+			_labels.push(value.title);
+		});                         
+		
+		var ctxp = $("#stock_chart").get(0).getContext("2d");
+		
+		var productGraph = new Chart(ctxp).Bar({
+			labels: _labels,
+			datasets:  [{                  
+			    fillColor: '#46BFBD',
+			    data: _values
+			}],
+		});
+		                                                      
+		if (productGraph.datasets !== "undefined" )
+	    {
+	        var dataset = productGraph.datasets[0];
+	        
+	        for (index = 0, length = dataset.bars.length; index < length; ++index) 
+	        {
+	            var value = dataset.bars[index].value;
+	            if (value <= 50) 
+	            {
+	                color = "rgba(255, 0, 0, 0.5)";
+	            }
+	            else
+	            {
+	                color = "#46BFBD";
+	            }
+	            productGraph.datasets[0].bars[index].fillColor = color;
+	        } 
+	        productGraph.update();
+	    }
+	}
+	
+	function generateBoxStockGraph(boxData)
+	{
+		var _values = [];
+		var _labels = [];
+		
+		Object.keys(boxData).forEach(function(boxId) {
+			const value = boxData[boxId];
+			//console.log(value);
+			if( value.capacity != null )
+			{
+				_values.push(value.capacity);
+				_labels.push(value.title);
+			}
+		});                         
+		
+		var ctxp = $("#box_chart").get(0).getContext("2d");
+		
+		var boxChart = new Chart(ctxp).Bar({
+			labels: _labels,
+			datasets:  [{                  
+			    fillColor: '#46BFBD',
+			    data: _values
+			}],
+		});
+		
+		                                                     
+		if (boxChart.datasets !== "undefined" )
+	    {
+	        var dataset = boxChart.datasets[0];
+	        
+	        for (index = 0, length = dataset.bars.length; index < length; ++index) 
+	        {
+	            var value = dataset.bars[index].value;
+	            if (value <= 50) 
+	            {
+	                color = "rgba(255, 0, 0, 0.5)";
+	            }
+	            else
+	            {
+	                color = "#46BFBD";
+	            }
+	            boxChart.datasets[0].bars[index].fillColor = color;
+	        } 
+	        boxChart.update();
+	    }
+	}
+	
+	
+	function generateStockGraphs() 
+	{
+		var boxs 	 = JSON.parse('!{JSON.stringify(boxs).replace(/[\/\(\)\']/g, "\\'")}');
+		var products = JSON.parse('!{JSON.stringify(products).replace(/[\/\(\)\']/g, "\\'")}');
+		
+		console.log(boxs);
+		
+		generateProductStockGraph(products);
+		generateBoxStockGraph(boxs);
+	}

@@ -46,6 +46,8 @@ export default (sequelize, type) => {
             },
         },
         published: DataTypes.BOOLEAN,
+        reaction: DataTypes.STRING,
+
     });
 
     QuestionContent.hasOne(QuestionContent);

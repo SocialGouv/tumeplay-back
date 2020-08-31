@@ -12,6 +12,7 @@ import { IPictureInputDTO } from '../../interfaces/IPicture';
 import { IQuestionCategoryDTO, IQuestionCategory } from '../../interfaces/IQuestionCategory';
 
 import { celebrate, Joi } from 'celebrate';
+import {IQuestionZoneDTO} from "../../interfaces/IQuestionZone";
 
 var multer = require('multer');
 
@@ -39,14 +40,20 @@ export default (app: Router) => {
     const QUIZZ_ROOT = '/quizzs';
     const QUIZZ_QUESTION_ROOT = '/questions';
     const QUIZZ_CATEGORY_ROOT = '/categories';
+    const categoryAclSection  = 'families';
+    const questionsAclSection  = 'questions';
 
     app.use(QUIZZ_ROOT, route);
 
-    route.get(QUIZZ_QUESTION_ROOT + '/ajax/list', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	QUIZZ_QUESTION_ROOT + '/ajax/list', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
-            const questionContent: any = Container.get('questionModel');
+            const questionContent: any = Container.get(QuestionContentService);
 
-            const questions: IQuestionContent[] = await questionContent.findAll({
+            const questions: IQuestionContent[] = await questionContent.findAll(req, {
                 include: ['itsQuestionCategory', 'itsTheme', 'picture'],
             });
 
@@ -69,7 +76,11 @@ export default (app: Router) => {
         }
     });
     
-    route.get(QUIZZ_QUESTION_ROOT + '/ajax/form/:id', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	QUIZZ_QUESTION_ROOT + '/ajax/form/:id',
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
             const documentId = req.params.id;
             const QuestionModel: any = Container.get('questionModel');
@@ -99,11 +110,15 @@ export default (app: Router) => {
         }
     });
     
-    route.get(QUIZZ_QUESTION_ROOT + '/', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	QUIZZ_QUESTION_ROOT + '/',
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
-            const questionContent: any = Container.get('questionModel');
+            const questionContent: any = Container.get(QuestionContentService);
 
-            const questions: IQuestionContent[] = await questionContent.findAll({
+            const questions: IQuestionContent[] = await questionContent.findAll(req, {
                 include: ['itsQuestionCategory', 'itsTheme', 'picture'],
             });
 
@@ -116,18 +131,33 @@ export default (app: Router) => {
         }
     });
 
-    route.get(QUIZZ_QUESTION_ROOT + '/add', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	QUIZZ_QUESTION_ROOT + '/add', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
             const CategoryModel_Service: any = Container.get('questionCategoryModel');
             const categories = await CategoryModel_Service.findAll();
 
             const ThematiquesService: any = Container.get('thematiqueModel');
             const themes = await ThematiquesService.findAll();
+            const availabilityZoneModel: any = Container.get('availabilityZoneModel');
+
+            const userZones = req['session'].zones;
+            const allZones = await availabilityZoneModel.findAll({
+                where: {
+                    id: userZones,
+                },
+            });
+            const hasManyZones = allZones.length > 1;
 
             return res.render('page-quizz-questions-edit', {
                 username: req['session'].name,
                 categories,
                 themes,
+                allZones,
+                hasManyZones
             });
         } catch (e) {
             throw e;
@@ -137,6 +167,7 @@ export default (app: Router) => {
     route.post(
         QUIZZ_QUESTION_ROOT + '/add',
         middlewares.isAuth,
+        middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
         uploadCategory.single('questionContentPicture'),
         async (req: Request, res: Response) => {
             const logger: any = Container.get('logger');
@@ -189,20 +220,45 @@ export default (app: Router) => {
                         await questionAnswerModel.bulkcreate(answerItems);
                     }
                 }
-
+                await handleZones(questionContentId, req.body.zoneId);
                 return res.redirect(QUIZZ_ROOT + QUIZZ_QUESTION_ROOT);
             } catch (e) {
                 throw e;
             }
         },
     );
+    const handleZones = async (currentQuestion, zoneId) => {
+        const questionServiceInstance = Container.get(QuestionContentService);
 
-    route.get(QUIZZ_QUESTION_ROOT + '/edit/:id', middlewares.isAuth, async (req: Request, res: Response) => {
+        await questionServiceInstance.bulkDeleteZone(currentQuestion);
+
+        zoneId = ( typeof zoneId != 'undefined' &&  Array.isArray(zoneId) ) ? zoneId : [zoneId];
+        var filteredZones = zoneId.filter(function (el) {
+            return el != 0;
+        });
+        let zonesItems: IQuestionZoneDTO[] = filteredZones.map((zoneItem) => {
+            return {
+                questionContentId: currentQuestion,
+                availabilityZoneId: zoneItem,
+            };
+        });
+
+        if (zonesItems.length > 0) {
+            // Creating zones
+            await questionServiceInstance.bulkCreateZone(zonesItems);
+        }
+    };
+
+    route.get(
+    	QUIZZ_QUESTION_ROOT + '/edit/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
             const documentId = req.params.id;
-            const QuestionModel: any = Container.get('questionModel');
+            const questionService: any = Container.get(QuestionContentService);
 
-            const question = await QuestionModel.findOne({
+            const question = await questionService.findOne(req, {
                 where: {
                     id: documentId,
                 },
@@ -221,6 +277,29 @@ export default (app: Router) => {
                     questionContentId: documentId,
                 },
             });
+            const availabilityZoneModel: any = Container.get('availabilityZoneModel');
+
+            const userZones = req['session'].zones;
+            const zones = await availabilityZoneModel.findAll({
+                where: {
+                    id: userZones,
+                },
+            });
+            const hasManyZones = zones.length > 1;
+            const QuestionZoneModel: any = Container.get('questionZoneModel');
+
+            const currentZonesQuestion = await QuestionZoneModel.findAll({
+                where: {
+                    questionContentId: documentId,
+                },  include: ['zone','questionContent'],
+            });
+
+            const allZones = zones.map(z => ({
+                    id: z.id,
+                    name: z.name,
+                    isZoned: currentZonesQuestion.map(p => p.availabilityZoneId).includes(z.id)
+                })
+            );
 
             return res.render('page-quizz-questions-edit', {
                 username: req['session'].name,
@@ -228,6 +307,8 @@ export default (app: Router) => {
                 categories,
                 themes,
                 answers,
+                allZones,
+                hasManyZones
             });
         } catch (e) {
             throw e;
@@ -237,6 +318,7 @@ export default (app: Router) => {
     route.post(
         QUIZZ_QUESTION_ROOT + '/edit/:id',
         middlewares.isAuth,
+        middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
         uploadCategory.single('questionContentPicture'),
         async (req: Request, res: Response) => {
             const logger: any = Container.get('logger');
@@ -292,7 +374,7 @@ export default (app: Router) => {
                 const questionServiceInstance = Container.get(QuestionContentService);
                 await questionServiceInstance.update(documentId, questionContentItem);
                 logger.silly('Updated a question');
-
+                await handleZones(documentId, req.body.zoneId);
                 return res.redirect(QUIZZ_ROOT + QUIZZ_QUESTION_ROOT);
             } catch (e) {
                 throw e;
@@ -302,7 +384,11 @@ export default (app: Router) => {
     
     
     
-    route.post(QUIZZ_QUESTION_ROOT + '/delete/:id', middlewares.isAuth, async (req: any, res: Response) => {
+    route.post(
+    	QUIZZ_QUESTION_ROOT + '/delete/:id', 
+    	middlewares.isAuth,
+    	middlewares.isAllowed(questionsAclSection, 'global', 'delete'),   
+    	async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
         logger.debug('Calling Front Delete endpoint with body: %o', req.body);
 
@@ -328,7 +414,10 @@ export default (app: Router) => {
      *
      */
 
-    route.get(QUIZZ_CATEGORY_ROOT + '/', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(QUIZZ_CATEGORY_ROOT + '/', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(categoryAclSection, 'global', 'view'),  
+    	async (req: Request, res: Response) => {
         try {
             const questionCategories: any = Container.get('questionCategoryModel');
 
@@ -350,7 +439,11 @@ export default (app: Router) => {
         }
     });
 
-    route.get(QUIZZ_CATEGORY_ROOT + '/add', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	QUIZZ_CATEGORY_ROOT + '/add', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(categoryAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
             // Getting list of thematiques
             const thematiqueService: any = Container.get('thematiqueModel');
@@ -368,6 +461,7 @@ export default (app: Router) => {
     route.post(
         QUIZZ_CATEGORY_ROOT + '/add',
         middlewares.isAuth,
+        middlewares.isAllowed(categoryAclSection, 'global', 'edit'),  
         uploadCategory.single('categoryPicture'),
         async (req: Request, res: Response) => {
             const logger = Container.get('logger');
@@ -403,7 +497,11 @@ export default (app: Router) => {
         },
     );
 
-    route.get(QUIZZ_CATEGORY_ROOT + '/edit/:id', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	QUIZZ_CATEGORY_ROOT + '/edit/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(categoryAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
             const documentId = req.params.id;
             const categoryModel: any = Container.get('questionCategoryModel');
@@ -430,6 +528,7 @@ export default (app: Router) => {
     route.post(
         QUIZZ_CATEGORY_ROOT + '/edit/:id',
         middlewares.isAuth,
+        middlewares.isAllowed(categoryAclSection, 'global', 'edit'),  
         uploadCategory.single('categoryPicture'),
 
         async (req: Request, res: Response) => {

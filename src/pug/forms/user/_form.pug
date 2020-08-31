@@ -1,0 +1,95 @@
+.row
+    .col-md-12
+        .tile
+            if user
+                h3.tile-title Modifier un utilisateur
+            else
+                h3.tile-title Créer un nouvel utilisateur
+
+            if user
+                - var targetUrl = "/profiles/edit/" + user.id
+            else
+                - var targetUrl = "/profiles/add"
+
+            form.user-form(action=`${targetUrl}`, method="POST")
+
+                if user
+                    input(type="hidden" value=`${user.id}`)
+
+                .form-group
+                    label.control-label Nom
+                    
+                    .row.col-md-12
+                        .col-md-3
+                            if user
+                                input.form-control(type="text", name="name", placeholder="Nom" value=`${user.name}`)
+                            else
+                                input.form-control(type="text", name="name", placeholder="Nom")
+                        
+                .form-group
+                    label.control-label E-mail
+                    
+                    .row.col-md-12
+                        .col-md-3
+                            if user
+                                input.form-control(type="text", name="email", placeholder="E-mail" value=`${user.email}`)
+                            else
+                                input.form-control(type="text", name="email", placeholder="E-mail")
+                                
+                .form-group
+                    label.control-label Rôle(s)
+                    
+                    .row.col-md-12
+                        for role in roles
+                            .col-md-3.animated-checkbox
+                                label
+                                    - var _name = "roles["+ role +"]"
+                                    if user && user.roles.includes(role.toString())
+                                        input(type="checkbox" name=`${_name}` checked=true) 
+                                    else
+                                        input(type="checkbox" name=`${_name}` checked=false) 
+                                        
+                                    span.label-text #{role}
+                
+                .form-group
+                    label.control-label Zone(s)
+                    
+                    .row.col-md-12
+                        for zone in zones
+                            .col-md-3.animated-checkbox
+                                label
+                                    - var _name = "zones[zone_"+ zone.id +"]"
+                                    if user && user.zoneIds.includes(zone.id)
+                                        input(type="checkbox" name=`${_name}` checked=true) 
+                                    else
+                                        input(type="checkbox" name=`${_name}` checked=false) 
+                                        
+                                    span.label-text #{zone.name}
+                                    
+                hr
+                
+                .form-group
+                    label.control-label Mot de passe                                                        
+                    
+                    .row.col-md-12
+                            .col-md-3
+                                if user 
+                                    input.form-control(type="password", name="password", placeholder="Nouveau mot de passe")
+                                else 
+                                    input.form-control(type="password", name="password", placeholder="Définir le mot de passe")
+                            .col-md-3
+                                input.form-control(type="password", name="password_confirmation", placeholder="Confirmation de mot de passe")
+
+                .tile-footer
+                    button.btn.btn-primary(type="submit")
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Valider
+                    | &nbsp;&nbsp;&nbsp;
+                    a.btn.btn-secondary(href="/profiles")
+                        i.fa.fa-fw.fa-lg.fa-times-circle
+                        | Annuler
+                br
+    .clearfix
+
+
+block specific-js

@@ -17,7 +17,7 @@ export default class ContactService {
             
             const contactRecord = await this.contactModel.findOne({
             	where: searchedContact
-			})
+			});
                
             return { contactRecord };
         } catch (e) {
