@@ -38,32 +38,21 @@ export default {
 
     roles: {
         administrator: 'ROLE_ADMINISTATOR',
-        administrator_guyane: 'ROLE_ADMINISTRATOR_GUYANE',
-        administrator_metropole: 'ROLE_ADMINISTRATOR_METROPOLE',        
-        redactor_guyane: 'ROLE_REDACTOR_GUYANE',
-        redactor_metropole: 'ROLE_REDACTOR_METROPOLE',
-        moderator_guyane: 'ROLE_MODERATOR_GUYANE',
-        moderator_metropole: 'ROLE_MODERATOR_METROPOLE',
-        orders_support_guyane: 'ROLE_ORDERS_SUPPORT_GUYANE',
-        orders_support_metropole: 'ROLE_ORDERS_SUPPORT_METROPOLE',        
-        user: 'ROLE_USER',                                                
+        administrator_local: 'ROLE_ADMINISTRATOR_LOCAL',
+        redactor: 'ROLE_REDACTOR',
+        moderator: 'ROLE_MODERATOR',
+        orders_support: 'ROLE_ORDERS_SUPPORT',
+        user: 'ROLE_USER',
     },
     roles_hierarchy: {
 		ROLE_ADMINISTATOR: [
-			'ROLE_ADMINISTATROR_GUYANE',
-			'ROLE_ADMINISTRATOR_METROPOLE'
+			'ROLE_ADMINISTATROR_LOCAL',
 		],
-		ROLE_ADMINISTRATOR_GUYANE: [
-			'ROLE_REDACTOR_GUYANE',
-			'ROLE_MODERATOR_GUYANE',
-			'ROLE_ORDERS_SUPPORT_GUYANE'
-		],
-		ROLE_ADMINISTRATOR_METROPOLE: [
-			'ROLE_REDACTOR_METROPOLE',
-			'ROLE_MODERATOR_METROPOLE',
-			'ROLE_ORDERS_SUPPORT_METROPOLE'
-		],
-		
+		ROLE_ADMINISTRATOR_LOCAL: [
+			'ROLE_REDACTOR',
+			'ROLE_MODERATOR',
+			'ROLE_ORDERS_SUPPORT'
+		],		
     },
 
     logs: {

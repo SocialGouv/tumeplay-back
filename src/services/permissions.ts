@@ -2,236 +2,82 @@ import config from '../config';
 
 const permissions = {
 	contents : {
-		metropole: {
-			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'edit': [
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'delete': [ 
-				config.roles.administrator_metropole
-			],
-		},
-		guyane: {
-			'view': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'edit': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'delete': [ 
-				config.roles.administrator_guyane 
-			],
-		},
 		global: {
 			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'edit': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'delete': [ 
-				config.roles.administrator_metropole,
-				config.roles.administrator_guyane 
+				config.roles.administrator_local,
 			],
 		}
 	},
 	questions : {
-		metropole: {
-			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'edit': [
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'delete': [ 
-				config.roles.administrator_metropole
-			],
-		},
-		guyane: {
-			'view': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'edit': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'delete': [ 
-				config.roles.administrator_guyane 
-			],
-		},
 		global: {
 			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'edit': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'delete': [ 
-				config.roles.administrator_metropole,
-				config.roles.administrator_guyane 
+				config.roles.administrator_local,
 			],
 		}
 	},
 	families: {
-		metropole: {
-			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'edit': [
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'delete': [ 
-				config.roles.administrator_metropole
-			],
-		},
-		guyane: {
-			'view': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'edit': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'delete': [ 
-				config.roles.administrator_guyane 
-			],
-		},
 		global: {
 			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'add' : [
-				config.roles.redactor_metropole,
-				config.roles.redactor_guyane,
+				config.roles.redactor, 
 			],
 			'edit': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'delete': [ 
-				config.roles.administrator_metropole,
-				config.roles.administrator_guyane 
+				config.roles.administrator_local
 			],
 		}
 	},
 	thematics: {
-		metropole: {
-			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'edit': [
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'delete': [ 
-				config.roles.administrator_metropole
-			],
-		},
-		guyane: {
-			'view': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'edit': [ 
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'delete': [ 
-				config.roles.administrator_guyane 
-			],
-		},
 		global: {
 			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'add' : [
-				config.roles.redactor_metropole,
-				config.roles.redactor_guyane,
+				config.roles.redactor,
 			],
 			'edit': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'delete': [ 
-				config.roles.administrator_metropole,
-				config.roles.administrator_guyane 
+				config.roles.administrator_local
 			],
 		}
 	},
 	reviews: {
-		metropole: {
-			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-			],
-			'edit': [config.roles.administrator],
-			'delete': [config.roles.administrator],
-		},
-		guyane: {
-			'view': [
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
-			],
-			'edit': [config.roles.administrator],
-			'delete': [config.roles.administrator],
-		},             
 		global: {
 			'view': [ 
-				config.roles.redactor_metropole,
-				config.roles.moderator_metropole,
-				config.roles.redactor_guyane,
-				config.roles.moderator_guyane,
+				config.roles.redactor,
+				config.roles.moderator,
 			],
 			'edit': [config.roles.administrator],
 			'delete': [config.roles.administrator],
 		}
 	},
 	contacts: {
-		metropole: {
-			'view': [config.roles.administrator],
-			'edit': [config.roles.administrator],
-			'delete': [config.roles.administrator],
-		},
-		guyane: {
-			'view': [config.roles.administrator],
-			'edit': [config.roles.administrator],
-			'delete': [config.roles.administrator],
-		},
 		global: {
 			'view': [config.roles.administrator],
 			'edit': [config.roles.administrator],
@@ -239,114 +85,48 @@ const permissions = {
 		}
 	},
 	products: {
-		metropole: {
-			'view': [
-				config.roles.moderator_metropole,
-			],
-			'edit': [config.roles.moderator_metropole],
-			'delete': [config.roles.administrator],
-		},
-		guyane: {
-			'view': [
-				config.roles.moderator_guyane,
-			],
-			'edit': [config.roles.moderator_guyane],
-			'delete': [config.roles.administrator],
-		},
 		global: {
 			'view': [
-				config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
+				config.roles.moderator,       
 			],
 			'add': [
-			    config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
+			    config.roles.moderator,       
 			],
 			'edit': [
-				config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
+				config.roles.moderator,
 			],
 			'delete': [config.roles.administrator],
 		},
 	},
 	boxs: {
-		metropole: {
-			'view': [
-				config.roles.moderator_metropole,
-			],
-			'edit': [config.roles.moderator_metropole],
-			'delete': [config.roles.administrator],
-		},
-		guyane: {
-			'view': [
-				config.roles.moderator_guyane,
-			],
-			'edit': [config.roles.moderator_guyane],
-			'delete': [config.roles.administrator],
-		},
 		global: {
 			'view': [
 				config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
 			],
 			'edit': [
 				config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
 			],
 			'delete': [config.roles.administrator],
 		},
 	},
 	poi: {
-		metropole: {
-			'view': [
-				config.roles.moderator_metropole,
-			],
-			'edit': [config.roles.moderator_metropole],
-			'delete': [config.roles.administrator],
-		},
-		guyane: {
-			'view': [
-				config.roles.moderator_guyane,
-			],
-			'edit': [config.roles.moderator_guyane],
-			'delete': [config.roles.administrator],
-		},
-		
 		global: {
 			'view': [
-				config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
+				config.roles.moderator,
 			],
 			'add' : [
-				config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
+				config.roles.moderator,
 			],
 			'edit': [
-				config.roles.moderator_metropole,
-				config.roles.moderator_guyane,
+				config.roles.moderator,
 			],
 			'delete': [config.roles.administrator],
 		},
 	},
 	orders: {
-		metropole: {
-			'view': [
-				config.roles.orders_support_metropole,
-			],
-			'edit': [config.roles.administrator],
-			'delete': [config.roles.administrator],
-		},
-		guyane: {
-			'view': [
-				config.roles.orders_support_guyane,
-			],
-			'edit': [config.roles.administrator],
-			'delete': [config.roles.administrator],
-		},
-		
 		global: {
-			'view': [config.roles.orders_support_metropole,config.roles.orders_support_guyane,],
-			'edit': [config.roles.orders_support_metropole,config.roles.orders_support_guyane,],
+			'view': [config.roles.orders_support],
+			'edit': [config.roles.orders_support],
 			'delete': [config.roles.administrator],
 		},
 	},
@@ -363,9 +143,7 @@ const permissions = {
 		},
 		users: {
 			'view': [
-				config.roles.orders_support_guyane,
-				config.roles.administrator_metropole,
-				config.roles.administrator_guyane
+				config.roles.administrator_local
 			],
 			'edit': [config.roles.administrator],
 			'delete': [config.roles.administrator],
@@ -375,20 +153,16 @@ const permissions = {
 				config.roles.administrator 
 			],
 			'administrator': [
-			    config.roles.administrator_metropole,
-				config.roles.administrator_guyane
+			    config.roles.administrator_local,
 			],
 			'redactor': [
-				config.roles.redactor_metropole,
-				config.roles.redactor_guyane,
+				config.roles.redactor,
 			],
 			'moderator': [
-				config.roles.moderator_metropole, 
-				config.roles.moderator_guyane,
+				config.roles.moderator
 			],
 			'order_support': [
-				config.roles.orders_support_metropole,
-				config.roles.orders_support_guyane
+				config.roles.orders_support
 			]
 		},
 	},
