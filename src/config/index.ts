@@ -46,7 +46,7 @@ export default {
     },
     roles_hierarchy: {
 		ROLE_ADMINISTATOR: [
-			'ROLE_ADMINISTATROR_LOCAL',
+			'ROLE_ADMINISTRATOR_LOCAL',
 		],
 		ROLE_ADMINISTRATOR_LOCAL: [
 			'ROLE_REDACTOR',

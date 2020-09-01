@@ -128,7 +128,7 @@ export default () => {
 					trimProducts.push({
 						'id' 	: product.id,
 						'stock' : product.stock,
-						'title' : product.shortDescription,
+						'title' : ( product.shortDescription ? product.shortDescription : product.title ),
 					});
                 });
                  

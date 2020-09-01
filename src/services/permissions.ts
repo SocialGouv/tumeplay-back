@@ -101,10 +101,10 @@ const permissions = {
 	boxs: {
 		global: {
 			'view': [
-				config.roles.moderator_metropole,
+				config.roles.moderator,
 			],
 			'edit': [
-				config.roles.moderator_metropole,
+				config.roles.moderator,
 			],
 			'delete': [config.roles.administrator],
 		},
