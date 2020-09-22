@@ -125,10 +125,11 @@ export default () => {
                 const trimProducts  = [];
                 
                 products.forEach( product => {
+                    const title = product.title.split('"').join('').split("'").join('');
 					trimProducts.push({
 						'id' 	: product.id,
 						'stock' : product.stock,
-						'title' : ( product.shortDescription ? product.shortDescription : product.title ),
+						'title' : (title.length > 25 ? (title.substring( 0, 25) + "...") : title),
 					});
                 });
                  

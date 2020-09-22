@@ -56,6 +56,23 @@ export default ({ app }: { app: express.Application }) => {
 	    res.locals.req = req;
 	    next();
 	});
+    
+    app.use(function (req, res, next) {
+        res.locals.readable_roles = '';
+        if (req.session && req.session.loggedin) {
+            if (req.session.roles) 
+            {
+                const readableRoles = req.session.roles.map(role => {
+                    return config.roles_readable[role];
+                });
+                
+                res.locals.readable_roles = readableRoles.join(', ');
+                res.locals.username       = req.session.name;
+            }
+        }
+        next();
+    });
+    
     app.locals.isAllowed = (req, section, subSection, operation) => {
     	return AclService.checkAllRoles(req.session.roles, section, subSection, operation);	    	
     }

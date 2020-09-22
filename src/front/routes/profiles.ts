@@ -44,7 +44,6 @@ export default (app: Router) => {
             })
             
             return res.render(pageNames.profile.viewList, {
-                username: req['session'].name,
                 users,
             });
         } catch (e) {
@@ -73,7 +72,6 @@ export default (app: Router) => {
             const zones  = await Container.get('availabilityZoneModel').findAll();
                     
             return res.render(pageNames.profile.addEdit, {
-                username: req['session'].name,
                 roles: config.roles,
                 user,
                 zones
@@ -117,7 +115,6 @@ export default (app: Router) => {
             const zones  = await Container.get('availabilityZoneModel').findAll();
             
             return res.render(pageNames.profile.addEdit, {
-                username: req['session'].name,
                 roles: config.roles,
                 zones: zones,
             });

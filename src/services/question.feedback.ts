@@ -66,18 +66,21 @@ export default class QuestionFeedbackService {
     public async calculateRatio(total: any, part: any) {
         return ( part*100/total );
     }
+    
     public async getLikedContents(id)
     {   const allFeedback =  await this.questionFeedbackModel.findAll({ include: ['question','feedback'] });
         const likes = await this.questionFeedbackModel.findAll({ where: { id: id , isLiked: true}, include: ['question','feedback'] });
         const ratio = await this.calculateRatio(allFeedback.length, likes.length);
         return ( ratio ? ratio.toFixed(2) : 0 );
     }
+    
     public async getDislikedContents(id)
     {   const allFeedback =  await this.questionFeedbackModel.findAll({ include: ['question','feedback'] });
         const dislikes = await this.questionFeedbackModel.findAll({ where: { id: id , isDisliked: true}, include: ['question','feedback'] });
         const ratio = await this.calculateRatio(allFeedback.length, dislikes.length);
         return ( ratio ? ratio.toFixed(2) : 0 );
     }
+    
     public async bulkDelete(contentId: number): Promise<{}> {
         try {
             this.logger.silly('Deleting question feedback');

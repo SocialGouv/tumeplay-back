@@ -74,7 +74,6 @@ export default (app: Router) => {
             const zones  	 = await Container.get(UserService).getAllowedZones(req);
             
             return res.render('page-contents', {
-                username: req['session'].name,
                 contents: contents,
                 contentStates: contentStates,
                 thematiques: themes,
@@ -102,7 +101,6 @@ export default (app: Router) => {
             const zones  = await Container.get(UserService).getAllowedZones(req);
                       
             return res.render('page-contents-edit', {
-                username: req['session'].name,
                 themes: themes,
                 categories: categories,
                 contentStates: contentStates,
@@ -172,7 +170,7 @@ export default (app: Router) => {
                 
                 if( targetZones.length > 0 )
                 {
-					await handleZones(documentId, targetZones);	
+					await handleZones(content.id, targetZones);	
                 }
                 
             	return res.redirect('/contents');
@@ -242,7 +240,6 @@ export default (app: Router) => {
             }
 
             return res.render('page-contents-edit', {
-                username: req['session'].name,
                 content: content,
                 themes: themes,
                 categories: categories,

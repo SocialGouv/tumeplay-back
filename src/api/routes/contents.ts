@@ -8,14 +8,24 @@ export default (app: Router) => {
     route.get('/', async (req: Request, res: Response, next: NextFunction) => {
         const logger: any = Container.get('logger');
         try {
-            const ContentModel: any = Container.get('contentModel');
-            const contents = await ContentModel.findAll({
+            const criterias = {
                 where: {
                     published: 1,
                 },
                 include: ['picture'],
-            });
-
+            };
+            
+            if( req.query.zone )
+            {
+                criterias.include.push({
+                    association: 'availability_zone',
+                    where: { name : req.query.zone.charAt(0).toUpperCase() + req.query.zone.slice(1) }   
+                });
+            }
+            
+            const contents = await Container.get('contentModel').findAll(criterias);
+            
+            
             let parsedContent = contents.map(content => {
                 return {
                     key: content.id,
@@ -41,7 +51,7 @@ export default (app: Router) => {
         const logger: any = Container.get('logger');
         try {
             const ContentZoneModel: any = Container.get('contentZoneModel');
-            const zone =req.params.id;
+            const zone = req.params.id;
 
             const contents = await ContentZoneModel.findAll({
                 where: {
@@ -60,7 +70,7 @@ export default (app: Router) => {
                         title: content.content.title,
                         text: content.content.text,
                         link: content.content.link,
-                        availabilityZoneId:content.availabilityZoneId
+                        //availabilityZoneId:content.availabilityZoneId
                     };
                 }
 

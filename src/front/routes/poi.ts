@@ -22,8 +22,7 @@ export default (app: Router) => {
 
             const pois = await PoiModel.findAll();
 
-            return res.render('page-poi', {
-                username: req['session'].name,
+            return res.render('page-poi', {   
                 pois,
             });
         } catch (e) {
@@ -60,7 +59,6 @@ export default (app: Router) => {
             const { poi } = await poiServiceInstance.findById(documentId, true);
 
             return res.render('page-poi-edit', {
-                username: req['session'].name,
                 poi,
                 types: types,
             });

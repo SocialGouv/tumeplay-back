@@ -21,7 +21,6 @@ export default (app: Router) => {
             const contacts = await ContactModel.findAll({ order:[ ['updatedAt', 'DESC'] ]});
 
             return res.render('page-contacts', {
-                username: req['session'].name,
                 contacts,
             });
         } catch (e) {

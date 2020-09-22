@@ -41,16 +41,17 @@
                     
                     .row.col-md-12
                         for role in roles
-                            .col-md-3.animated-checkbox
-                                label
-                                    - var _name = "roles["+ role +"]"
-                                    if user && user.roles.includes(role.toString())
-                                        input(type="checkbox" name=`${_name}` checked=true) 
-                                    else
-                                        input(type="checkbox" name=`${_name}` checked=false) 
-                                        
-                                    span.label-text #{role}
-                
+                            if role != "ROLE_USER"
+                                .col-md-3.animated-checkbox
+                                    label
+                                        - var _name = "roles["+ role +"]"
+                                        if user && user.roles.includes(role.toString())
+                                            input(type="checkbox" name=`${_name}` checked=true) 
+                                        else
+                                            input(type="checkbox" name=`${_name}` checked=false) 
+                                            
+                                        span.label-text #{role}
+                    
                 .form-group
                     label.control-label Zone(s)
                     

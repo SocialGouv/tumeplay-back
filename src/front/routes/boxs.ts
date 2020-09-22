@@ -46,7 +46,6 @@ export default (app: Router) => {
             });
 
             return res.render('page-boxs', {
-                username: req['session'].name,
                 boxs,
                 zones
             });
@@ -114,7 +113,6 @@ export default (app: Router) => {
 	            });      
 
                 return res.render('page-box-edit', {
-                    username: req['session'].name,
                     box,
                     products,
                     currentProducts,

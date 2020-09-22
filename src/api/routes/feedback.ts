@@ -11,6 +11,15 @@ export default (app: Router) => {
 
     app.use(Feedback_ROOT, route);
 
+    route.get(
+        '/types',             
+        async (req: Request, res: Response, next: NextFunction) => {
+            const localTypes = await Container.get('feedbackModel').findAll();
+            
+            return res.json({types : localTypes}).status(200);
+        }
+    );
+    
     route.post(
         '/confirm',
         middlewares.isAuth,

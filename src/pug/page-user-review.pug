@@ -38,7 +38,7 @@ block content
 								th Type d'avis
 								th Commentaire
 						tbody
-							each feedback in  feedbacks
+							each feedback in feedbacks
 								tr
 									td #{prettyDate(feedback.createdAt)}
 									td
@@ -47,7 +47,7 @@ block content
 
 									td
 										if feedback.feedback
-										| #{feedback.feedback.title}
+											| #{feedback.feedback.title}
 									td #{feedback.comment}
 
 

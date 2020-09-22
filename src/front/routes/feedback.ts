@@ -61,18 +61,14 @@ export default (app: Router) => {
     	'/add',
     	middlewares.isAuth, 
     	middlewares.isAllowed(aclSection, 'global', 'edit'),  
-    	async (req: any, res: Response) => {
-        const logger = Container.get<any>('logger');
-        logger.debug('Calling Front Create endpoint with body: %o', req.body);
-
+    	async (req: any, res: Response) => 
+    {
         try {
             let feedbackItem: IFeedbackInputDTO = {
                 title: req.body.title
-            };
-            logger.debug('feedbackItem', feedbackItem);
-
-            const contentServiceInstance = Container.get(FeedbackService);
-            await contentServiceInstance.create(feedbackItem);
+            };                          
+            
+            await Container.get(FeedbackService).create(feedbackItem);
 
             return res.redirect('/feedback');
         } catch (e) {
@@ -87,14 +83,13 @@ export default (app: Router) => {
     	async (req: Request, res: Response) => {
         try {
             const documentId = req.params.id;
-            const FeedbackModel: any = Container.get('feedbackModel');
 
-            const feedback: IFeedback = await FeedbackModel.findOne({
+            const feedback: IFeedback = await Container.get('feedbackModel').findOne({
                 where: {
                     id: documentId,
-                },
-              
+                },                           
             });
+            
             return res.render('page-feedback-edit', {
                 feedback,
             });

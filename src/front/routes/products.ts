@@ -41,7 +41,6 @@ export default (app: Router) => {
             });
                             
             return res.render('page-products', {
-                username: req['session'].name,
                 products,
                 zones,
             });
@@ -88,7 +87,6 @@ export default (app: Router) => {
             const zones = await Container.get(UserService).getAllowedZones(req);
             
             return res.render('page-product-edit', {
-                username: req['session'].name,
                 product,
                 zones
             });

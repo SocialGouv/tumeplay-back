@@ -123,7 +123,6 @@ export default (app: Router) => {
             });
 
             return res.render('page-quizz-questions', {
-                username: req['session'].name,
                 questions: questions,
             });
         } catch (e) {
@@ -153,7 +152,6 @@ export default (app: Router) => {
             const hasManyZones = allZones.length > 1;
 
             return res.render('page-quizz-questions-edit', {
-                username: req['session'].name,
                 categories,
                 themes,
                 allZones,
@@ -302,7 +300,6 @@ export default (app: Router) => {
             );
 
             return res.render('page-quizz-questions-edit', {
-                username: req['session'].name,
                 question,
                 categories,
                 themes,
@@ -431,7 +428,6 @@ export default (app: Router) => {
              */
 
             return res.render('page-quizz-categories', {
-                username: req['session'].name,
                 categories: categories,
             });
         } catch (e) {
@@ -450,7 +446,6 @@ export default (app: Router) => {
             const thematiques = await thematiqueService.findAll();
 
             return res.render('page-quizz-categories-edit', {
-                username: req['session'].name,
                 thematiques,
             });
         } catch (e) {
@@ -516,7 +511,6 @@ export default (app: Router) => {
             const thematiques = await thematiqueService.findAll();
 
             return res.render('page-quizz-categories-edit', {
-                username: req['session'].name,
                 content: content,
                 thematiques,
             });

@@ -108,7 +108,6 @@ export default (app: Router) => {
             const { orders } = await Container.get(OrderService).findAllOrdersMainView();
             const zones 	 = await Container.get(UserService).getAllowedZones(req);
             return res.render(pageNames.orderManagement.viewList, {
-                username: req['session'].name,
                 orders,
                 zones
             });
@@ -135,7 +134,6 @@ export default (app: Router) => {
 	            });    
                 
                 return res.render(pageNames.orderManagement.addEdit, {
-                    username: req['session'].name,
                     order,
                     zones
                 });
@@ -269,7 +267,6 @@ export default (app: Router) => {
                 },
             });
             return res.render(pageNames.shipping.viewList, {
-                username: req['session'].name,
                 shippingModes,
             });
         } catch (e) {
@@ -284,7 +281,6 @@ export default (app: Router) => {
     	async (req: Request, res: Response) => {
         try {
             return res.render(pageNames.shipping.addEdit, {
-                username: req['session'].name,
             });
         } catch (e) {
             throw e;
@@ -301,8 +297,7 @@ export default (app: Router) => {
             const ShippingModeModel: ShippingModeService = Container.get(ShippingModeService);
 
             const { shippingMode } = await ShippingModeModel.findById(documentId);
-            return res.render(pageNames.shipping.addEdit, {
-                username: req['session'].name,
+            return res.render(pageNames.shipping.addEdit, {  
                 shippingMode,
             });
         } catch (e) {
@@ -405,7 +400,6 @@ export default (app: Router) => {
                 },
             });
             return res.render(pageNames.review.viewList, {
-                username: req['session'].name,
                 shippingModes,
             });
         } catch (e) {
