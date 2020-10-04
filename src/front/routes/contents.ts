@@ -163,7 +163,7 @@ export default (app: Router) => {
 					targetZones = req.body.zoneId;
                 }   
                 
-	            contentItem.questionId = await handleQuestionData(req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems, targetZones);
+	            contentItem.questionId = await handleQuestionData(req, req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems, targetZones);
 
                 const {content} = await Container.get(ContentService).create(contentItem);
                 
@@ -304,7 +304,7 @@ export default (app: Router) => {
                 {
 					targetZones = req.body.zoneId;
                 }                                                                                                                                                             
-                contentItem.questionId = await handleQuestionData(req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems, targetZones);
+                contentItem.questionId = await handleQuestionData(req, req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems, targetZones);
                 
                 await Container.get(ContentService).update(req, documentId, contentItem);
                 
@@ -427,7 +427,7 @@ export default (app: Router) => {
         }
     };
     
-    const handleQuestionData = async (requestQuestion, selectedCategory, selectedTheme, picObject, requestAnswerItems, targetZones) => {
+    const handleQuestionData = async (req, requestQuestion, selectedCategory, selectedTheme, picObject, requestAnswerItems, targetZones) => {
         const logger: any = Container.get('logger');
         
         let questionId = null;
