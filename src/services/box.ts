@@ -193,23 +193,35 @@ export default class BoxService {
     public async disableEmptyBoxes(): Promise<{}> {
 		try
 		{
-			const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
-			const boxs 		  = {};
-			
-			allBoxsProducts.map( async item => {
-				if( item.product.stock <= 0 ) 
-				{
-					this.logger.silly('Product #' + item.product.id + ' is not available anymore. Disabling boxes.');
-					
-					await this.update(item.box.id, { available : false });
-					
-					const mailTitle   = 'Box désactivée - ' + item.box.title;
-					const mailService = Container.get(MailerService);
-				
-					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', mailTitle, 'product_disabled_box', { box : item.box  });
-				}				            
-			});
-			
+            const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
+            const boxs           = [];
+            
+            for(const item of allBoxsProducts)
+            {
+                if( item.product.stock <= 0 && item.box.available ) 
+                {
+                    this.logger.silly('Product #' + item.product.id + ' is not available anymore. Disabling boxes.');
+
+                    await this.update(null, item.box.id, { available : false });    
+                    
+                    if( boxs.indexOf(item.box.id) < 0 )
+                    {
+                        boxs.push(item.box.id);
+                        
+                        this.logger.silly('Box #' + item.box.id + ' : Sending mail.');
+                        
+                        const mailTitle   = 'Box désactivée - ' + item.box.title;
+                        const mailService = Container.get(MailerService);
+                    
+                        await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', mailTitle, 'product_disabled_box', { box : item.box  });
+                    }
+                    else
+                    {
+                        this.logger.silly('Skipping - warning already sent for box #'+item.box.id+'.');
+                    }
+                }
+            }
+            
 			return boxs;
 		}
 		catch (e) 
