@@ -246,26 +246,46 @@ export default class BoxService {
 		}
     }
     
-    public async disableEmptyBoxes(): Promise<{}> {
+    public async disableEmptyBoxes(): Promise<[]> {
 		try
 		{
 			const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
-			const boxs 		  = {};
+			const boxs 		  = [];
 			
-			allBoxsProducts.map( async item => {
-				if( item.product.stock <= 0 ) 
+            for(const item of allBoxsProducts)
+            {
+                if( item.product.stock <= 0 && item.box.available ) 
 				{
 					this.logger.silly('Product #' + item.product.id + ' is not available anymore. Disabling boxes.');
 					
-					await this.update(item.box.id, { available : false });
+                    try
+                    {
+                        this.logger.silly('Updating box #'+ item.box.id +'.');
+                        await this.update(null, item.box.id, { available : false });    
+                    }
+                    catch(e)
+                    {
+                        this.logger.silly(e);
+                    }
 					
-					const mailTitle   = 'Box désactivée - ' + item.box.title;
-					const mailService = Container.get(MailerService);
-				
-					await mailService.send('romain.petiteville@celaneo.com', mailTitle, 'product_disabled_box', { box : item.box  });
-				}				            
-			});
-			
+                    if( boxs.indexOf(item.box.id) < 0 )
+                    {
+                        boxs.push(item.box.id);
+                        
+                        this.logger.silly('Box #' + item.box.id + ' : Sending mail.');
+                        
+                        const mailTitle   = 'Box désactivée - ' + item.box.title;
+                        const mailService = Container.get(MailerService);
+                    
+                        await mailService.send('romain.petiteville@celaneo.com', mailTitle, 'product_disabled_box', { box : item.box  });    
+                    }
+                    else
+                    {
+                        this.logger.silly('Skipping - warning already sent for box #'+item.box.id+'.');
+                    }
+				}
+			}
+            
 			return boxs;
 		}
 		catch (e) 
@@ -278,6 +298,11 @@ export default class BoxService {
     
     private alterQuery(req, criterias)
     {
+        if( req == null )
+        {
+            return criterias;
+        }
+        
         if( typeof req.session !== 'undefined' && typeof req.session.zones !== "undefined" && req.session.zones.length > 0 )
         {
             if( req.session.roles.indexOf(config.roles.administrator) < 0 )

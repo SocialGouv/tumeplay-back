@@ -35,11 +35,14 @@ block content
                         .btn.ml-3.btn-sm.btn-primary.archive.disabled Archiver
                         .btn.ml-3.btn-sm.btn-primary.duplicate.disabled Dupliquer
                         .btn.ml-3.btn-sm.btn-primary.assign.disabled Assigner à
+                        
+                        if zones.length > 1 
+                            .btn.ml-3.btn-sm.btn-primary.assign-zone.disabled Assigner une zone
 
                         .toolbar-filter.mt-3.form-inline(style="display:none;")
                             label.mr-3 Thématique :
                             select.col-2.form-control-sm.mr-3(name="filter_thematique")
-                                option(value="") - Sélectionner -
+                                option(value="") - Tous -
                                 each theme in thematiques
                                     option(value=theme.id) #{theme.title}
 
@@ -48,7 +51,7 @@ block content
 
                             label.mr-3 Catégorie :
                             select.col-2.form-control-sm.mr-3(name="filter_category")
-                                option(value="") - Sélectionner -
+                                option(value="") - Tous -
                                 each category in categories
                                     option(value=category.id) #{category.title}
 
@@ -56,7 +59,7 @@ block content
 
                             label.mr-3 État :
                             select.col-2.form-control-sm.mr-3(name="filter_state")
-                                option(value="") - Sélectionner -
+                                option(value="") - Tous -
                                 each contentState in contentStates
                                     option(value=contentState.id) #{contentState.title}
 
@@ -90,6 +93,22 @@ block content
 
                             .btn.btn-sm.btn-primary.assign-validate.disabled Valider
 
+                        if zones.length > 1 
+                            .toolbar-assign-zone.mt-3.form-inline(style="display:none;")
+                                label.mr-3 Zone :
+                                select.col-2.form-control-sm.mr-3(name="assign_zone")
+                                    option(value="") - Sélectionner -
+                                    each zone in zones
+                                        option(value=zone.id) #{zone.name}
+                                               
+                                span.mr-3 |
+
+                                .btn.btn-sm.btn-primary.assign-validate.disabled.mr-3(data-type="del") Retirer de la zone
+                                
+                                span.mr-3 |
+                                
+                                .btn.btn-sm.btn-primary.assign-validate.disabled(data-type="add") Ajouter à la zone
+
                         hr
 
                     table.table.table-hover.table-bordered#contentsDataTable
@@ -103,9 +122,9 @@ block content
                                 th Photo
                                 th Date de mise à jour
                                 if zones.length > 1 
-                                    th Zone(s)
+                                    th(style="min-width: 75px;") Zone(s)
                                 th État
-                                th Ratio +/-
+                                th(style="min-width: 100px;") Ratio +/-
                         tbody
                             each content in contents
                                 tr
@@ -162,6 +181,7 @@ block specific-js
             $('.toolbar > .btn').removeClass('active');
             $('.toolbar-state').slideUp();
             $('.toolbar-assign').slideUp();
+            $('.toolbar-assign-zone').slideUp();
 
             var _toolbar = $('.toolbar-filter');
 
@@ -181,6 +201,7 @@ block specific-js
             $('.toolbar > .btn').removeClass('active');
             $('.toolbar-filter').slideUp();
             $('.toolbar-assign').slideUp();
+            $('.toolbar-assign-zone').slideUp();
 
             var _toolbar = $('.toolbar-state');
 
@@ -201,8 +222,28 @@ block specific-js
             $('.toolbar > .btn').removeClass('active');
             $('.toolbar-filter').slideUp();
             $('.toolbar-state').slideUp();
+            $('.toolbar-assign-zone').slideUp();
 
             var _toolbar = $('.toolbar-assign');
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+
+                $(_toolbar).slideUp();
+            } else {
+                $(this).addClass('active');
+
+                $(_toolbar).slideDown();
+            }
+        });
+        
+        $('.btn-primary.assign-zone').on('click', function () {
+            $('.toolbar > .btn').removeClass('active');
+            $('.toolbar-filter').slideUp();
+            $('.toolbar-state').slideUp();
+            $('.toolbar-assign').slideUp();
+
+            var _toolbar = $('.toolbar-assign-zone');
 
             if ($(this).hasClass('active')) {
                 $(this).removeClass('active');
@@ -278,6 +319,23 @@ block specific-js
 
             } else {
                 $('.toolbar-state > .btn').addClass('disabled');
+            }
+        });
+        
+        $('.toolbar-assign-zone select').on('change', function () {
+            var _handled = false;
+
+            $('.toolbar-assign-zone select').each(function () {
+                var _value = $(this).find('option:selected').val();
+
+                if (_value != '') {
+                    $('.toolbar-assign-zone > .btn').removeClass('disabled');
+                    _handled = true;
+                }
+            });
+
+            if (!_handled) {
+                $('.toolbar-assign-zone > .btn').addClass('disabled');
             }
         });
 
@@ -361,6 +419,28 @@ block specific-js
                 $.post('/contents/change-category', _data, successHandler());
             });
         });
+        
+        $('.toolbar-assign-zone > .btn').on('click', function () {
+            if ($(this).hasClass('disabled')) {
+                return;
+            }
+
+            if ($(_contents).length == 0) {
+                return;
+            }
+                                                         
+            var _target = $(this).attr('data-type');
+            var _zone = $('.toolbar-assign-zone select[name="assign_zone"] option:selected').val();
+
+            var _data = {
+                'contents': _contents,
+                'zone': _zone
+            };
+            
+            askConfirmation(function () {
+                $.post('/contents/change-zone/' + _target, _data, successHandler());
+            });
+        });
 
         var _contents = [];
         $(document).on('click', '.product-checkbox', function () {
@@ -374,9 +454,9 @@ block specific-js
             }
 
             if ($(_contents).length == 0) {
-                $('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign').addClass('disabled');
+                $('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign, .toolbar > .assign-zone').addClass('disabled');
             } else {
-                $('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign').removeClass('disabled');
+                $('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign, .toolbar > .assign-zone').removeClass('disabled');
             }
         });
 

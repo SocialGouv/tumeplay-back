@@ -363,7 +363,7 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'global', 'edit'),
     	async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
-        logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+        logger.debug('Calling Change State endpoint with body: %o', req.body);
 
         try {
             const targetState = req.body.targetState;
@@ -386,7 +386,7 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'global', 'edit'),
     	async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
-        logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+        logger.debug('Calling Change Category endpoint with body: %o', req.body);
 
         try {
             const targetThematique  = req.body.thematique;
@@ -404,6 +404,63 @@ export default (app: Router) => {
             throw e;
         }
     });
+    
+    
+    route.post('/change-zone/:type', 
+        middlewares.isAuth, 
+        middlewares.isAllowed(aclSection, 'global', 'edit'),
+        async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Change Zone endpoint with body: %o', req.body);
+
+        try {
+            const targetType      = req.params.type;
+            const targetZone      = req.body.zone;    
+            const documentsId     = req.body.contents;
+            
+            const contentService  = Container.get(ContentService);
+            
+            documentsId.forEach( async documentId => {
+                
+                const content = await contentService.findOne(req, {
+                    where: {
+                        id: documentId,
+                    },
+                    include: [
+                        'itsQuestionContent',
+                        'availability_zone'
+                    ]
+                });
+                
+                let targetZones = [];
+                if( targetType == 'add' )
+                {
+                    targetZones.push({ contentId: documentId, availabilityZoneId: parseInt(targetZone)});
+                }
+                
+                content.availability_zone.forEach( item => {
+                    if( item.id == targetZone ) // Either we are in add mode, and zone is already added; or we are in del mode, and we skip it.
+                    {
+                        return;
+                    }    
+                    targetZones.push({ contentId: documentId, availabilityZoneId: item.id});
+                })
+                
+                await contentService.bulkDelete(documentId);
+                
+                if( targetZones.length > 0 )
+                {
+                    await contentService.bulkCreateZone(targetZones);    
+                }
+                
+            });                                                                                   
+            
+            return res.json({success : true}).status(200);
+        } catch (e) {
+            throw e;
+        }
+    });
+    
     
     const handleZones = async (currentContent, zoneId) => { 
         const contentServiceInstance = Container.get(ContentService);
