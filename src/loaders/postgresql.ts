@@ -31,6 +31,10 @@ import BoxProductModel from '../models/box.products';
 
 import PoiModel from '../models/poi';
 
+import SoundModel from '../models/sound';
+import QuestionSoundModel from '../models/question.sound';
+import ContentSoundModel from '../models/content.sound';
+
 import config from '../config';
 import { Container } from 'typedi';
 import SyncDefaultData from '../services/synchronizer/sync-default-data';
@@ -51,6 +55,9 @@ export default async () => {
     const questionCategory = QuestionCategoryModel(sequelize, Sequelize);
     const Thematique = ThematiqueModel(sequelize, Sequelize);
     const Picture = PictureModel(sequelize, Sequelize);
+    const Sound = SoundModel(sequelize, Sequelize);
+    const QuestionSound = QuestionSoundModel(sequelize, Sequelize);
+    const ContentSound = ContentSoundModel(sequelize, Sequelize);
     const QuestionAnswer = QuestionAnswerModel(sequelize, Sequelize);
     const Product = ProductModel(sequelize, Sequelize);
     const ShippingMode = ShippingModeModel(sequelize, Sequelize);
@@ -80,6 +87,15 @@ export default async () => {
     Content.belongsTo(questionCategory, { foreignKey: 'categoryId', as: 'itsQuestionCategory' });
     Content.belongsTo(QuestionContent, { foreignKey: 'questionId', as: 'itsQuestionContent' });
 
+    Content.belongsToMany(Sound, {
+        through: ContentSound,
+        as: 'sounds',
+        foreignKey: 'contentId',
+    }); 
+    
+    ContentSound.belongsTo(Content, { foreignKey: 'contentId', as: 'content' });
+    ContentSound.belongsTo(Sound, { foreignKey: 'soundId', as: 'sound' });                      
+    
     questionCategory.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
     questionCategory.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
 
@@ -87,7 +103,16 @@ export default async () => {
     QuestionContent.belongsTo(Thematique, { foreignKey: 'themeId', as: 'itsTheme' });
 
     QuestionContent.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
-
+    
+    QuestionContent.belongsToMany(Sound, {
+        through: QuestionSound,
+        as: 'sounds',
+        foreignKey: 'questionId',
+    });
+    
+    QuestionSound.belongsTo(QuestionContent, { foreignKey: 'questionId', as: 'question' });
+    QuestionSound.belongsTo(Sound, { foreignKey: 'soundId', as: 'sound' });
+    
     Thematique.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
 
     Profile.belongsTo(User, { foreignKey: 'userId', as: 'user' });
@@ -172,6 +197,8 @@ export default async () => {
 
     QuestionZone.belongsTo(QuestionContent, { foreignKey: 'questionContentId', as: 'questionContent' });
     QuestionZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
+                     
+    Sound.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
 
     const dbForce = {};
     if (config.databaseForce && config.databaseForce === 1) {
@@ -192,6 +219,9 @@ export default async () => {
     module.exports = questionCategory;
     module.exports = Thematique;
     module.exports = Picture;
+    module.exports = Sound;
+    module.exports = ContentSound;
+    module.exports = QuestionSound;
     module.exports = QuestionAnswer;
     module.exports = Product;
     module.exports = ShippingMode;
@@ -222,6 +252,9 @@ export default async () => {
         questionCategoryModel: questionCategory,
         thematiqueModel: Thematique,
         pictureModel: Picture,
+        soundModel: Sound,
+        contentSoundModel: ContentSound,
+        questionSoundModel: QuestionSound,
         questionAnswerModel: QuestionAnswer,
         productModel: Product,
         shippingModeModel: ShippingMode,

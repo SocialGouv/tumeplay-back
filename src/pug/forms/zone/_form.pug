@@ -23,6 +23,15 @@
                     else
                         input.form-control(type="text", name="name", placeholder="Nom de la zone")
 
+                .animated-checkbox
+                    label
+                        if availability_zone
+                            input(type="checkbox" name="enableSound" checked=availability_zone.enableSound)
+                        else
+                            input(type="checkbox" name="enableSound")
+
+                        span.label-text Activer l'audio
+
 
                 .animated-checkbox
                     label

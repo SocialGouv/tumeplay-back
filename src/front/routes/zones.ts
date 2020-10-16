@@ -18,9 +18,7 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'zones', 'view'),  
     	async (req: Request, res: Response) => {
         try {
-            const availabilityZoneModel: any = Container.get('availabilityZoneModel');
-
-            const zones = await availabilityZoneModel.findAll();
+            const zones = await Container.get('availabilityZoneModel').findAll();
 
             return res.render('page-zones', {
                 zones,
@@ -50,14 +48,10 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'zones', 'edit'),  
     	async (req: Request, res: Response) => {
         try {
-            console.log("zone in edit")
             const documentId = +req.params.id;
-            const zoneServiceInstance: AvailabilityZoneService = Container.get(AvailabilityZoneService);
 
+            const   {availabilityZone}   = await  Container.get(AvailabilityZoneService).findById(documentId);
 
-            const   {availabilityZone}   = await zoneServiceInstance.findById(documentId);
-            console.log('availability_zone in edit')
-            console.log(availabilityZone);
             return res.render('page-zones-edit', {
                 availability_zone :availabilityZone
             });
@@ -78,10 +72,10 @@ export default (app: Router) => {
             let zoneItem: IAvailabilityZoneDTO = {
                 name: req.body.name,
                 enabled: req.body.enabled == 'on',
+                enableSound: req.body.enableSound == 'on',
             };
 
-            const zoneServiceInstance = Container.get(AvailabilityZoneService);
-            const { zone } = await zoneServiceInstance.create(zoneItem);
+            const { zone } = await  Container.get(AvailabilityZoneService).create(zoneItem);
             console.log('zone created', zone)
 
             return res.redirect(ROOT_URL);
@@ -104,16 +98,11 @@ export default (app: Router) => {
             let zoneItem: IAvailabilityZoneDTO = {
                 name: req.body.name,
                 enabled: req.body.enabled == req.body.enabled,
-
+                enableSound: req.body.enableSound == 'on',
             };
 
-            const zoneServiceInstance: AvailabilityZoneService = Container.get(AvailabilityZoneService);
 
-          //  const { zone } = await zoneServiceInstance.findById(documentId);
-
-            // Updating
-
-            await zoneServiceInstance.update(documentId, zoneItem);
+            await Container.get(AvailabilityZoneService).update(documentId, zoneItem);
 
             return res.redirect(ROOT_URL);
         } catch (e) {

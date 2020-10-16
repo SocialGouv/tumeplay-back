@@ -35,13 +35,13 @@ aside.app-sidebar
 			li
 				a.app-menu__item(href='/thematiques' class={'active': activePage === 'thematiques'})
 					i.app-menu__icon.fa.fa-dashboard
-					span.app-menu__label Familles
+					span.app-menu__label Thématiques
 		
 		if isAllowed(req, "thematics", "global", "view")								
 			li
 				a.app-menu__item(href='/quizzs/categories' class={'active': activePage.indexOf('page-quizz-categories') !== -1})
 					i.app-menu__icon.fa.fa-dashboard
-					span.app-menu__label Thématiques    
+					span.app-menu__label Catégories    
 
 		if isAllowed(req, "products", "global", "view")								
 			li
@@ -61,19 +61,6 @@ aside.app-sidebar
 					i.app-menu__icon.fa.fa-book
 					span.app-menu__label POI
 		
-		if isAllowed(req, "questions", "global", "view")											
-			li.treeview(class={'is-expanded': activePage.indexOf('page-quizz-questions') !== -1})
-				a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-quizz-questions') !== -1})
-					i.app-menu__icon.fa.fa-table
-					span.app-menu__label Quizz
-					i.treeview-indicator.fa.fa-angle-right
-					
-				ul.treeview-menu
-					li
-						a.treeview-item(href='/quizzs/questions' class={'active': activePage.indexOf('page-quizz-questions') !== -1})
-							i.icon.fa.fa-circle-o
-							span Questions
-
 		if isAllowed(req, "orders", "global", "view")											
 			li.treeview(class={'is-expanded': activePage.indexOf('page-order') !== -1})
 				a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-order') !== -1})

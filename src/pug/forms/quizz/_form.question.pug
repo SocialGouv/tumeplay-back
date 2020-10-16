@@ -60,18 +60,23 @@ block content
 						span.label-text Publié
 
 				br
-				if hasManyZones
-					.form-group.form-inline
-						label.col-4.pl-0.control-label(style="justify-content: left;") Zones disponibles
-						each zone in allZones
-							label
-								.animated-checkbox.mr-3
-									if question
-										input(type="checkbox" name="zoneId" checked=zone.isZoned value=zone.id)
-									else
-										input(type="checkbox" name="zoneId" value=zone.id)
+				
+				if hasSound
+					each zone in allZones
+						if zone.enableSound
+							- var _name = "questionSound[zone_"+ zone.id +"]"
+							label.control-label Fichier audio ( #{zone.name} )
+							input.form-control(type="file" name=`${_name}`)
+							
+							if questionSounds
+								
+								each sound in questionSounds
+									p #{sound.availabilityZoneId}
+									if sound.availabilityZoneId == zone.id
+										p.mt-3.font-weight-bold Fichier existant :  
+											a(href="/" + sound.path, target="blank") #{sound.filename}
 
-									span.label-text #{zone.name}
+							hr
 		.col-md-6
 			.tile
 				h4 Gérer les réponses

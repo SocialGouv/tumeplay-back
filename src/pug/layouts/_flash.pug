@@ -1,0 +1,7 @@
+if req.session.flash
+    hr
+    if req.session.flash.status
+        p.green #{req.session.flash.msg}
+    else
+        p.red #{req.session.flash.msg}
+    hr

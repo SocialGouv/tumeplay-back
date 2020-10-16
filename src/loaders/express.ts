@@ -31,6 +31,8 @@ export default ({ app }: { app: express.Application }) => {
     app.use('/uploads/pictures/product', express.static('uploads/pictures/product'));
     app.use('/uploads/pictures/question', express.static('uploads/pictures/question'));
     app.use('/uploads/pictures/theme', express.static('uploads/pictures/theme'));
+    app.use('/uploads/sounds/content', express.static('uploads/sounds/content'));
+    app.use('/uploads/sounds/question', express.static('uploads/sounds/content'));
 
     // In default question files, may be accessed via api:
     // ----------------------------------------------------------------------------------------------------

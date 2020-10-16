@@ -1,0 +1,23 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-my-account'
+
+block title
+	title Mon Compte - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-comments
+				|  Mon Compte
+        
+	.row
+		.col-md-12
+			include ./forms/user/_my_account.pug
+			
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	

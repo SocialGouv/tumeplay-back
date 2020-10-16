@@ -42,31 +42,42 @@
                     .row.col-md-12
                         for role in roles
                             if role != "ROLE_USER"
+                                if ( role == "ROLE_ADMINISTATOR" && isAllowed(req, "global", "users", "add_zone") ) 
+                                    .col-md-3.animated-checkbox
+                                        label
+                                            - var _name = "roles["+ role +"]"
+                                            if user && user.roles.includes(role.toString())
+                                                input(type="checkbox" name=`${_name}` checked=true) 
+                                            else
+                                                input(type="checkbox" name=`${_name}` checked=false) 
+                                                
+                                            span.label-text #{role}
+                                if role != "ROLE_ADMINISTATOR"
+                                    .col-md-3.animated-checkbox
+                                        label
+                                            - var _name = "roles["+ role +"]"
+                                            if user && user.roles.includes(role.toString())
+                                                input(type="checkbox" name=`${_name}` checked=true) 
+                                            else
+                                                input(type="checkbox" name=`${_name}` checked=false) 
+                                                
+                                            span.label-text #{role}
+                if isAllowed(req, "global", "users", "add_zone")
+                    .form-group
+                        label.control-label Zone(s)
+
+                        .row.col-md-12
+                            for zone in zones
                                 .col-md-3.animated-checkbox
                                     label
-                                        - var _name = "roles["+ role +"]"
-                                        if user && user.roles.includes(role.toString())
+                                        - var _name = "zones[zone_"+ zone.id +"]"
+                                        if user && user.zoneIds.includes(zone.id)
                                             input(type="checkbox" name=`${_name}` checked=true) 
                                         else
                                             input(type="checkbox" name=`${_name}` checked=false) 
                                             
-                                        span.label-text #{role}
-                    
-                .form-group
-                    label.control-label Zone(s)
-                    
-                    .row.col-md-12
-                        for zone in zones
-                            .col-md-3.animated-checkbox
-                                label
-                                    - var _name = "zones[zone_"+ zone.id +"]"
-                                    if user && user.zoneIds.includes(zone.id)
-                                        input(type="checkbox" name=`${_name}` checked=true) 
-                                    else
-                                        input(type="checkbox" name=`${_name}` checked=false) 
-                                        
-                                    span.label-text #{zone.name}
-                                    
+                                        span.label-text #{zone.name}
+
                 hr
                 
                 .form-group

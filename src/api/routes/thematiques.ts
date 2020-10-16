@@ -10,14 +10,22 @@ export default (app: Router) => {
     route.get('/', async (req: Request, res: Response, next: NextFunction) => {
         const logger: any = Container.get('logger');
         try {
-            const thematiqueService: any = Container.get('thematiqueModel');
-
-            const thematiques: IThematique[] = await thematiqueService.findAll({
+            const criterias = {
                 where: { active: true },
                 include: ['picture'],
                 order: [['id', 'ASC']],
-            });
-
+            };
+            
+            if( req.query.zone )
+            {
+                /*criterias.include.push({
+                    association: 'availability_zone',
+                    where: { name : req.query.zone.charAt(0).toUpperCase() + req.query.zone.slice(1) }   
+                });*/   
+            }
+            
+            const thematiques: IThematique[] = await Container.get('thematiqueModel').findAll(criterias);
+            
             let parsedThematiques = thematiques.map(thematique => {
                 return {
                     key: thematique.id,

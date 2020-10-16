@@ -84,4 +84,21 @@ export default class AvailabilityZoneService {
             throw e;
         }
     }
+    
+    public hasSoundEnabled(zones)
+    {
+        let soundEnabled = false;
+        this.logger.silly(zones);
+        
+        zones.forEach( zone => {
+            this.logger.silly('Zone S : ' + zone.id);
+            soundEnabled = soundEnabled || zone.enableSound;
+        });
+        for(const zone in zones)
+        {
+            
+        }
+        this.logger.silly('Sound : ' + soundEnabled);
+        return soundEnabled;
+    }
 }

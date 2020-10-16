@@ -5,21 +5,19 @@ block variables
 	// - var activeGroup = 'tables'
 
 block title
-	title Quizz : Catégories - Tumeplay
+	title Catégories - Tumeplay
 
 block content
 	.app-title
 		div
 			h1
 				i.fa.fa-table
-				|  Quizz : Catégories
-			p Liste des catégories associées aux questions
+				|  Catégories
+			p Liste des catégories associées aux questions & contenus
 
 		ul.app-breadcrumb.breadcrumb.side
 			li.breadcrumb-item
 				i.fa.fa-home.fa-lg
-			li.breadcrumb-item
-				| Quizz
 			li.breadcrumb-item.active
 				a(href="#") Catégories
 
@@ -67,7 +65,7 @@ block content
 					.tile-footer
 						a(class='btn btn-primary' href="/quizzs/categories/add") 
 							i.fa.fa-fw.fa-lg.fa-plus 
-							| Ajouter une catégorie						
+							| Ajouter une catégorie
 
 block specific-js
 	// Data table plugin

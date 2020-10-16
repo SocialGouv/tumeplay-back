@@ -9,5 +9,6 @@ export default (sequelize, type) => {
         },
         name: DataTypes.STRING,
         enabled: DataTypes.BOOLEAN,
+        enableSound: DataTypes.BOOLEAN
     });
 };

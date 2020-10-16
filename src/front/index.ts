@@ -24,6 +24,7 @@ import poi from './routes/poi';
 import contacts from './routes/contacts';
 import feedback from './routes/feedback';
 import zones from './routes/zones';
+import user from './routes/user';
 
 import config from '../config';
 
@@ -46,6 +47,7 @@ export default () => {
     contacts(app);
     feedback(app);
     zones(app);
+    user(app);
 
     app.use('/', route);
 
@@ -92,6 +94,7 @@ export default () => {
                     })
                 }
 
+                req.session.user 	 = user;
                 req.session.loggedin = true;
                 req.session.username = email;
                 req.session.name = user.name;

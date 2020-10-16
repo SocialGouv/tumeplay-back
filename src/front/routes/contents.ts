@@ -4,6 +4,8 @@ import middlewares from '../middlewares';
 
 import UserService from '../../services/user';
 import ContentService from '../../services/content';
+import SoundService from '../../services/sound';
+import AvailabilityZoneService from '../../services/availability.zone';
 import QuestionContentService from '../../services/question.content';
 import QuestionAnswerService from '../../services/question.answer';
 
@@ -16,13 +18,26 @@ import {IQuestionAnswerDTO} from "../../interfaces/IQuestionAnswer";
 import QuestionFeedbackService from "../../services/question.feedback";
 import {IContentZoneDTO} from "../../interfaces/IContentZone";
 
+import ExportGeneratorService from '../../services/export.generator';
+import DateFormatterService from '../../services/date.formatter';
+
+
 var multer = require('multer');
 
 var contentMulterStorage = multer.diskStorage({
     destination: (req, file, cb) => {
       if (file.fieldname === "contentPicture") {
         cb(null, 'uploads/pictures/content');
-      } else {
+      } 
+      else if ( file.fieldname.includes('contentSound') )
+      {
+          cb(null, 'uploads/sounds/content')
+      }
+      else if ( file.fieldname.includes('questionSound') )
+      {
+          cb(null, 'uploads/sounds/question')
+      }
+      else {
         cb(null, 'uploads/pictures/question');
       }
   	},
@@ -97,14 +112,16 @@ export default (app: Router) => {
             const categories 	= await Container.get('questionCategoryModel').findAll();                                                                                
             const contentStates = await Container.get(ContentService).getContentStates();
                                             
-            const themes = await Container.get('thematiqueModel').findAll();            
-            const zones  = await Container.get(UserService).getAllowedZones(req);
-                      
+            const themes    = await Container.get('thematiqueModel').findAll();            
+            const zones     = await Container.get(UserService).getAllowedZones(req);
+            const hasSound  = await Container.get(AvailabilityZoneService).hasSoundEnabled(zones);
+            
             return res.render('page-contents-edit', {
                 themes: themes,
                 categories: categories,
                 contentStates: contentStates,
-                allZones: zones,           
+                allZones: zones,
+                hasSound: hasSound,
             });
         } catch (e) {
             throw e;
@@ -114,18 +131,7 @@ export default (app: Router) => {
     route.post('/add',
     	middlewares.isAuth,
     	middlewares.isAllowed(aclSection, 'global', 'edit'),
-    	uploadContent.fields(
-		  [
-		      {
-		        name: 'contentPicture',
-		        maxCount: 1
-		      },
-		      {
-		        name: 'questionContentPicture',
-		        maxCount: 1
-		      }
-		    ]
-		),
+    	uploadContent.any(),
 		async (req: any, res: Response) => {
 	        const logger: any = Container.get('logger');
 	        logger.debug('Calling Front Create endpoint with body: %o', req.body);
@@ -173,6 +179,8 @@ export default (app: Router) => {
 					await handleZones(content.id, targetZones);	
                 }
                 
+                await handleSounds(req, content.id, content.questionId, targetZones, req.files);
+                
             	return res.redirect('/contents');
         } catch (e) {
             throw e;
@@ -194,9 +202,10 @@ export default (app: Router) => {
             const contentStates 		 = await contentServiceInstance.getContentStates();
             
             
-            const themes = await Container.get('thematiqueModel').findAll();            
-            const zones  = await Container.get(UserService).getAllowedZones(req);
-
+            const themes 	= await Container.get('thematiqueModel').findAll();            
+            const zones  	= await Container.get(UserService).getAllowedZones(req);
+            const hasSound  = await Container.get(AvailabilityZoneService).hasSoundEnabled(zones);
+            
             const ContentZoneModel: any = Container.get('contentZoneModel');
 
             const content = await contentServiceInstance.findOne(req, {
@@ -205,7 +214,8 @@ export default (app: Router) => {
                 },
                 include: [
                 	'itsQuestionContent',
-                	'availability_zone'
+                	'availability_zone',
+                	'sounds'
                 ]
             });
             
@@ -213,13 +223,14 @@ export default (app: Router) => {
             {
                 return res.redirect('/contents');
             }
-            
+                              
             content.zoneIds = content.availability_zone.map(item => {
 				return item.id;
             });
                                  
             let questionAnswers = null;
             let questionPicture = null;
+            let questionSounds 	= null;
             
             if( content.itsQuestionContent )
             {
@@ -237,8 +248,18 @@ export default (app: Router) => {
                         },
                     });                          
                 }
-            }
-
+                
+                const localQuestion = await Container.get('questionModel').findOne({
+					where: {
+						id: content.itsQuestionContent.id,
+					},
+					include: [
+                		'sounds'
+	                ]
+                });
+                questionSounds = localQuestion.sounds;
+            }                           
+            
             return res.render('page-contents-edit', {
                 content: content,
                 themes: themes,
@@ -247,7 +268,9 @@ export default (app: Router) => {
                 question: content.itsQuestionContent,
                 answers: questionAnswers,
                 questionPicture: questionPicture,
-                allZones: zones,         
+                allZones: zones,
+                hasSound: hasSound,
+                questionSounds: questionSounds
             });
             } catch (e) {
                 throw e;
@@ -259,16 +282,7 @@ export default (app: Router) => {
         '/edit/:id',
         middlewares.isAuth,
         middlewares.isAllowed(aclSection, 'global', 'edit'),
-        uploadContent.fields([
-            {
-                name: 'contentPicture',
-                maxCount: 1,
-            },
-            {
-                name: 'questionContentPicture',
-                maxCount: 1,
-            },
-        ]),
+		uploadContent.any(),
         async (req: any, res: Response) => {
             try {
                 const logger = Container.get<any>('logger');
@@ -282,7 +296,7 @@ export default (app: Router) => {
                     comment: req.body.comment,
                     themeId: req.body.theme,
                     categoryId: req.body.category,
-                    pictureId: undefined,
+                    pictureId: undefined
                 };
                 
                 const picObject: IPictureInputDTO = req.files.contentPicture;
@@ -308,10 +322,12 @@ export default (app: Router) => {
                 
                 await Container.get(ContentService).update(req, documentId, contentItem);
                 
-                if( targetZones.length > 0 )
+                if( typeof targetZones != 'undefined' && targetZones.length > 0 )
                 {
 					await handleZones(documentId, targetZones);	
                 }
+                
+                await handleSounds(req, documentId, contentItem.questionId, targetZones, req.files);
                                                                 
                 return res.redirect('/contents');
             } catch (e) {
@@ -461,6 +477,41 @@ export default (app: Router) => {
         }
     });
     
+    const handleSounds = async(req, documentId, questionId, zones, bodyFiles) => {
+		if( typeof bodyFiles != 'undefined' && bodyFiles.length > 0 )
+		{
+			for( let i = 0; i < bodyFiles.length; i++ )
+			{
+				const currentFile = bodyFiles[i];
+				if( currentFile.fieldname.includes('contentSound') )	
+				{
+					const targetZone = currentFile.fieldname.replace('contentSound[zone_', '').replace(']', '');
+					
+					currentFile.availabilityZoneId = parseInt(targetZone);
+					
+					const {sound} = await Container.get(SoundService).create(currentFile);
+					
+					if( sound )
+					{
+						await Container.get(SoundService).handleContentSound(documentId, sound.id);
+					}
+				}
+				if( currentFile.fieldname.includes('questionSound') )	
+				{
+					const targetZone = currentFile.fieldname.replace('questionSound[zone_', '').replace(']', '');
+					
+					currentFile.availabilityZoneId = parseInt(targetZone);
+					
+					const {sound} = await Container.get(SoundService).create(currentFile);
+					
+					if( sound )
+					{
+						await Container.get(SoundService).handleQuestionSound(questionId, sound.id);
+					}
+				}
+			}
+		}
+    }
     
     const handleZones = async (currentContent, zoneId) => { 
         const contentServiceInstance = Container.get(ContentService);
@@ -489,7 +540,7 @@ export default (app: Router) => {
         
         let questionId = null;
         
-        if( requestQuestion.content == '' )
+        if( typeof requestQuestion == 'undefined' || requestQuestion.content == '' )
         {
 			return questionId;
         }
@@ -577,7 +628,7 @@ export default (app: Router) => {
         middlewares.isAllowed(aclSection, 'global', 'delete'),
         async (req: any, res: Response) => {
             const logger: any = Container.get('logger');
-            logger.debug('Calling Front Delete endpoint with body: %o', req.body);
+            logger.debug('Calling Reset stats endpoint with body: %o', req.body);
 
             try {
                 const documentId = req.params.id;
@@ -599,4 +650,74 @@ export default (app: Router) => {
             }
         },
     );
+    
+    
+    route.post(
+    	'/export/csv', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'view'),  
+    	async (req: Request, res: Response) => {
+    	try {
+    		const logger: any 	= Container.get('logger');
+    		const docIds 		= req.body.ids;
+    		
+    		const dateService   = Container.get(DateFormatterService);
+			const exportService = Container.get(ExportGeneratorService);	
+			
+			const contentServiceInstance = Container.get(ContentService);
+
+			console.log(req);
+			console.log(req.body);
+			
+			let dbContents  = [];
+			if( typeof docIds != 'undefined' && docIds.length > 0 )
+			{
+				dbContents	= await contentServiceInstance.findAll(req, { where: { id: docIds }, include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone']});
+			}
+			else
+			{
+				dbContents	= await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone']});
+			}
+			
+			const contentStates = contentServiceInstance.getContentStatesAsArray();
+			
+			const contents = dbContents.map(item => {
+				//const dateObject = new Date(item.orderDate);
+				const date 		 = dateService.format(item.updatedAt);
+				
+				return [
+					item.id,
+					item.title,
+					item.text,
+					contentStates[item.published],
+					item.itsTheme ? item.itsTheme.title : '',
+					item.itsQuestionCategory ? item.itsQuestionCategory.title : '',
+					date.day + "/" + date.month + "/" + date.year,
+				]
+			});
+			
+			const headers = [
+				"Num",
+				"Titre",
+				"Contenu",
+				"Publié",
+				"Thématique",
+				"Catégorie",
+				"Mis à jour",
+			]; 
+			
+			contents.unshift(headers);
+			   
+			logger.debug("Got orders.");
+			
+			const { tmpFile }   = await exportService.generateCsv(contents);
+			
+			const date  = dateService.format(new Date());
+			
+			res.download(tmpFile, 'Export-Contenus-' + date.year + date.month + date.day + '.csv');
+    	}
+    	catch(e) {
+			console.log(e);	
+    	}
+	});
 };

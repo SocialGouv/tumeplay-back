@@ -91,13 +91,30 @@
                     else
                         textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")
                     label.limited-counter 1000 caractères restants.
-
+                    
+                label.control-label Photo associée
                 if content
                     if content.picture && content.picture.path
                         img.pic-image-box-normal(src="../../" + content.picture.path)
                 input.form-control(type="file" name="contentPicture")
 
                 hr
+                
+                if hasSound
+                    each zone in allZones
+                        if zone.enableSound
+                            - var _name = "contentSound[zone_"+ zone.id +"]"
+                            label.control-label Fichier audio ( #{zone.name} )
+                            input.form-control(type="file" name=`${_name}`)
+                            
+                            if content && content.sounds
+                                each sound in content.sounds
+                                    if sound.availabilityZoneId == zone.id
+                                        p.mt-3.font-weight-bold Fichier existant :  
+                                            a(href="/" + sound.path, target="blank") #{sound.filename}
+                            
+                            hr
+                
 
                 .accordion.md-accordion#accordionOne
                     .card
@@ -107,6 +124,9 @@
                                     | Question associée
                                     i.fa.ml-1.fa-angle-down.rotate-icon
                                     span.search-question.btn.ml-3.btn-sm.btn-primary(href="#") Lier une question existante
+                                    
+                                    if content.itsQuestionContent
+                                        span.remove-question.btn.ml-3.btn-sm.btn-primary(href="#", data-content=content.id) Retirer la liaison
 
                         .collapse#collapseOne(data-parent="accordionOne")
                             .card-body

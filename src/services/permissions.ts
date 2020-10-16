@@ -145,8 +145,9 @@ const permissions = {
 			'view': [
 				config.roles.administrator_local
 			],
-			'edit': [config.roles.administrator],
+			'edit': [config.roles.administrator_local],
 			'delete': [config.roles.administrator],
+			'add_zone': [config.roles.administrator],
 		},
 		dashboard: {
 			'superadministrator': [ 

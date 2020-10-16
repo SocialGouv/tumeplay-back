@@ -41,6 +41,18 @@ export default async ({ expressApp }) => {
                 model: models.pictureModel,
             },
             {
+                name: 'soundModel',
+                model: models.soundModel,
+            },
+            {
+                name: 'questionSoundModel',
+                model: models.questionSoundModel,
+            },
+            {
+                name: 'contentSoundModel',
+                model: models.contentSoundModel,
+            },
+            {
                 name: 'questionAnswerModel',
                 model: models.questionAnswerModel,
             },

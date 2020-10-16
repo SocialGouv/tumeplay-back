@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
 import middlewares from '../middlewares';
 import pug from 'pug';
+import ContentService from '../../services/content';
 import QuestionContentService from '../../services/question.content';
 import QuestionAnswerService from '../../services/question.answer';
 import QuestionCategoryService from '../../services/question.category';
@@ -71,6 +72,31 @@ export default (app: Router) => {
             });
             
             return res.json({questions : parsedQuestions});
+        } catch (e) {
+            throw e;
+        }
+    });
+    
+    route.get(
+    	QUIZZ_QUESTION_ROOT + '/ajax/remove/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(questionsAclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
+        try {
+            const contentService: any = Container.get(ContentService);
+
+            const content = await contentService.findOne(req, {
+            	where: { id : req.params.id },
+                include: ['itsQuestionCategory', 'itsTheme', 'picture'],
+            });
+			
+			const toUpdate = { 
+				questionId: null
+			};
+			
+			await contentService.update(req, req.params.id, toUpdate);
+			
+            return res.json({success: true});
         } catch (e) {
             throw e;
         }

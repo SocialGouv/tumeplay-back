@@ -127,7 +127,43 @@ block specific-js
 		function buildSelectOptions() {
 
 		}
+		$('.remove-question').on('click', function() {
+			var _targetQuestion = $(this).attr('data-content');
+			swal({
+				title				: "Supprimer la liaison existante",
+				text				: 'La liaison avec la question sera immédiatement supprimée. Êtes-vous sûr(e) ?',
+				html				: true,
+				showCancelButton	: true,
+				confirmButtonText	: "Confirmer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false,
+			},
+			function(isConfirm)
+			{
+				if (isConfirm)
+				{
+				
+					$.get('/quizzs/questions/ajax/remove/' + _targetQuestion, function(data) {
+						swal({
+							title				: "Confirmé",
+							text				: "L'action a bien été effectuée.",
+							type				: "success",
+							showCancelButton	: false,
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false
+						});
+						return;
+					})
 
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		});
+		
 		$('.search-question').on('click', function() {
 			var _select = $('<select>')
 								.addClass('question-list')

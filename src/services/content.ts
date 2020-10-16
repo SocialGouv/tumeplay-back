@@ -167,7 +167,7 @@ export default class ContentService {
 	    return;
     }
     
-    public async getContentStates() {
+    public getContentStates() {
 		const states = [
 			{ id: 0, title: 'Archivé' },
 			{ id: 1, title: 'Publié' },
@@ -179,9 +179,9 @@ export default class ContentService {
 		return states;
     }
     
-    public async getContentStatesAsArray()
+    public getContentStatesAsArray()
     {
-		const states  = await this.getContentStates();
+		const states  = this.getContentStates();
 		const _return = [];
 		
 		states.forEach( item => {

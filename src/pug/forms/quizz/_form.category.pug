@@ -23,7 +23,10 @@
 					else
 						input.form-control(type="text", name="title", placeholder="Titre de la catégorie")
 				
+				label.control-label Image associée
 				input.form-control(type="file" name="categoryPicture")
+				
+				hr
 				
 				.animated-checkbox
 					label
@@ -43,11 +46,7 @@
 						i.fa.fa-fw.fa-lg.fa-times-circle
 						| Annuler
 				br
-				if thematiques
-					select.form-control(name="selectedThematique")
-						optgroup(label="Select thematique")
-							each thematique in thematiques
-								option(value=thematique) #{thematique.title}
+
 	.clearfix
         
 
