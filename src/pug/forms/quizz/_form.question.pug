@@ -71,10 +71,11 @@ block content
 							if questionSounds
 								
 								each sound in questionSounds
-									p #{sound.availabilityZoneId}
 									if sound.availabilityZoneId == zone.id
 										p.mt-3.font-weight-bold Fichier existant :  
 											a(href="/" + sound.path, target="blank") #{sound.filename}
+											span.mr-3.ml-3 -
+											a.delete-sound(href="#",data-type="question", data-origin=question.id, data-sound=sound.id, style="color: red;") Supprimer
 
 							hr
 		.col-md-6

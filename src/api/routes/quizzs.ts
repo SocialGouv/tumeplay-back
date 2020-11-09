@@ -28,7 +28,7 @@ export default (app: Router) => {
                 where: {
                     published: true,
                 },
-                include: ['picture'],
+                include: ['picture', 'sounds'],
             };
             
             const questionsAnswersCriterias = {
@@ -78,6 +78,16 @@ export default (app: Router) => {
             }
 
             questions = questionsFound.map(questionItem => {
+            	let localSound = false;
+            	if( req.query.zone && questionItem.sounds )
+            	{
+					questionItem.sounds.forEach(item => {
+						if( item.availabilityZoneId == questionItem.availability_zone[0].id )
+						{
+							localSound = item;
+						}
+					});	
+            	}
                 let questionItemStructured: IQuestionContent = {
                     id: questionItem.id,
                     key: questionItem.id,
@@ -89,6 +99,7 @@ export default (app: Router) => {
                     answers: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['answers'] : [],
                     rightAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['rightAnswer'] : [],
                     neutralAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['neutralAnswer'] : [],
+                    sound: localSound ? localSound.destination + '/' + localSound.filename : false,
                 };
 
                 return questionItemStructured;

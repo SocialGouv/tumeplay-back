@@ -12,7 +12,7 @@ export default (app: Router) => {
                 where: {
                     published: 1,
                 },
-                include: ['picture'],
+                include: ['picture', 'sounds'],
             };
             
             if( req.query.zone )
@@ -27,6 +27,18 @@ export default (app: Router) => {
             
             
             let parsedContent = contents.map(content => {
+            	let localSound = false;
+            	
+            	if( req.query.zone && content.sounds )
+            	{
+					content.sounds.forEach(item => {
+						if( item.availabilityZoneId == content.availability_zone[0].id )
+						{
+							localSound = item;
+						}
+					});	
+            	}
+            	
                 return {
                     key: content.id,
                     id: content.id,
@@ -34,9 +46,10 @@ export default (app: Router) => {
                     theme: content.themeId,
                     category: content.categoryId,
                     picture: content.picture ? content.picture.destination + '/' + content.picture.filename : false,
+                    sound: localSound ? localSound.destination + '/' + localSound.filename : false,
                     title: content.title,
                     text: content.text,
-                    link: content.link,
+                    link: content.link
                 };
             });
             return res.json(parsedContent).status(200);

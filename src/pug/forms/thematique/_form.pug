@@ -26,6 +26,8 @@
 						input.form-control(type="text", name="title", placeholder="Titre de la thematique ( usage interne uniquement )" value=`${thematique.title}`)
 					else
 						input.form-control(type="text", name="title", placeholder="Titre de la thematique ( usage interne uniquement )")
+				
+				label.control-label Image associée
 				if thematique
 					if thematique.picture && thematique.picture.path
 						img.pic-image-box-normal(src="../../"+thematique.picture.path)

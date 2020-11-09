@@ -278,6 +278,35 @@ export default (app: Router) => {
         },
     );
 
+    route.post('/delete-sound/:type/:itemId/:soundId', 
+        middlewares.isAuth,
+        middlewares.isAllowed(aclSection, 'global', 'edit'),
+		async (req: any, res: Response) => {
+            try {
+                const logger = Container.get<any>('logger');
+        		const targetType = req.params.type;
+        		const targetId = req.params.soundId;
+        		const originId = req.params.itemId;
+        		
+        		if( targetType == 'content' )
+        		{
+					await Container.get(SoundService).deleteContentSound(originId, targetId);	
+        		}
+        		
+        		if( targetType == 'question' )
+        		{
+					await Container.get(SoundService).deleteQuestionSound(originId, targetId);
+        		}
+        		
+        		return res.json({success : true}).status(200);
+			}
+			catch(e)
+			{
+				throw e;
+			}
+		}
+    );
+    
     route.post(
         '/edit/:id',
         middlewares.isAuth,

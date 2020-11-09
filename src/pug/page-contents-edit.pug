@@ -226,3 +226,44 @@ block specific-js
 
 		   return false;
 		});
+
+
+		$(document).on('click', '.delete-sound', function(){
+			var _targetUrl = '/contents/delete-sound/' + $(this).attr('data-type') + '/' + $(this).attr('data-origin')  + '/' + $(this).attr('data-sound');
+			var _this = $(this);
+			swal({
+				title             : "Supprimer le fichier audio ?",
+				text              : "La suppression d'un fichier audio est immédiate et définitive.",
+				type              : "warning",
+				showCancelButton  : true,
+				confirmButtonText : "Supprimer",
+				cancelButtonText  : "Annuler",
+				closeOnConfirm    : false,
+				closeOnCancel     : false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					$.post(_targetUrl, function() {
+						$(_this).parent().remove();
+						swal({
+							title				: "Supprimé",
+							text				: "Le fichier a bien été supprimé.",
+							type				: "success",
+							showCancelButton	: false,
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false
+						});
+						return;
+					})
+				} 
+				else 
+				{
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});          
+			
+			return false;
+		});

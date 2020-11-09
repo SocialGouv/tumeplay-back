@@ -68,8 +68,17 @@ export default class SoundService {
         }
 
         return { contentSound };
+	}
 	
-    }
+	public async deleteContentSound(contentId, soundId)
+	{
+		await this.contentSoundModel.destroy({ where: {contentId: contentId, soundId: soundId}}) ;
+	}
+	
+	public async deleteQuestionSound(contentId, soundId)
+	{
+		await this.questionSoundModel.destroy({ where: {questionId: contentId, soundId: soundId}}) ;
+	}
     
     public async handleQuestionSound(questionId, soundId)
     {
