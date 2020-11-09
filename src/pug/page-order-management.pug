@@ -42,7 +42,9 @@ block content
 								th E-mail
 								th Address de livraison
 								th Type de livraison
-								th Box							
+								th Box
+								if zones.length > 1 
+									th Zone(s)
 								th Actions
 						tbody
 							each order in orders
@@ -62,15 +64,21 @@ block content
 										td #{order.shippingAddressConcatenation}
 									td #{order.shippingModeText}
 									td #{order.box.title}						
+									if zones.length > 1
+										td
+											ul
+											for zone in order.availability_zone
+												li #{zone.name}
 									td
-										a(class='btn btn-primary' href="/orders/management/edit/" + order.id data-id=`${order.id}`) 
+										a(class='btn btn-primary' href="/orders/management/edit/"+ order.id data-id=`${order.id}`)
 											i.fa.fa-fw.fa-lg.fa-check-circle 
 											| Éditer
-										| &nbsp;&nbsp;&nbsp;
-										form(action="/orders/management/delete/" + order.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
-											button(class='delete-item btn btn-secondary' type="submit") 
-												i.fa.fa-fw.fa-lg.fa-times-circle
-												| Annuler
+										if isAllowed(req, "orders", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											form(action="/orders/management/delete/" + order.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+												button(class='delete-item btn btn-secondary' type="submit") 
+													i.fa.fa-fw.fa-lg.fa-times-circle
+													| Annuler
 
 block specific-js
 	// Data table plugin

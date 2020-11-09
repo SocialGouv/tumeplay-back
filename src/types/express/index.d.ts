@@ -11,6 +11,9 @@ import { IShippingMode } from '../../interfaces/IShippingMode';
 import { IOrder } from '../../interfaces/IOrder';
 import { IProductOrder } from '../../interfaces/IProductOrder';
 import { IPoi } from '../../interfaces/IPoi';
+import {IQuestionFeedback} from "../../interfaces/IQuestionFeedback";
+import {IAvailabilityZone} from "../../interfaces/IAvailabilityZone";
+import {IBoxZone} from "../../interfaces/IBoxZone";
 
 declare global {
     namespace Express {
@@ -31,5 +34,8 @@ declare global {
         export type OrderModel = Model<IOrder>;
         export type ProductOrderModel = Model<IProductOrder>;
         export type PoiModel = Model<IPoi>;
+        export type QuestionFeedbackModel = Model<IQuestionFeedback>;
+        export type AvailabilityZoneModel = Model<IAvailabilityZone>;
+        export type BoxZoneModel = Model<IBoxZone>;
     }
 }

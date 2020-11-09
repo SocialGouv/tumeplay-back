@@ -17,6 +17,10 @@ export default async ({ expressApp }) => {
                 model: models.userModel,
             },
             {
+                name: 'userZoneModel',
+                model: models.userZoneModel,
+            },
+            {
                 name: 'contentModel',
                 model: models.contentModel,
             },
@@ -35,6 +39,18 @@ export default async ({ expressApp }) => {
             {
                 name: 'pictureModel',
                 model: models.pictureModel,
+            },
+            {
+                name: 'soundModel',
+                model: models.soundModel,
+            },
+            {
+                name: 'questionSoundModel',
+                model: models.questionSoundModel,
+            },
+            {
+                name: 'contentSoundModel',
+                model: models.contentSoundModel,
             },
             {
                 name: 'questionAnswerModel',
@@ -83,6 +99,38 @@ export default async ({ expressApp }) => {
             {
                 name: 'contactModel',
                 model: models.contactModel,
+            },
+            {
+                name: 'feedbackModel',
+                model: models.feedbackModel,
+            },
+            {
+                name: 'questionFeedbackModel',
+                model: models.questionFeedbackModel,
+            },
+            {
+                name: 'availabilityZoneModel',
+                model: models.availabilityZoneModel,
+            },
+            {
+                name: 'contentZoneModel',
+                model: models.contentZoneModel,
+            },
+            {
+                name: 'boxZoneModel',
+                model: models.boxZoneModel,
+            },
+            {
+                name: 'productZoneModel',
+                model: models.productZoneModel,
+            },
+            {
+                name: 'questionZoneModel',
+                model: models.questionZoneModel,
+            },
+            {
+                name: 'orderZoneModel',
+                model: models.orderZoneModel,
             },
         ],
     });

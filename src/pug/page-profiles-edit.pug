@@ -1,0 +1,35 @@
+extends layouts/_layout.pug
+
+block variables
+    - var activePage = 'page-profiles'
+    // - var activeGroup = 'tables'
+
+block title
+    if user
+        title Modifier un utilisateur - Tumeplay
+    else
+        title Créer un utilisateur - Tumeplay
+
+block content
+    .app-title
+        div
+            h1
+                i.fa.fa-book
+                |  Utilisateurs
+            p Liste des utilisateurs ayant accès au backoffice
+
+        ul.app-breadcrumb.breadcrumb.side
+            li.breadcrumb-item
+                i.fa.fa-home.fa-lg
+            li.breadcrumb-item.active
+                a(href="#") Utilisateurs
+
+    .row
+        .col-md-12
+            include ./forms/user/_form.pug
+block specific-js
+    // Data table plugin
+    script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+    script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+    script(type='text/javascript').
+        $('#contentsDataTable').DataTable();

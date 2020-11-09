@@ -46,18 +46,23 @@ block content
 									td #{prettyDate(poi.createdAt)}
 									td #{prettyDate(poi.updatedAt)}
 									td
-										a(class='btn btn-primary' href="/poi/edit/" + poi.id data-id=`${poi.id}`) 
-											i.fa.fa-fw.fa-lg.fa-check-circle 
-											| Éditer
-										| &nbsp;&nbsp;&nbsp;
-										form(action="/poi/delete/" + poi.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
-											button(class='delete-item btn btn-secondary' type="submit") 
-												i.fa.fa-fw.fa-lg.fa-times-circle
-												| Supprimer
-				.tile-footer
-					a(class='btn btn-primary' href="/poi/add") 
-						i.fa.fa-fw.fa-lg.fa-plus 
-						| Créer POI						
+										if isAllowed(req, "poi", "global", "edit")
+											a(class='btn btn-primary' href="/poi/edit/" + poi.id data-id=`${poi.id}`) 
+												i.fa.fa-fw.fa-lg.fa-check-circle 
+												| Éditer
+											
+										if isAllowed(req, "poi", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											form(action="/poi/delete/" + poi.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+												button(class='delete-item btn btn-secondary' type="submit") 
+													i.fa.fa-fw.fa-lg.fa-times-circle
+													| Supprimer
+												
+				if isAllowed(req, "poi", "global", "add")
+					.tile-footer
+						a(class='btn btn-primary' href="/poi/add") 
+							i.fa.fa-fw.fa-lg.fa-plus 
+							| Créer POI						
 
 block specific-js
 	// Data table plugin

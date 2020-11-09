@@ -15,6 +15,8 @@ export default class ThematiqueService {
             this.logger.silly('Creating thematique', thematiqueInput);
 
             thematiqueInput.active = thematiqueInput.active == 'on';
+            thematiqueInput.isSpecial = thematiqueInput.isSpecial == 'on';
+
 
             const thematique: IThematique = await this.thematiqueModel.create({
                 ...thematiqueInput,
@@ -48,7 +50,8 @@ export default class ThematiqueService {
         this.logger.silly('Updating thematique', thematiqueInput);
 
         thematiqueInput.active = thematiqueInput.active == 'on';
-
+        thematiqueInput.isSpecial = thematiqueInput.isSpecial == 'on';
+        
         await thematique.update(thematiqueInput);
 
         return { thematique };

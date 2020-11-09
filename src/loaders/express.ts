@@ -6,6 +6,7 @@ import apiRoutes from '../api';
 import frontRoutes from '../front';
 import config from '../config';
 import path from 'path';
+import AclService from '../services/acl';             
 
 export default ({ app }: { app: express.Application }) => {
     /**
@@ -30,13 +31,15 @@ export default ({ app }: { app: express.Application }) => {
     app.use('/uploads/pictures/product', express.static('uploads/pictures/product'));
     app.use('/uploads/pictures/question', express.static('uploads/pictures/question'));
     app.use('/uploads/pictures/theme', express.static('uploads/pictures/theme'));
+    app.use('/uploads/sounds/content', express.static('uploads/sounds/content'));
+    app.use('/uploads/sounds/question', express.static('uploads/sounds/content'));
 
     // In default question files, may be accessed via api:
     // ----------------------------------------------------------------------------------------------------
 
     app.set('view engine', 'pug');
     app.set('views', path.join(__dirname, '../pug'));
-
+    
     app.enable('trust proxy');
 
     app.use(cors());
@@ -50,6 +53,31 @@ export default ({ app }: { app: express.Application }) => {
             saveUninitialized: true,
         }),
     );
+    
+    app.use(function (req, res, next) {
+	    res.locals.req = req;
+	    next();
+	});
+    
+    app.use(function (req, res, next) {
+        res.locals.readable_roles = '';
+        if (req.session && req.session.loggedin) {
+            if (req.session.roles) 
+            {
+                const readableRoles = req.session.roles.map(role => {
+                    return config.roles_readable[role];
+                });
+                
+                res.locals.readable_roles = readableRoles.join(', ');
+                res.locals.username       = req.session.name;
+            }
+        }
+        next();
+    });
+    
+    app.locals.isAllowed = (req, section, subSection, operation) => {
+    	return AclService.checkAllRoles(req.session.roles, section, subSection, operation);	    	
+    }
 
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());

@@ -15,6 +15,7 @@ import shippingMode from './routes/shipping-mode';
 import thematiques from './routes/thematiques';
 import user from './routes/user';
 import poi from './routes/poi';
+import feedback from './routes/feedback';
 
 // guaranteed to get dependencies
 export default () => {
@@ -34,6 +35,7 @@ export default () => {
     thematiques(app);
     user(app);
     poi(app);
+    feedback(app);
 
     return app;
 };

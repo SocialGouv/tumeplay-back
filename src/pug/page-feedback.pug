@@ -1,0 +1,84 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'feedback'
+
+block title
+	title Avis - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-comments
+				|  Avis utilisateur
+			p Liste des avis accessibles
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Avis
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#contentsDataTable
+						thead
+							tr
+								th Titre
+								th Date de création
+								th Publié
+								th Actions
+						tbody
+							each feedback in  feedbacks
+								tr
+									td #{feedback.title}
+
+									td #{prettyDate(feedback.createdAt)}
+									td #{prettyDate(feedback.updatedAt)}
+
+									td
+										a(class='btn btn-primary' href="/feedback/edit/" + feedback.id data-id=`${feedback.id}`)
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										a(class='delete-item btn btn-secondary' href="#" data-id=`${feedback.id}`) 
+											i.fa.fa-fw.fa-lg.fa-times-circle
+											| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/feedback/add")
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Créer un avis
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();
+		$('.delete-item').click(function(){
+			swal({
+				title				: "Supprimer la feedback ?",
+				text				: "La suppression d'une feedback est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "[WIP/TODO] Supprimer élément", "success");
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});
+		});

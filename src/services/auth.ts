@@ -68,11 +68,20 @@ export default class AuthService {
         }
     }
 
+    public async generatePassword(password : string): Promise<{ password: string; salt: string }>
+    {
+		const salt = randomBytes(32);
+		const hashedPassword = await argon2.hash(password, { salt }); 
+		
+		return { salt : salt.toString('hex'), password: hashedPassword};
+    }
+    
     public async login(email: string, password: string): Promise<{ user: IUser; token: string }> {
         const userRecord = await this.userModel.findOne({
             where: {
                 email: email,
             },
+            include: ['availability_zone']
         });
 
         if (!userRecord) {
@@ -81,10 +90,11 @@ export default class AuthService {
 
         const localRoles = JSON.parse(userRecord.roles);
         this.logger.silly('USER ROLES : ' + localRoles);
-        if (localRoles != config.roles.administrator) {
+        
+        if (localRoles == config.roles.user) {
             throw new Error('Access denied.');
         }
-
+        
         //this.logger.debug('Having user  : %o', userRecord);
         this.logger.silly('Checking password');
 

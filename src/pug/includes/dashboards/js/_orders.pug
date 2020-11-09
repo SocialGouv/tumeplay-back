@@ -1,0 +1,91 @@
+script(type='text/javascript').
+		
+		Pace.on('done', function() {
+			generateOrdersGraphs();
+		});
+		
+		function generateOrdersByZip(ordersStatistics, colors)
+		{
+		    var _values = [];
+			var _labels = [];
+			Object.keys(ordersStatistics['byZip']).forEach(function(zipName) {
+				_values.push(ordersStatistics['byZip'][zipName]);
+				_labels.push(zipName);
+			});
+			
+			var ctxp = $("#orders_by_zip").get(0).getContext("2d");
+			
+			new Chart(ctxp).Bar({
+				labels: _labels,
+				datasets:  [{                  
+			        fillColor: colors[0].color,
+			        data: _values
+			    }],
+			    
+			});
+			
+			
+		}
+		
+		function generateOrdersByShipping(ordersStatistics, colors)
+		{
+			var _values = [];
+			var _labels = [];
+			
+			Object.keys(ordersStatistics['byShipping']).forEach(function(shippingName) {
+				_values.push(ordersStatistics['byShipping'][shippingName]);
+				_labels.push(shippingName);
+			});
+			
+			var ctxp = $("#orders_by_shipping").get(0).getContext("2d");
+			
+			new Chart(ctxp).Bar({
+				labels: _labels,
+				datasets:  [{                  
+			        fillColor: colors[0].color,
+			        data: _values
+			    }],
+			    
+			});
+			
+			
+		}
+		
+		function generateOrdersByBox(ordersStatistics, colors)
+		{
+			var _values = [];
+			var _labels = [];
+			
+			Object.keys(ordersStatistics['byBox']).forEach(function(boxId) {
+				_values.push(ordersStatistics['byBox'][boxId]);
+				_labels.push(ordersStatistics['boxes'][boxId]);
+			});
+			
+			var ctxp = $("#orders_by_box").get(0).getContext("2d");
+			
+			new Chart(ctxp).Bar({
+				labels: _labels,
+				datasets:  [{                  
+			        fillColor: colors[0].color,
+			        data: _values
+			    }],
+			    
+			});
+		}
+		
+		function generateOrdersGraphs() 
+		{
+			var colors 	  = [
+				{ color : '#46BFBD', highlight: '#5AD3D1' },
+				{ color : '#F7464A', highlight: '#FF5A5E' },
+				{ color : '#2196F3', highlight: '#64baff' },
+				{ color : '#ffc107', highlight: '#ffd452' },
+				
+			];
+			
+			var ordersStatistics 	= JSON.parse('!{JSON.stringify(orderStats).replace(/[\/\(\)\']/g, "\\'")}')
+			
+			generateOrdersByZip(ordersStatistics, colors);
+			generateOrdersByShipping(ordersStatistics, colors);
+			generateOrdersByBox(ordersStatistics, colors);                                    
+		}

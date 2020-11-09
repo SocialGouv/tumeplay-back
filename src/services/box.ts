@@ -6,13 +6,15 @@ import BoxProductModel from '../models/box.products';
 import { IBox, IBoxInputDTO } from '../interfaces/IBox';
 import { IBoxProduct, IBoxProductInputDTO } from '../interfaces/IBoxProduct';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
+import {IBoxZone, IBoxZoneDTO} from "../interfaces/IBoxZone";
+import config from '../config';
 
 @Service()
 export default class BoxService {
     public constructor(
         @Inject('boxModel') private boxModel: any,
         @Inject('boxProductModel') private boxProductModel: any,
-        @Inject('productModel') private productModel: any,
+        @Inject('boxZoneModel') private boxZoneModel: any,
         @Inject('orderModel') private orderModel: any,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
@@ -20,13 +22,13 @@ export default class BoxService {
 
     public async create(boxInput: Partial<IBoxInputDTO>): Promise<{ box: IBox }> {
         try {
-            this.logger.silly('Creating product');
+            this.logger.silly('Creating box');
             const box: IBox = await this.boxModel.create({
                 ...boxInput,
             });
 
             if (!box) {
-                throw new Error('Product cannot be created');
+                throw new Error('Box cannot be created');
             }
             this.logger.silly('BOX ID : %o', box.id);
             return { box };
@@ -35,13 +37,47 @@ export default class BoxService {
             throw e;
         }
     }
-
-    public async findById(id: number, includePicture: boolean): Promise<{ box: IBox }> {
+    
+    public async findAll(req, criterias) {
         try {
-            const box: IBox = await this.boxModel.findOne({
+            this.logger.silly('Finding boxes');
+            
+            this.alterQuery(req, criterias);
+            
+            const contents = await this.boxModel.findAll(criterias);
+            
+            return contents;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    public async findOne(req, criterias) {
+        try {
+            this.logger.silly('Finding box');
+            
+            this.alterQuery(req, criterias);
+            
+            const box = await this.boxModel.findOne(criterias);
+            
+            return box;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    public async findById(req, id: number, includePicture: boolean): Promise<{ box: IBox }> {
+        try {
+            const criterias = {
                 where: { id },
                 include: includePicture ? ['picture'] : undefined,
-            });
+            };
+            
+            this.alterQuery(req, criterias);
+            
+            const box: IBox = await this.boxModel.findOne(criterias);
 
             if (!box) {
                 throw new Error('Box cannot be found');
@@ -54,17 +90,17 @@ export default class BoxService {
         }
     }
 
-    public async update(id: number, boxInput: Partial<IBoxInputDTO>): Promise<{ box: IBox }> {
+    public async update(req, id: number, boxInput: Partial<IBoxInputDTO>): Promise<{ box: IBox }> {
         try {
-            const boxRecord: any = await this.boxModel.findOne({
+            const boxRecord: any = await this.findOne(req, {
                 where: { id },
             });
 
             if (!boxRecord) {
-                throw new Error('Product not found.');
+                throw new Error('Box not found.');
             }
 
-            this.logger.silly('Updating product');
+            this.logger.silly('Updating box');
 
             const box: IBox = await boxRecord.update(boxInput);
 
@@ -90,8 +126,28 @@ export default class BoxService {
             throw e;
         }
     }
+    public async bulkCreateZone(boxId:number, boxZoneInputList: IBoxZoneDTO[]): Promise<{ boxZone: IBoxZone[] }> {
+        try {
+        	this.logger.silly('Cleaning box zones');
+        	
+        	await this.boxZoneModel.destroy({where : { boxId : boxId}});
+        	
+            this.logger.silly('Creating boxZones');
+            
+            const boxZones: IBoxZone[] = await this.boxZoneModel.bulkCreate(boxZoneInputList);
 
-    public async bulkDelete(boxId: number): Promise<{}> {
+            if (!boxZones) {
+                throw new Error('zone Order mappings could not be created');
+            }
+
+            return {boxZone: boxZones };
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
+    public async bulkDeleteBoxProducts(boxId: number): Promise<{}> {
         try {
             this.logger.silly('Deleting boxProducts');
             const boxProducts: IBoxProduct[] = await this.boxProductModel.destroy({
@@ -99,7 +155,7 @@ export default class BoxService {
                     boxId: boxId,
                 },
             });
-
+            
             return {};
         } catch (e) {
             this.logger.error(e);
@@ -107,7 +163,7 @@ export default class BoxService {
         }
     }
     
-    public async computeOrdersStatistics(): Promise<{}> {
+    public async computeOrdersStatistics(req): Promise<{}> {
 		try
 		{
 			const allOrders	  = await this.orderModel.findAll({include: ['box']});
@@ -190,20 +246,30 @@ export default class BoxService {
 		}
     }
     
-    public async disableEmptyBoxes(): Promise<{}> {
+    public async disableEmptyBoxes(): Promise<[]> {
 		try
 		{
             const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
-            const boxs           = [];
+			const boxs 		  = [];
             
             for(const item of allBoxsProducts)
             {
                 if( item.product.stock <= 0 && item.box.available ) 
-                {
+				{
                     this.logger.silly('Product #' + item.product.id + ' is not available anymore. Disabling boxes.');
 
                     await this.update(null, item.box.id, { available : false });    
                     
+                    try
+                    {
+                        this.logger.silly('Updating box #'+ item.box.id +'.');
+                        await this.update(null, item.box.id, { available : false });    
+                    }
+                    catch(e)
+                    {
+                        this.logger.silly(e);
+                    }
+                        
                     if( boxs.indexOf(item.box.id) < 0 )
                     {
                         boxs.push(item.box.id);
@@ -213,14 +279,14 @@ export default class BoxService {
                         const mailTitle   = 'Box désactivée - ' + item.box.title;
                         const mailService = Container.get(MailerService);
                     
-                        await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', mailTitle, 'product_disabled_box', { box : item.box  });
+                        await mailService.send('romain.petiteville@celaneo.com', mailTitle, 'product_disabled_box', { box : item.box  });    
                     }
                     else
                     {
                         this.logger.silly('Skipping - warning already sent for box #'+item.box.id+'.');
                     }
-                }
-            }
+				}
+			}
             
 			return boxs;
 		}
@@ -230,5 +296,39 @@ export default class BoxService {
 			
 			return {};	
 		}
+    }
+    
+    private alterQuery(req, criterias)
+    {
+        if( req == null )
+        {
+            return criterias;
+        }
+        
+        if( typeof req.session !== 'undefined' && typeof req.session.zones !== "undefined" && req.session.zones.length > 0 )
+        {
+            if( req.session.roles.indexOf(config.roles.administrator) < 0 )
+            {
+                this.logger.silly("Altering criterias to add zone constraints");
+                
+                if(typeof criterias.include === 'undefined' )
+                {
+                    criterias.include = [];
+                }
+                
+                criterias.include.push({
+                    association: 'availability_zone',
+                    where: { id : req.session.zones}   
+                });
+            }
+            else
+            {
+                this.logger.silly("Skipping due to user role.");
+            }
+        }
+        
+        this.logger.silly("Out of alter.");
+        
+        return criterias;
     }
 }

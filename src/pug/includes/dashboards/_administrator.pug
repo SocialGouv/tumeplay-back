@@ -1,0 +1,70 @@
+.row
+	.col-md-12
+		h3.tile-title Total des contenus : #{contentStatistics.total} éléments.
+	
+	.col-md-4
+		.tile
+			h3.tile-title Contenus par état
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="contents_statistics_by_state")
+	
+	.col-md-4
+		.tile
+			h3.tile-title Contenus par famille
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="contents_statistics_by_family")
+						
+	.col-md-4
+		.tile
+			h3.tile-title Contenus par thème
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="contents_statistics_by_theme")
+	
+	.col-md-12
+		.tile
+			h3.tile-title Derniers contenus publiés
+			
+			.row
+				.col-md-12
+					include ./components/_lastPublishedContents.pug
+					
+	.col-md-12
+		h3.tile-title Commandes : #{orderStats.lastWeek} sur 7 jours.
+						
+	.col-md-4
+		.tile
+			h3.tile-title Commandes par région
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="orders_by_zip")
+	
+	.col-md-4
+		.tile
+			h3.tile-title Commandes par type de livraison
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="orders_by_shipping")
+						
+	.col-md-4
+		.tile
+			h3.tile-title Commandes par box
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="orders_by_box")
+						
+	

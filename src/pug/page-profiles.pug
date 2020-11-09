@@ -4,7 +4,7 @@ block variables
 	- var activePage = 'page-profiles'
 
 block title
-	title Profiles - Tumeplay
+	title Utilisateurs - Tumeplay
 
 block content
 	.app-title
@@ -12,7 +12,7 @@ block content
 			h1
 				i.fa.fa-book
 				|  Utilisateurs
-			p Liste des utilisateurs
+			p Liste des utilisateurs ayant accès au backoffice
 
 		ul.app-breadcrumb.breadcrumb.side
 			li.breadcrumb-item
@@ -28,19 +28,45 @@ block content
 						thead
 							tr
 								th Nom
-								th Prénom
 								th Email
 								th Date de création
 								th Date de mise à jour
+								th Rôle(s)
+								th Zone(s)
+								th Actions
 						tbody
-							each profile in profiles
+							each user in users
 								tr
-									td #{profile.surname}
-									td #{profile.name}
-									td #{profile.email}
-									td #{prettyDate(profile.createdAt)}
-									td #{prettyDate(profile.updatedAt)}
-
+									td #{user.name}
+									td #{user.email}
+									td #{prettyDate(user.createdAt)}
+									td #{prettyDate(user.updatedAt)}
+									td
+										if user.roles
+											ul
+												each role in user.roles
+													li #{role}
+										
+									td
+										ul
+											each zone in user.availability_zone
+												li #{zone.name}
+									td
+										if isAllowed(req, "global", "users", "edit")
+											a(class='btn btn-primary' href="/profiles/edit/" + user.id data-id=`${user.id}`) 
+												i.fa.fa-fw.fa-lg.fa-check-circle 
+												| Éditer
+											
+										if isAllowed(req, "global", "users", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											a(class='delete-item btn btn-secondary' href="#" data-id=`${user.id}`) 
+												i.fa.fa-fw.fa-lg.fa-times-circle
+												| Supprimer
+				.tile-footer
+					if isAllowed(req, "global", "users", "edit")
+						a(class='btn btn-primary' href="/profiles/add") 
+							i.fa.fa-fw.fa-lg.fa-check-circle 
+							| Ajouter
 block specific-js
 	// Data table plugin
 	script(type='text/javascript' src="/js/plugins/jquery.dataTables.min.js")
@@ -49,3 +75,33 @@ block specific-js
 	script(type='text/javascript').
 		
 		$('#profilesDataTable').DataTable();
+		$('.delete-item').click(function(){
+			var _dataId = $(this).attr('data-id');
+			swal({
+				title				: "Supprimer l'utilisateur ?",
+				text				: "La suppression d'un utilisateur est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					$.post('/profiles/delete/' + _dataId, function(){
+						swal({
+							title: "Utilisateur supprimé.",
+							text : "L'utilisateur a bien été supprimé.",
+							type : "success",
+						}, function(isConfirm) {
+							location.reload();
+						});
+					});                                   
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});
+		});

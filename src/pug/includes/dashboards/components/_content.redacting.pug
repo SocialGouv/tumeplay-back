@@ -1,0 +1,20 @@
+if needActionsContents['redacting'].length
+    table.table.table-hover.table-bordered#contentsRedactingDataTable
+        thead
+            tr
+                th Titre          
+                th Famille            
+                th Date de mise à jour
+        tbody
+            each content in needActionsContents['redacting']
+                tr
+                    td
+                        a(href="/contents/edit/" + content.id data-id=`${content.id}`)
+                            | #{content.title}
+                    td
+                        if content.itsTheme
+                            | #{content.itsTheme}
+                            
+                    td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
+else
+    Il n'y a pas de contenu en cours de rédaction pour le moment.                

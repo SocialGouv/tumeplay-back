@@ -13,51 +13,58 @@ export default (app: Router) => {
         const logger: any = Container.get('logger');
         try {
             var _return = [];
-
-            const ProductModel: IProduct = Container.get('productModel');
-            const BoxProductModel: IBoxProduct = Container.get('boxProductModel');
-            const BoxModel: IBox = Container.get('boxModel');
-
-            const boxs = await BoxModel.findAll({
+                            
+            const criterias = {
                 where: {
                     deleted: false,
-                    active: true,
+                    active: true, 
                 },
                 include: ['picture'],
-                order: [['id', 'ASC']],
-            });
-
-            const fullProducts = await ProductModel.findAll({
-                where: {
-                    deleted: false,
-                    active: true,
-                },
-                include: ['picture'],
-            });
+                order: [['id', 'ASC']]
+            };
             
+            if( req.query.zone )
+            {
+                criterias.include.push({
+                    association: 'availability_zone',
+                    where: { name : req.query.zone.charAt(0).toUpperCase() + req.query.zone.slice(1) }   
+                });
+            }
+            
+            const boxs = await Container.get('boxModel').findAll(criterias);
+
+            const fullProducts = await Container.get('productModel').findAll(criterias);
+
             const products = fullProducts.map(item => {
-	           return {
-		           id: item.id,
-		           title: item.title,
-		           description:item.description,
-		           shortDescription:item.shortDescription,
-		           defaultQty:item.defaultQty,
-		           qty: item.defaultQty,
-		           active:item.active,
-		           pictureId: item.pictureId,
-		           isOrderable: item.stock > 0 ? item.isOrderable : false,
-		           picture: {
-			           id: item.picture.id,
-			           path:item.picture.path,
-			           filename: item.picture.filename,
-		           }
-	           };
+                let picture = false;
+                
+                if( item.picture )
+                {
+                    picture = {
+                        id: item.picture.id,
+                        path: item.picture.path,
+                        filename: item.picture.filename,
+                    }                                   
+                }
+                
+                return {
+                    id: item.id,
+                    title: item.title,
+                    description:item.description,
+                    shortDescription:item.shortDescription,
+                    defaultQty:item.defaultQty,
+                    qty: item.defaultQty,
+                    active:item.active,
+                    pictureId: item.pictureId,
+                    isOrderable: item.stock > 0 ? item.isOrderable : false,
+                    picture: picture
+                };
             });
 
             for (var i = 0; i < boxs.length; i++) {
                 const box = boxs[i];
 
-                var localBox = {
+                let localBox = {
                     key: box.id,
                     id: box.id,
                     title: box.title,
@@ -65,24 +72,23 @@ export default (app: Router) => {
                     available: box.available,
                     price: 500,
                     products: [],
-                    picture: box.picture.destination + '/' + box.picture.filename,
+                    picture: box.picture ? box.picture.destination + '/' + box.picture.filename : false,
                 };
 
-                const localProducts = await BoxProductModel.findAll({
+                const localProducts = await Container.get('boxProductModel').findAll({
                     where: {
                         boxId: box.id,
                     },
                     include: ['product'],
                 });
-				
+
                 for (var z = 0; z < localProducts.length; z++) {
-                	console.log("STOCK : " + localProducts[z].product.stock);
-                	
-                	if( localProducts[z].product.stock <= 0 )
-                	{
-						localBox.available = false;
-                	}
-                	
+
+                    if( localProducts[z].product.stock <= 0 )
+                    {
+                        localBox.available = false;
+                    }
+
                     localBox.products.push({
                         title: localProducts[z].product.title,
                         shortTitle: localProducts[z].product.shortDescription,
@@ -92,7 +98,7 @@ export default (app: Router) => {
 
                 _return.push(localBox);
             }
-
+                 
             return res.json({ boxs: _return, products: products }).status(200);
         } catch (e) {
             logger.error('🔥 error: %o', e);

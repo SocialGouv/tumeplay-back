@@ -38,7 +38,29 @@ export default {
 
     roles: {
         administrator: 'ROLE_ADMINISTATOR',
+        administrator_local: 'ROLE_ADMINISTRATOR_LOCAL',
+        redactor: 'ROLE_REDACTOR',
+        moderator: 'ROLE_MODERATOR',
+        orders_support: 'ROLE_ORDERS_SUPPORT',
         user: 'ROLE_USER',
+    },
+    roles_hierarchy: {
+		ROLE_ADMINISTATOR: [
+			'ROLE_ADMINISTRATOR_LOCAL',
+		],
+		ROLE_ADMINISTRATOR_LOCAL: [
+			'ROLE_REDACTOR',
+			'ROLE_MODERATOR',
+			'ROLE_ORDERS_SUPPORT'
+		],		
+    },
+    roles_readable: {
+        ROLE_ADMINISTATOR: 'Super-Admin.',
+        ROLE_ADMINISTRATOR_LOCAL: 'Admin.',
+        ROLE_REDACTOR: 'Rédacteur',
+        ROLE_MODERATOR: 'Modérateur',
+        ROLE_ORDERS_SUPPORT: 'Support',
+        ROLE_USER: 'Utilisateur',
     },
 
     logs: {

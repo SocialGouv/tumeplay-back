@@ -1,0 +1,40 @@
+.row
+    .col-md-12
+        .tile
+            if feedback
+                h3.tile-title Modifier un type d'avis / commentaire
+            else
+                h3.tile-title Créer un nouveau type d'avis / commentaire
+
+            if feedback
+                - var targetUrl = "/feedback/edit/" + feedback.id
+            else
+                - var targetUrl = "/feedback/add"
+
+
+            form.feedback-form(action=`${targetUrl}`, method="POST")
+
+
+                if feedback
+                    input(type="hidden" value=`${feedback.id}`)
+
+                .form-group
+                    label.control-label Titre
+                    if feedback
+                        input.form-control(type="text", name="title", placeholder="Type d'avis / commentaire" value=`${feedback.title}`)
+                    else
+                        input.form-control(type="text", name="title", placeholder="Type d'avis / commentaire")
+
+
+                .tile-footer
+                    button.btn.btn-primary(type="submit")
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Valider
+                    | &nbsp;&nbsp;&nbsp;
+                    a.btn.btn-secondary(href="/feedback")
+                        i.fa.fa-fw.fa-lg.fa-times-circle
+                        | Annuler
+    .clearfix
+
+
+block specific-js

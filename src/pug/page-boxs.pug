@@ -5,7 +5,7 @@ block variables
 	// - var activeGroup = 'tables'
 
 block title
-	title Produits - Tumeplay
+	title Boxs - Tumeplay
 
 block content
 	.app-title
@@ -35,6 +35,8 @@ block content
 								th Date de mise à jour
 								th Publiée
 								th Dispo. à la commande
+								if zones.length > 1 
+									th Zone(s)
 								th Actions
 						tbody
 							each box in boxs
@@ -56,19 +58,30 @@ block content
 											i.fa.fa-check.fa-lg
 										else
 											i.fa.fa-cross.fa-lg
+									if zones.length > 1
+										td
+											ul
+											for zone in box.availability_zone
+												li #{zone.name}
+												
 									td
-										a(class='btn btn-primary' href="/boxs/edit/" + box.id data-id=`${box.id}`) 
-											i.fa.fa-fw.fa-lg.fa-check-circle 
-											| Éditer
-										| &nbsp;&nbsp;&nbsp;
-										form(action="/boxs/delete/" + box.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
-											button(class='delete-item btn btn-secondary' type="submit" data-id=`${box.id}`) 
-												i.fa.fa-fw.fa-lg.fa-times-circle
-												| Supprimer
-				.tile-footer
-					a(class='btn btn-primary' href="/boxs/add") 
-						i.fa.fa-fw.fa-lg.fa-plus 
-						| Créer une box						
+										if isAllowed(req, "boxs", "global", "edit")
+											a(class='btn btn-primary' href="/boxs/edit/" + box.id data-id=`${box.id}`) 
+												i.fa.fa-fw.fa-lg.fa-check-circle 
+												| Éditer
+												
+										if isAllowed(req, "boxs", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											form(action="/boxs/delete/" + box.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+												button(class='delete-item btn btn-secondary' type="submit" data-id=`${box.id}`) 
+													i.fa.fa-fw.fa-lg.fa-times-circle
+													| Supprimer
+													
+				if isAllowed(req, "boxs", "global", "add")
+					.tile-footer
+						a(class='btn btn-primary' href="/boxs/add") 
+							i.fa.fa-fw.fa-lg.fa-plus 
+							| Créer une box						
 
 block specific-js
 	// Data table plugin

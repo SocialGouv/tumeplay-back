@@ -10,6 +10,8 @@ import ExportGeneratorService from '../../services/export.generator';
 import DateFormatterService from '../../services/date.formatter';
 import ProductService from '../../services/product';
 import ProductOrderService from '../../services/product.order';
+import UserService from '../../services/user';
+import { IOrderZoneDTO } from '../../interfaces/IOrderZone';
 const route = Router();
 
 export default (app: Router) => {
@@ -17,7 +19,9 @@ export default (app: Router) => {
         ORDERS_ROOT: '/orders',
         ORDER_MANAGEMENT_ROOT: '/management',
         SHIPPING_MODE_ROOT: '/shipping-mode',
+        USER_REVIEW_ROOT: '/user-review',
     };
+    const aclSection = 'orders';
 
     const pageNames = {
         shipping: {
@@ -28,6 +32,10 @@ export default (app: Router) => {
             viewList: 'page-order-management',
             addEdit: 'page-order-management-edit',
         },
+        review: {
+            viewList: 'page-user-review',
+            addEdit: 'page-order-management-edit',
+        },
     };
 
     app.use(routes.ORDERS_ROOT, route);
@@ -36,7 +44,11 @@ export default (app: Router) => {
      * @description Order management routes
      */
 
-    route.get(`${routes.ORDER_MANAGEMENT_ROOT}/export/csv`, middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	`${routes.ORDER_MANAGEMENT_ROOT}/export/csv`, 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'view'),  
+    	async (req: Request, res: Response) => {
     	try {
     		const logger: any 	= Container.get('logger');
     		
@@ -86,44 +98,81 @@ export default (app: Router) => {
     	}
 	});
     
-    route.get(routes.ORDER_MANAGEMENT_ROOT, middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+	    routes.ORDER_MANAGEMENT_ROOT, 
+	    middlewares.isAuth,
+	    middlewares.isAllowed(aclSection, 'global', 'view'),   
+	    async (req: Request, res: Response) => {
         try {
-            const OrderModel_service: OrderService = Container.get(OrderService);
 
-            const { orders } = await OrderModel_service.findAllOrdersMainView();
+            const { orders } = await Container.get(OrderService).findAllOrdersMainView();
+            const zones 	 = await Container.get(UserService).getAllowedZones(req);
             return res.render(pageNames.orderManagement.viewList, {
-                username: req['session'].name,
                 orders,
+                zones
             });
         } catch (e) {
             throw e;
         }
     });
 
-    route.get(`${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`, middlewares.isAuth, async (req: Request, res: Response) => {
-        try {
-            const documentId = +req.params.id;
-            const orderModelService: OrderService = Container.get(OrderService);
+    route.get(
+        `${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`,
+        middlewares.isAuth,
+        middlewares.isAllowed(aclSection, 'global', 'edit'),
+        async (req: Request, res: Response) => {
+            try {
+                const documentId = +req.params.id;
+                const zones 	 = await Container.get(UserService).getAllowedZones(req);
+                
+                const orderModelService: OrderService = Container.get(OrderService);
 
-            const { order } = await orderModelService.findByIdDetailled(documentId);
-            return res.render(pageNames.orderManagement.addEdit, {
-                username: req['session'].name,
-                order,
-            });
-        } catch (e) {
-            throw e;
+                const { order } = await orderModelService.findByIdDetailled(documentId);
+                
+                order.zoneIds = order.availability_zone.map(item => {
+					return item.id;
+	            });    
+                
+                return res.render(pageNames.orderManagement.addEdit, {
+                    order,
+                    zones
+                });
+            } catch (e) {
+                throw e;
+            }
+        },
+    );
+    const handleZones = async (currentOrder, zoneId) => {
+        const OrderServiceInstance = Container.get(OrderService);
+
+        await OrderServiceInstance.bulkDeleteZone(currentOrder);
+
+        zoneId = typeof zoneId != 'undefined' && Array.isArray(zoneId) ? zoneId : [zoneId];
+        var filteredZones = zoneId.filter(function(el) {
+            return el != 0;
+        });
+        let zonesItems: IOrderZoneDTO[] = filteredZones.map(zoneItem => {
+            return {
+                orderId: currentOrder,
+                availabilityZoneId: zoneItem,
+            };
+        });
+
+        if (zonesItems.length > 0) {
+            // Creating zones
+            await OrderServiceInstance.bulkCreateZone(zonesItems);
         }
-    });
-
+    };
     route.post(
         `${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`,
         middlewares.isAuth,
-        celebrate({
+        middlewares.isAllowed(aclSection, 'global', 'edit'),    
+        /*celebrate({
             body: Joi.object({
                 sent: Joi.string().allow(null),
                 delivered: Joi.string().allow(null),
             }),
-        }),
+        }), */
         async (req: Request, res: Response) => {
             const logger: any = Container.get('logger');
             logger.debug('Calling Front edit order with body: %o', req.body);
@@ -133,11 +182,26 @@ export default (app: Router) => {
                     sent: req.body.sent ? req.body.sent === 'on' : false,
                     delivered: req.body.delivered ? req.body.delivered === 'on' : false,
                 };
+                
                 const id = +req.params.id;
 
-                const orderModelService: OrderService = Container.get(OrderService);
-                await orderModelService.update(id, orderInput);
-                return res.redirect(`${routes.ORDERS_ROOT}${routes.ORDER_MANAGEMENT_ROOT}/edit/${id}`);
+                
+                await Container.get(OrderService).update(id, orderInput);
+                
+                let targetZones = [];
+	            const zones = await Container.get(UserService).getAllowedZones(req);
+                if( zones && zones.length == 1 )
+                {
+					targetZones = [zones[0].id];
+                }   
+                else
+                {
+					targetZones = req.body.zoneId;
+                }                                                                                                                                                             
+                
+                await handleZones(id, targetZones);
+                
+                return res.redirect(`${routes.ORDERS_ROOT}${routes.ORDER_MANAGEMENT_ROOT}`);
             } catch (e) {
                 logger.error('🔥 error: %o', e);
                 throw e;
@@ -146,7 +210,11 @@ export default (app: Router) => {
     );
     
 
-    route.post(`${routes.ORDER_MANAGEMENT_ROOT}/delete/:id`, middlewares.isAuth, async (req: any, res: Response) => {
+    route.post(
+	    `${routes.ORDER_MANAGEMENT_ROOT}/delete/:id`, 
+	    middlewares.isAuth, 
+	    middlewares.isAllowed(aclSection, 'global', 'edit'),    
+	    async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
         logger.debug('Calling Front Delete Order endpoint with body: %o', req.body);
 
@@ -158,15 +226,14 @@ export default (app: Router) => {
                 updatedAt: new Date(),
             };
             
-            const orderModelService: OrderService = Container.get(OrderService);
-            await orderModelService.update(orderId, orderInput);
+
+            await Container.get(OrderService).update(orderId, orderInput);
             
-            const productService: ProductService = Container.get(ProductService);
-            const productOrderService: ProductOrderService = Container.get(ProductOrderService);
-            
-            const { orderProducts } = await productOrderService.findByOrder(orderId);
+            const { orderProducts } = await Container.get(ProductOrderService).findByOrder(orderId);
             
             logger.debug("Got " + orderProducts.length + " item to increase.");
+            
+            const productService: ProductService = Container.get(ProductService);
             
             if( orderProducts && orderProducts.length > 0 )
             {
@@ -187,17 +254,19 @@ export default (app: Router) => {
      * @description Shipping mode routes
      */
 
-    route.get(routes.SHIPPING_MODE_ROOT, middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+	    routes.SHIPPING_MODE_ROOT, 
+	    middlewares.isAuth,
+	    middlewares.isAllowed(aclSection, 'global', 'edit'),     
+	    async (req: Request, res: Response) => {
         try {
-            const ShippingModeModel: any = Container.get('shippingModeModel');
 
-            const shippingModes: IShippingMode[] = await ShippingModeModel.findAll({
+            const shippingModes: IShippingMode[] = await Container.get('shippingModeModel').findAll({
                 where: {
                     deleted: false,
                 },
             });
             return res.render(pageNames.shipping.viewList, {
-                username: req['session'].name,
                 shippingModes,
             });
         } catch (e) {
@@ -205,24 +274,30 @@ export default (app: Router) => {
         }
     });
 
-    route.get(`${routes.SHIPPING_MODE_ROOT}/add`, middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	`${routes.SHIPPING_MODE_ROOT}/add`, 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),    
+    	async (req: Request, res: Response) => {
         try {
             return res.render(pageNames.shipping.addEdit, {
-                username: req['session'].name,
             });
         } catch (e) {
             throw e;
         }
     });
 
-    route.get(`${routes.SHIPPING_MODE_ROOT}/edit/:id`, middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    		`${routes.SHIPPING_MODE_ROOT}/edit/:id`, 
+    		middlewares.isAuth, 
+    		middlewares.isAllowed(aclSection, 'global', 'edit'),    
+    		async (req: Request, res: Response) => {
         try {
             const documentId = +req.params.id;
             const ShippingModeModel: ShippingModeService = Container.get(ShippingModeService);
 
             const { shippingMode } = await ShippingModeModel.findById(documentId);
-            return res.render(pageNames.shipping.addEdit, {
-                username: req['session'].name,
+            return res.render(pageNames.shipping.addEdit, {  
                 shippingMode,
             });
         } catch (e) {
@@ -233,6 +308,7 @@ export default (app: Router) => {
     route.post(
         `${routes.SHIPPING_MODE_ROOT}/add`,
         middlewares.isAuth,
+        middlewares.isAllowed(aclSection, 'global', 'edit'),    
         celebrate({
             body: Joi.object({
                 title: Joi.string().required(),
@@ -264,6 +340,7 @@ export default (app: Router) => {
             }),
         }),
         middlewares.isAuth,
+        middlewares.isAllowed(aclSection, 'global', 'edit'),    
         async (req: Request, res: Response) => {
             const logger: any = Container.get('logger');
             logger.debug('Calling API new shipping mode with body: %o', req.body);
@@ -284,19 +361,48 @@ export default (app: Router) => {
         },
     );
 
-    route.post(`${routes.SHIPPING_MODE_ROOT}/delete/:id`, middlewares.isAuth, async (req: any, res: Response) => {
+    route.post(
+    	`${routes.SHIPPING_MODE_ROOT}/delete/:id`, 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'delete'),    
+    	async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
         logger.debug('Calling Front Create endpoint with body: %o', req.body);
 
         try {
             const documentId = req.params.id;
 
-            // Updating
-            const shippingModeService: ShippingModeService = Container.get(ShippingModeService);
-            await shippingModeService.update(documentId, { deleted: true });
+            await Container.get(ShippingModeService).update(documentId, { deleted: true });
+
             return res.redirect(`${routes.ORDERS_ROOT}${routes.SHIPPING_MODE_ROOT}`);
         } catch (e) {
             logger.error('🔥 error: %o', e);
+            throw e;
+        }
+    });
+
+
+    /**
+     * @description review routes
+     */
+
+    route.get(
+    	routes.USER_REVIEW_ROOT, 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),    
+    	async (req: Request, res: Response) => {
+        try {
+            const ShippingModeModel: any = Container.get('shippingModeModel');
+
+            const shippingModes: IShippingMode[] = await ShippingModeModel.findAll({
+                where: {
+                    deleted: false,
+                },
+            });
+            return res.render(pageNames.review.viewList, {
+                shippingModes,
+            });
+        } catch (e) {
             throw e;
         }
     });

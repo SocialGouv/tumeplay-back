@@ -1,130 +1,165 @@
 .row
-	.col-md-12
-		.tile
-			if content 
-				h3.tile-title Modifier un contenu
-			else
-				h3.tile-title Créer un nouveau contenu
-			
-			if content
-				- var targetUrl = "/contents/edit/" + content.id
-			else
-				- var targetUrl = "/contents/add"
-				
-			form.content-form(action=`${targetUrl}`, method="POST", enctype="multipart/form-data")
-				
-				if content
-					input(type="hidden" value=`${content.id}`)
-								
-				.form-group.form-inline
-					label.col-1.control-label.pl-0(style="justify-content: left;") Titre
-					
-					if content
-						input.col-6.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu" value=`${content.title}`)
-					else
-						input.col-6.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu")
-					
-					br
-					label.limited-counter(style="padding-left: 15px;") 92 caractères restants.
-				
-				
-				.form-group.form-inline
-					label.col-1.control-label.pl-0(style="justify-content: left;") Lien associé
-					
-					if content && content.link
-						input.col-6.form-control(type="text", name="link", placeholder="Lien associé" value=`${content.link}`)
-					else
-						input.col-6.form-control(type="text", name="link", placeholder="Lien associé")
+    .col-md-12
+        .tile
+            if content
+                h3.tile-title Modifier un contenu
+            else
+                h3.tile-title Créer un nouveau contenu
+
+            if content
+                - var targetUrl = "/contents/edit/" + content.id
+            else
+                - var targetUrl = "/contents/add"
+
+            form.content-form(action=`${targetUrl}`, method="POST", enctype="multipart/form-data")
+
+                if content
+                    input(type="hidden" value=`${content.id}`)
+
+                .form-group.form-inline
+                    label.col-1.control-label.pl-0(style="justify-content: left;") Titre
+
+                    if content
+                        input.col-6.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu" value=`${content.title}`)
+                    else
+                        input.col-6.form-control.limited-length(type="text", data-maxlength="92", name="title", placeholder="Titre du contenu")
+
+                    br
+                    label.limited-counter(style="padding-left: 15px;") 92 caractères restants.
+
+
+                .form-group.form-inline
+                    label.col-1.control-label.pl-0(style="justify-content: left;") Lien associé
+
+                    if content && content.link
+                        input.col-6.form-control(type="text", name="link", placeholder="Lien associé" value=`${content.link}`)
+                    else
+                        input.col-6.form-control(type="text", name="link", placeholder="Lien associé")
+
+                .form-group.form-inline
+                    label.col-1.control-label.pl-0(style="justify-content: left;")  État :
+
+                    select.col-3.form-control(name="published")
+                        option(value=0) - Sélectionner -
+                            each contentState in contentStates
+                                if content && contentState.id == content.published
+                                    option(value=contentState.id, selected="selected")  #{contentState.title}
+                                else
+                                    option(value=contentState.id) #{contentState.title}
+
+                .form-group.form-inline
+                    label.col-1.control-label.pl-0(style="justify-content: left;") Famille
+                    select.col-3.form-control(name="theme")
+                        option(value=0) - Sélectionner -
+                            each theme in themes
+                                if content && theme.id == content.themeId
+                                    option(value=theme.id, selected="selected")  #{theme.title}
+                                else
+                                    option(value=theme.id) #{theme.title}
+
+                .form-group.form-inline
+                    label.col-1.control-label(style="justify-content: left; padding-left: 0;") Thème
+                    select.col-3.form-control(name="category")
+                        option(value=0) - Sélectionner -
+                            each category in categories
+                                if content && category.id == content.categoryId
+                                    option(value=category.id, selected="selected")  #{category.title}
+                                else
+                                    option(value=category.id) #{category.title}
+
+
+                .form-group
+                    label.control-label Contenu
+
+                    if content
+                        textarea.form-control.limited-length(rows="20", data-maxlength="360", name="text", placeholder="Contenu")=content.text
+                    else
+                        textarea.form-control.limited-length(rows="20", data-maxlength="360", name="text", placeholder="Contenu")
+
+                    label.limited-counter 360 caractères restants.
+                    br
+                    label Rappel des éléments disponibles :
+                        ul
+                            li Lien : #{'<a href="https://www.monsite.com">'}Cliquez ici#{'</a>'}
+                            li Gras : #{'<strong>'}Ceci est un test en gras#{'</strong>'}
+
+                .form-group
+                    label.control-label Commentaire
+
+                    if content
+                        textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")
+                    else
+                        textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")
+                    label.limited-counter 1000 caractères restants.
+                    
+                label.control-label Photo associée
+                if content
+                    if content.picture && content.picture.path
+                        img.pic-image-box-normal(src="../../" + content.picture.path)
+                input.form-control(type="file" name="contentPicture")
+
+                hr
                 
-				.form-group.form-inline
-					label.col-1.control-label.pl-0(style="justify-content: left;")  État :
-					
-					select.col-3.form-control(name="published")
-						option(value=0) - Sélectionner -
-							each contentState in contentStates
-								if content && contentState.id == content.published
-									option(value=contentState.id, selected="selected")  #{contentState.title}    
-								else
-									option(value=contentState.id) #{contentState.title}
-		        
-				.form-group.form-inline
-					label.col-1.control-label.pl-0(style="justify-content: left;") Famille
-					select.col-3.form-control(name="theme")
-						option(value=0) - Sélectionner -
-							each theme in themes
-								if content && theme.id == content.themeId
-									option(value=theme.id, selected="selected")  #{theme.title}    
-								else
-									option(value=theme.id) #{theme.title}    
-				
-				.form-group.form-inline
-					label.col-1.control-label(style="justify-content: left; padding-left: 0;") Thème
-					select.col-3.form-control(name="category")
-						option(value=0) - Sélectionner -
-							each category in categories
-								if content && category.id == content.categoryId
-									option(value=category.id, selected="selected")  #{category.title}    
-								else
-									option(value=category.id) #{category.title}    
-							
-										
-				.form-group
-					label.control-label Contenu
-					
-					if content
-						textarea.form-control.limited-length(rows="20", data-maxlength="360", name="text", placeholder="Contenu")=content.text
-					else
-						textarea.form-control.limited-length(rows="20", data-maxlength="360", name="text", placeholder="Contenu")
-						
-					label.limited-counter 360 caractères restants.
-					br
-					label Rappel des éléments disponibles :
-						ul
-							li Lien : #{'<a href="https://www.monsite.com">'}Cliquez ici#{'</a>'}
-							li Gras : #{'<strong>'}Ceci est un test en gras#{'</strong>'}
-				
-				.form-group
-					label.control-label Commentaire
-					
-					if content
-						textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")=content.comment
-					else
-						textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")
-					label.limited-counter 1000 caractères restants.
-					
-				if content
-					if content.picture && content.picture.path
-						img.pic-image-box-normal(src="../../"+content.picture.path)
-				input.form-control(type="file" name="contentPicture")
-				
-				hr 
-				
-				.accordion.md-accordion#accordionOne
-					.card
-						.card-header#headerOne
-							a(data-toggle="collapse", data-parent="#accordionOne", href="#collapseOne")
-								h5.mb-0 
-									| Question associée
-									i.fa.ml-1.fa-angle-down.rotate-icon
-									span.search-question.btn.ml-3.btn-sm.btn-primary(href="#") Lier une question existante
-								
-						.collapse#collapseOne(data-parent="accordionOne")
-							.card-body
-								
-								include ../quizz/_form.question.pug
-            
-				.tile-footer
-					button.btn.btn-primary(type="submit")
-						i.fa.fa-fw.fa-lg.fa-check-circle
-						| Valider
-					| &nbsp;&nbsp;&nbsp;
-					a.btn.btn-secondary(href="/contents")
-						i.fa.fa-fw.fa-lg.fa-times-circle
-						| Annuler
-				
-	.clearfix
-	    
+                if hasSound
+                    each zone in allZones
+                        if zone.enableSound
+                            - var _name = "contentSound[zone_"+ zone.id +"]"
+                            label.control-label Fichier audio ( #{zone.name} )
+                            input.form-control(type="file" name=`${_name}`)
+                            
+                            if content && content.sounds
+                                each sound in content.sounds
+                                    if sound.availabilityZoneId == zone.id
+                                        p.mt-3.font-weight-bold Fichier existant :  
+                                            a(href="/" + sound.path, target="blank") #{sound.filename}
+                                            span.mr-3.ml-3 -
+                                            a.delete-sound(href="#",data-type="content", data-origin=content.id, data-sound=sound.id, style="color: red;") Supprimer
+                            
+                            hr
+                
+
+                .accordion.md-accordion#accordionOne
+                    .card
+                        .card-header#headerOne
+                            a(data-toggle="collapse", data-parent="#accordionOne", href="#collapseOne")
+                                h5.mb-0
+                                    | Question associée
+                                    i.fa.ml-1.fa-angle-down.rotate-icon
+                                    span.search-question.btn.ml-3.btn-sm.btn-primary(href="#") Lier une question existante
+                                    
+                                    if content && content.itsQuestionContent
+                                        span.remove-question.btn.ml-3.btn-sm.btn-primary(href="#", data-content=content.id) Retirer la liaison
+
+                        .collapse#collapseOne(data-parent="accordionOne")
+                            .card-body
+
+                                 include ../quizz/_form.question.pug
+                br
+                if allZones && allZones.length > 1
+                    .form-group.form-inline
+                        label.col-2.control-label(style="justify-content: left;") Zones disponibles
+                        each zone in allZones
+                            label
+                                .animated-checkbox.mr-3
+                                    if content && content.zoneIds.includes(zone.id)
+                                        input(type="checkbox" name="zoneId" checked=true value=zone.id)
+                                    else
+                                        input(type="checkbox" name="zoneId" value=zone.id)
+
+                                    span.label-text #{zone.name}
+
+
+                .tile-footer
+                    button.btn.btn-primary(type="submit")
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Valider
+                    | &nbsp;&nbsp;&nbsp;
+                    a.btn.btn-secondary(href="/contents")
+                        i.fa.fa-fw.fa-lg.fa-times-circle
+                        | Annuler
+
+    .clearfix
+
 
 block specific-js
-	script(type='text/javascript').
-		
+    script(type='text/javascript').

@@ -1,0 +1,57 @@
+.row
+    .col-md-12
+        .tile
+            if availability_zone
+                h3.tile-title Modifier une zone
+            else
+                h3.tile-title Créer une nouvelle zone
+
+            if availability_zone
+                - var targetUrl = "/zones/edit/" + availability_zone.id
+            else
+                - var targetUrl = "/zones/add"
+
+            form.zone-form#myform(action=`${targetUrl}`, method="POST")
+
+                if zone
+                    input(type="hidden" value=`${availability_zone.id}`)
+
+                .form-group
+                    label.control-label Titre
+                    if availability_zone
+                        input.form-control(type="text", name="name", placeholder="Nom de la zone" value=`${availability_zone.name}`)
+                    else
+                        input.form-control(type="text", name="name", placeholder="Nom de la zone")
+
+                .animated-checkbox
+                    label
+                        if availability_zone
+                            input(type="checkbox" name="enableSound" checked=availability_zone.enableSound)
+                        else
+                            input(type="checkbox" name="enableSound")
+
+                        span.label-text Activer l'audio
+
+
+                .animated-checkbox
+                    label
+                        if availability_zone
+                            input(type="checkbox" name="active" checked=availability_zone.enabled)
+                        else
+                            input(type="checkbox" name="active")
+
+                        span.label-text Actif
+
+                .tile-footer
+                    button.btn.btn-primary(type="submit")
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Valider
+                    | &nbsp;&nbsp;&nbsp;
+                    a.btn.btn-secondary(href="/zones")
+                        i.fa.fa-fw.fa-lg.fa-times-circle
+                        | Annuler
+                br
+    .clearfix
+
+
+block specific-js

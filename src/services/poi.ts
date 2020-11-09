@@ -1,6 +1,6 @@
 import { Service, Inject } from 'typedi';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
-import { IPoiInputDTO } from '../interfaces/IPoi';
+import {IPoi, IPoiInputDTO} from '../interfaces/IPoi';
 
 @Service()
 export default class PoiService {
@@ -23,7 +23,7 @@ export default class PoiService {
             });
 
             if (!poi) {
-                throw new Error('Question Content cannot be created');
+                throw new Error('poi cannot be created');
             }
             return { poi };
         } catch (e) {

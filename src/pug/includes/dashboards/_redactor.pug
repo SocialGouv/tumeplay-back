@@ -1,0 +1,69 @@
+.row
+	.col-md-12
+		h3.tile-title Total des contenus : #{contentStatistics.total} éléments.
+	
+	.col-md-4
+		.tile
+			h3.tile-title Contenus par état
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="contents_statistics_by_state")
+	
+	.col-md-4
+		.tile
+			h3.tile-title Contenus par famille
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="contents_statistics_by_family")
+						
+	.col-md-4
+		.tile
+			h3.tile-title Contenus par thème
+			
+			.row
+				.col-md-12
+					.embed-responsive.embed-responsive-16by9
+						canvas.embed-responsive-item(id="contents_statistics_by_theme")
+	.col-md-6
+		.tile
+			h3.tile-title Derniers contenus publiés
+			
+			.row
+				.col-md-12
+					include ./components/_lastPublishedContents.pug
+	.col-md-6
+		.tile
+			h3.tile-title Contenus en attente de visuels
+			
+			.row
+				.col-md-12
+					include ./components/_content.waiting_picture.pug
+					
+	.col-md-6
+		.tile
+			h3.tile-title Contenus en cours de rédaction
+			
+			.row
+				.col-md-12
+					include ./components/_content.redacting.pug
+					
+	.col-md-6
+		.tile
+			h3.tile-title Contenus en attente d'audio
+			
+			.row
+				.col-md-12
+					include ./components/_content.waiting_sound.pug
+					
+	.col-md-6
+		.tile
+			h3.tile-title Contenus en attente de validation
+			
+			.row
+				.col-md-12
+					include ./components/_content.waiting_validation.pug					
+include ./components/_stockView.pug

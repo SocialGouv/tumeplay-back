@@ -18,145 +18,49 @@ block content
 			li.breadcrumb-item
 				a(href='#') Tableau de bord
 
-	.row
-		.col-md-6
-			.tile
-				h3.tile-title Boxs - Capacités disponibles
-				
-				.row 
-					.col-md-12
-						.embed-responsive.embed-responsive-16by9
-							canvas.embed-responsive-item(id="stock_chart_boxs")
-						
-					each box in boxs
-						.col-md-12
-							if box.capacity < 50
-								h6.text-danger #{box.title} : #{box.capacity} unité(s)
-							else
-								h6 #{box.title} : #{box.capacity} unité(s)
-		.col-md-6
-			.tile
-				h3.tile-title Boxs - #{totalOrders} commandes
-				
-				.row
-					.col-md-12
-						.embed-responsive.embed-responsive-16by9
-							canvas.embed-responsive-item(id="orders_chart_boxs")
-							
-				
-					each box in boxsOrders
-						.col-md-12
-							h6 #{box.title} : #{box.orders} commande(s)
-	.row 
-		.col-md-12
-			.tile
-				h3.tile-title Stocks des produits
-				
-				.row
-					each product in products
-						if product && product.stock
-							.col-md-4
-								.tile
-									if product.stock && product.stock < 50 
-										h6.text-danger #{product.title} : #{product.stock} unités
-									else
-										h6 #{product.title} : #{product.stock} unités
-									
-									div.embed-responsive.embed-responsive-16by9
-										canvas.embed-responsive-item(id="stock_chart_" + product.id)
+	if isAllowed(req, "global", "dashboard", "superadministrator")
+		include ./includes/dashboards/_superadministrator.pug
+		
+	else if isAllowed(req, "global", "dashboard", "administrator")
+		include ./includes/dashboards/_administrator.pug
+		
+	else if isAllowed(req, "global", "dashboard", "moderator")
+		include ./includes/dashboards/_moderator.pug
+		
+	else if isAllowed(req, "global", "dashboard", "redactor")
+		include ./includes/dashboards/_redactor.pug
+		
+	else if isAllowed(req, "global", "dashboard", "order_support")
+		include ./includes/dashboards/_order_support.pug
+		
+	else
+		include ./includes/dashboards/_empty.pug
+		
+	
 									
 block specific-js
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
 	script(type='text/javascript', src="/js/plugins/chart.js")
-	script(type='text/javascript').
+	
+	if isAllowed(req, "global", "dashboard", "superadministrator")
+		include ./includes/dashboards/js/_contents.pug
+		include ./includes/dashboards/js/_orders.pug
+		include ./includes/dashboards/js/_stock.pug
+	
+	else if isAllowed(req, "global", "dashboard", "administrator")
+		include ./includes/dashboards/js/_contents.pug
+		include ./includes/dashboards/js/_orders.pug
+		include ./includes/dashboards/js/_stock.pug
 		
-		Pace.on('done', function() {
-			generateGraphs();
-		});
+	else if isAllowed(req, "global", "dashboard", "redactor")
+		include ./includes/dashboards/js/_contents.pug
+		include ./includes/dashboards/js/_needingActionsContents.pug
 		
-		function generateGraphs() 
-		{
-			var colors 	  = [
-				{ color : '#46BFBD', highlight: '#5AD3D1' },
-				{ color : '#F7464A', highlight: '#FF5A5E' },
-				{ color : '#2196F3', highlight: '#64baff' },
-				{ color : '#ffc107', highlight: '#ffd452' },
-				
-			];
-			var boxStocks	 = JSON.parse('!{JSON.stringify(boxs)}');
-			var boxOrders	 = JSON.parse('!{JSON.stringify(boxsOrders)}');
-			var boxStocksPie = [];
-			var boxOrdersPie = [];
-			
-			var i = 0;
-			for( var boxId in boxStocks )
-			{
-				var boxData = boxStocks[boxId];
-				
-				boxStocksPie.push({
-					value: boxData.capacity,
-					label: boxData.title,
-					color: colors[i].color,
-					highlight: colors[i].highlight,
-				});
-				
-				i++;
-			}
-			
-			var i = 0;
-			for( var boxId in boxOrders )
-			{
-				var boxData = boxOrders[boxId];
-				
-				boxOrdersPie.push({
-					value: boxData.orders,
-					label: boxData.title,
-					color: colors[i].color,
-					highlight: colors[i].highlight,
-				}); 
-				
-				i++;
-			}
-			
-			var ctxp = $("#stock_chart_boxs").get(0).getContext("2d");
-			new Chart(ctxp).Pie(boxStocksPie);
-			
-			var ctxp = $("#orders_chart_boxs").get(0).getContext("2d");
-			new Chart(ctxp).Pie(boxOrdersPie);
-			
-			
-			var stocks = JSON.parse('!{JSON.stringify(productStocks)}');
-			
-			for( var productId in stocks )
-			{
-				var productStocks = stocks[productId];
-				
-				var localStocks   = [];
-				var labels 		  = [];
-				$(productStocks).each(function(key, value) {
-					var localDate  = new Date(value.stockDate);
-					var day 	   = ( localDate.getDate() < 10 ) ? '0' + localDate.getDate() : localDate.getDate();
-					var month 	   = ( ( localDate.getMonth() + 1 ) < 10 ) ? '0' + ( localDate.getMonth()+1) : (localDate.getMonth()+1);
-
-					labels.push(day + '/' + month);
-					localStocks.push(value.stock);
-					
-				});
-				
-				var data = {
-					labels: labels,
-					datasets: [
-						{
-							fillColor: "rgba(151,187,205,0.2)",
-							strokeColor: "rgba(151,187,205,1)",
-							pointColor: "rgba(151,187,205,1)",
-							pointStrokeColor: "#fff",
-							pointHighlightFill: "#fff",
-							pointHighlightStroke: "rgba(151,187,205,1)",
-							data: localStocks,
-						}					
-					]
-				};
-				var ctxl = $("#stock_chart_" + productId).get(0).getContext("2d");
-				new Chart(ctxl).Line(data);
-			}
-		}
+	
+	else if isAllowed(req, "global", "dashboard", "moderator")
+		include ./includes/dashboards/js/_contents.pug
+		include ./includes/dashboards/js/_needingActionsContents.pug
+	
+	else if isAllowed(req, "global", "dashboard", "order_support")
+		include ./includes/dashboards/js/_stock.pug

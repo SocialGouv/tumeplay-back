@@ -18,23 +18,35 @@ export default (app: Router) => {
      * @description Get a list of published questions (structured FOR MOBILE) and return
      * only 10 ( random ) questions (sliced)
      */
-    route.get('/', async (req: Request, res: Response, next: NextFunction) => {
+
+    route.get('/:id?', async (req: Request, res: Response, next: NextFunction) => {
         const logger: any = Container.get('logger');
         try {
-            const questionContent: any = Container.get('questionModel');
-            const questionAnswersContent: any = Container.get('questionAnswerModel');
-
-            const questionsFound: IQuestionContent[] = await questionContent.findAll({
+            let questions = [];
+            
+            const questionsCriterias = {
                 where: {
                     published: true,
                 },
-                include: ['picture'],
-            });
-            const answers = await questionAnswersContent.findAll({
+                include: ['picture', 'sounds'],
+            };
+            
+            const questionsAnswersCriterias = {
                 where: {
                     published: true,
                 },
-            });
+            };
+            
+            if( req.query.zone )
+            {
+                questionsCriterias.include.push({
+                    association: 'availability_zone',
+                    where: { name : req.query.zone.charAt(0).toUpperCase() + req.query.zone.slice(1) }   
+                });   
+            }
+        
+            const questionsFound: IQuestionContent[] = await Container.get('questionModel').findAll(questionsCriterias);
+            const answers = await Container.get('questionAnswerModel').findAll(questionsAnswersCriterias);
 
             const sortedAnswers = [];
 
@@ -65,7 +77,17 @@ export default (app: Router) => {
                 }
             }
 
-            const questions = questionsFound.map(questionItem => {
+            questions = questionsFound.map(questionItem => {
+            	let localSound = false;
+            	if( req.query.zone && questionItem.sounds )
+            	{
+					questionItem.sounds.forEach(item => {
+						if( item.availabilityZoneId == questionItem.availability_zone[0].id )
+						{
+							localSound = item;
+						}
+					});	
+            	}
                 let questionItemStructured: IQuestionContent = {
                     id: questionItem.id,
                     key: questionItem.id,
@@ -77,10 +99,12 @@ export default (app: Router) => {
                     answers: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['answers'] : [],
                     rightAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['rightAnswer'] : [],
                     neutralAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['neutralAnswer'] : [],
+                    sound: localSound ? localSound.destination + '/' + localSound.filename : false,
                 };
 
                 return questionItemStructured;
-            });
+            });    
+            
             return res.json(questions).status(200);
         } catch (e) {
             logger.error('🔥 error: %o', e);

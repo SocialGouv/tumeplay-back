@@ -32,7 +32,7 @@ block specific-js
 	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
 	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
 	script(type='text/javascript', src="/js/plugins/select2.min.js")
-	
+
 	script(type='text/javascript').
 
 		function checkLength(field)
@@ -62,71 +62,107 @@ block specific-js
 		$('.limited-length').each(function() {
 			checkLength($(this));
 		});
-		
+
 		var newAnswerBtn_element = document.getElementById("newAnswerBtn");
 		newAnswerBtn_element.addEventListener("click", newAnswer, false);
 
 		var numAnswer = $('tr.question-row').length;
-		
+
 		function createInput(type, name, value)
 		{
 			return $('<td >')
 				.addClass('pl-2')
 				.addClass('pr-2')
-				.append( 
+				.append(
 					$('<input />')
 						.attr('type',  type)
 						.attr('name',  name)
 						.attr('value', value));
 		}
-		
+
 		//- @TODO-RNO: Will need to find a more performant way to do the steps below:
 		function newAnswer(){
 			var targetList = document.getElementById("responseList");
 			var responseContainerItem = document.createElement("tr");
-			
+
 			var _tr 	 = $('<tr >');
-			
+
 			var _type  	 = 'radio';
 			var _name    = `answerItems[${numAnswer}][questionState]`;
 			var _neutral = createInput(_type, _name, 'isNeutral' );
 			var _correct = createInput(_type, _name, 'isCorrect' );
 			var _wrong   = createInput(_type, _name, 'isWrong' );
-			
+
 			var _text 	 = $('<input />')
 								.attr('type', 'text')
 								.attr('data-maxlength', '30')
 								.attr('placeholder',`Réponse n°${numAnswer+1}`)
 								.attr('name', `answerItems[${numAnswer}][title]`)
 								.addClass('limited-length');
-			
+
 			var _limited = $('<label >')
 								.addClass('limited-counter')
 								.addClass('offset-1')
-								.text('30 caractère(s) restant(s)');	
-								
+								.text('30 caractère(s) restant(s)');
+
 			var breakpoint = $('<br />');
-			
+
 			$(_tr).append( _neutral );
 			$(_tr).append( _correct );
 			$(_tr).append( _wrong );
 			$(_tr).append( $('<td >').append(_text).append(_limited) );
-			
+
 			$('#responseList').append( $(_tr) );
-			 
-			numAnswer++; 
+
+			numAnswer++;
 		}
-		
+
 		$('body').on("input", '.limited-length', function(){
 			checkLength($(this));
 		});
 		$('.limited-length').each(function() {
 			checkLength($(this));
 		});
-		
+
 		function buildSelectOptions() {
-			
+
 		}
+		$('.remove-question').on('click', function() {
+			var _targetQuestion = $(this).attr('data-content');
+			swal({
+				title				: "Supprimer la liaison existante",
+				text				: 'La liaison avec la question sera immédiatement supprimée. Êtes-vous sûr(e) ?',
+				html				: true,
+				showCancelButton	: true,
+				confirmButtonText	: "Confirmer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false,
+			},
+			function(isConfirm)
+			{
+				if (isConfirm)
+				{
+				
+					$.get('/quizzs/questions/ajax/remove/' + _targetQuestion, function(data) {
+						swal({
+							title				: "Confirmé",
+							text				: "L'action a bien été effectuée.",
+							type				: "success",
+							showCancelButton	: false,
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false
+						});
+						return;
+					})
+
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		});
 		
 		$('.search-question').on('click', function() {
 			var _select = $('<select>')
@@ -134,19 +170,19 @@ block specific-js
 								.addClass('col-12')
 								.addClass('form-control')
 								.attr('name', 'blob');
-								
-			
+
+
 			$.get('/quizzs/questions/ajax/list', function(data) {
 				var _localQuestions = data.questions;
-				
+
 				$(_localQuestions).each(function(index, item) {
 					var _option = $('<option>').text(item.title).attr('value', item.id);
-					
+
 					$(_select).append( $(_option) );
 				});
-				
+
 				console.log(_select);
-				
+
 				swal({
 					title				: "Lier une question existante",
 					text				: '<div style="position: relative;"><p style="margin-top: 20px; margin-bottom: 12px;">Veuillez sélectionner la question à lier :</p><p>'+ $(_select).prop('outerHTML') +'</p></div>',
@@ -156,14 +192,14 @@ block specific-js
 					cancelButtonText	: "Annuler",
 					closeOnConfirm		: false,
 					closeOnCancel		: false,
-				}, 
-				function(isConfirm) 
+				},
+				function(isConfirm)
 				{
-					if (isConfirm) 
+					if (isConfirm)
 					{
 						var _selected  = $('select.question-list').val();
 						var _targetUrl = '/quizzs/questions/ajax/form/' + _selected;
-						
+
 						$.get(_targetUrl, function(data) {
 							$('#accordionOne #collapseOne > .card-body').html(data.form);
 							swal({
@@ -177,16 +213,57 @@ block specific-js
 							});
 							return;
 						})
-						
+
 					} else {
 						swal("Annulé", "Aucune action n'a été réalisée.", "error");
 						return;
 					}
 				});
 			   $('.question-list').select2();
-			   
-				
+
+
 			});
+
+		   return false;
+		});
+
+
+		$(document).on('click', '.delete-sound', function(){
+			var _targetUrl = '/contents/delete-sound/' + $(this).attr('data-type') + '/' + $(this).attr('data-origin')  + '/' + $(this).attr('data-sound');
+			var _this = $(this);
+			swal({
+				title             : "Supprimer le fichier audio ?",
+				text              : "La suppression d'un fichier audio est immédiate et définitive.",
+				type              : "warning",
+				showCancelButton  : true,
+				confirmButtonText : "Supprimer",
+				cancelButtonText  : "Annuler",
+				closeOnConfirm    : false,
+				closeOnCancel     : false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					$.post(_targetUrl, function() {
+						$(_this).parent().remove();
+						swal({
+							title				: "Supprimé",
+							text				: "Le fichier a bien été supprimé.",
+							type				: "success",
+							showCancelButton	: false,
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false
+						});
+						return;
+					})
+				} 
+				else 
+				{
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});          
 			
-		   return false;		   
+			return false;
 		});

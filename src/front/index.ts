@@ -4,6 +4,9 @@ import { Op } from 'sequelize';
 
 import AuthService from '../services/auth';
 import BoxService from '../services/box';
+import ContentService from '../services/content';
+import OrderService from '../services/order';
+import ProductService from '../services/product';
 
 import { celebrate, Joi } from 'celebrate';
 import path from 'path';
@@ -19,6 +22,9 @@ import boxs from './routes/boxs';
 import sync from './routes/sync';
 import poi from './routes/poi';
 import contacts from './routes/contacts';
+import feedback from './routes/feedback';
+import zones from './routes/zones';
+import user from './routes/user';
 
 import config from '../config';
 
@@ -39,12 +45,15 @@ export default () => {
     sync(app);
     poi(app);
     contacts(app);
+    feedback(app);
+    zones(app);
+    user(app);
 
     app.use('/', route);
 
     route.get('', (req: any, res: Response) => {
         if (req.session.loggedin) {
-            res.redirect('/contents');
+            res.redirect('/home');
         } else {
             res.sendFile(path.join(__dirname + '../../../public/page-login.html'));
         }
@@ -72,14 +81,25 @@ export default () => {
 
                 const localRoles = JSON.parse(user.roles);
 
-                if (localRoles != config.roles.administrator) {
+                if (localRoles == config.roles.user) {
                     throw new Error('Access denied.');
                 }
+                
+                const availableZones = [];
+                
+                if( user.availability_zone.length > 0 )
+                {
+                    user.availability_zone.forEach(item => {
+                        availableZones.push(item.id);
+                    })
+                }
 
+                req.session.user 	 = user;
                 req.session.loggedin = true;
                 req.session.username = email;
                 req.session.name = user.name;
                 req.session.roles = JSON.parse(user.roles);
+                req.session.zones = availableZones;
 
                 return res.redirect('/home');
             } catch (e) {
@@ -99,54 +119,46 @@ export default () => {
             	const dayModifier 	= 7; 
 				const thresholdTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
 			
-            	const productModel 	= Container.get('productModel');
-                const products 		= await productModel.findAll();
-                
-                let stockMap 			= {};                
-                const productStockModel = Container.get('productStockModel');
-                const productStocks 	= await productStockModel.findAll({
-					where: {
-						stockDate: {
-							[Op.gte]: thresholdTime,
-						}
-					},
-					order: [
-			            ['stockDate', 'ASC'], // It'll get reversed in keyed by
-			        ],
+                const products 		= await Container.get(ProductService).findAll(req, {
+                    where: {
+                        deleted: false,
+                    },
                 });
                 
-                productStocks.map( productStock => {					
-                	if( typeof stockMap[productStock.productId] == "undefined" )
-                	{
-						stockMap[productStock.productId] = [];
-                	}
-                	
-					stockMap[productStock.productId].push(productStock);
-                });
-                                
-                products.map( item => {
-					if( typeof stockMap[item.id] != "undefined" )
-                	{
-						stockMap[item.id].push({
-							stockDate: new Date(),
-							stock: item.stock,
-						});
-                	}
-                	
-                });
+                const trimProducts  = [];
                 
+                products.forEach( product => {
+                    const title = product.title.split('"').join('').split("'").join('');
+					trimProducts.push({
+						'id' 	: product.id,
+						'stock' : product.stock,
+						'title' : (title.length > 25 ? (title.substring( 0, 25) + "...") : title),
+					});
+                });
+                 
                 const boxService  = Container.get(BoxService);
                 
                 const boxs 		  = await boxService.computeCapacities();
                 const { boxOrders, totalOrders } = await boxService.computeOrdersStatistics();
                 
+                const contentService    = Container.get(ContentService);
+                const contentStates 	= await contentService.getContentStatesAsArray();                
+                const contentStatistics = await contentService.getContentsStatistics(req);
+                                                             
+                const orderStats 	= await Container.get(OrderService).getOrdersStatistics();
+                
+                const needActionsContents = await contentService.getNeedingActionContents(req);
+                                                             
                 return res.render('index', {
                     username: req.session.name,
-                    products: products,
-                    productStocks: stockMap,
+                    products: trimProducts,                    
                     boxs: boxs,
                     boxsOrders: boxOrders,
                     totalOrders: totalOrders,
+                    contentStates: contentStates,
+                    contentStatistics: contentStatistics,
+                    orderStats: orderStats,
+                    needActionsContents: needActionsContents, 
                 });
                 //return res.sendFile(path.join(__dirname + '../../../public/index.html'));
             } else {

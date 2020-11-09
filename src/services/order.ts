@@ -4,11 +4,13 @@ import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDi
 import ProductOrderService from './product.order';
 import { IProductOrderInputDTO } from '../interfaces/IProductOrder';
 import { Op } from 'sequelize';
+import { IOrderZone, IOrderZoneDTO } from '../interfaces/IOrderZone';
 
 @Service()
 export default class OrderService {
     public constructor(
         @Inject('orderModel') private orderModel: any,
+        @Inject('orderZoneModel') private orderZoneModel: any,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
     ) {}
@@ -70,7 +72,7 @@ export default class OrderService {
             this.logger.silly('Finding an order');
             const orderFound: IOrder = await this.orderModel.findOne({
                 where: { id },
-                include: ['shippingMode', 'shippingAddress', 'profile', 'products', 'pickup', 'box'],
+                include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'products', 'pickup', 'box'],
             });
 
             if (!orderFound) {
@@ -99,7 +101,8 @@ export default class OrderService {
                 products: orderFound.products,
                 pickup: orderFound.pickup,
                 box: orderFound.box,
-                shipping: orderFound.shippingAddress
+                shipping: orderFound.shippingAddress,
+                availability_zone: orderFound.availability_zone,
             };
 
             
@@ -115,7 +118,7 @@ export default class OrderService {
         try {
             this.logger.silly('Finding all orders');
             let ordersResult: IOrder[] = await this.orderModel.findAll({
-                include: ['shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],
+                include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],
             });
             const orders: IOrderMainView[] = ordersResult.map(item => {
                 let additional_fields = {
@@ -138,6 +141,7 @@ export default class OrderService {
                     updatedAt: item.updatedAt,
                     pickup: item.pickup,
                     box: item.box,
+                    availability_zone: item.availability_zone,
                     ...additional_fields,
                 };
             });
@@ -251,5 +255,105 @@ export default class OrderService {
         });
         
         return orders;
+    }
+    
+    public async getOrdersStatistics()
+    {
+    	const _return 		= {
+			'lastWeek'	: 0,
+			'byZip' 	: {},
+			'byBox'		: {},
+			'byShipping': {},
+			'boxes'		: {},
+    	};
+    	
+		const dayModifier 	= 20;
+    	
+		let minTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+		let maxTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+		
+		minTime.setHours(0,0,0);
+		maxTime.setHours(23,59,59);
+		
+		var a = new Date().getTimezoneOffset();
+		
+		minTime.setTime(minTime.getTime() - (a * 60 * 1000 ));
+		maxTime.setTime(maxTime.getTime() - (a * 60 * 1000 ));
+		
+		_return['lastWeek'] = await this.orderModel.findAll({
+            where: { 
+				orderDate: {
+					[Op.gte]: minTime,
+					[Op.lte]: maxTime,
+				},				
+            },
+        });
+        
+        _return['lastWeek'] = _return['lastWeek'].length;
+        
+        const allOrders = await this.orderModel.findAll({
+            where: { 
+            },
+            include: ['profile', 'shippingMode', 'pickup','box', 'shippingAddress']
+        });
+        
+        allOrders.forEach( order => {
+        	let localZip = false;
+        	const shippingTitle = order.shippingMode.title;
+        	
+        	if( order.pickup )
+        	{
+				localZip = order.pickup.zipCode;
+        	}
+        	else
+        	{
+				localZip = order.shippingAddress.zipCode;
+        	}
+        	
+        	if( localZip )
+        	{
+				localZip = localZip.substring(0, 2);
+				
+				_return['byZip'][localZip] = ( _return['byZip'][localZip] ? _return['byZip'][localZip] + 1 : 1 );
+        	}
+        	
+        	_return['boxes'][order.boxId] = order.box.title;
+			_return['byBox'][order.boxId] = ( _return['byBox'][order.boxId] ? _return['byBox'][order.boxId] + 1 : 1 );
+			
+			_return['byShipping'][shippingTitle] = ( _return['byShipping'][shippingTitle] ? _return['byShipping'][shippingTitle] + 1 : 1 );
+        });
+        
+        return _return;
+    }
+    public async bulkCreateZone(orderZoneInputList: IOrderZoneDTO[]): Promise<{ orderZone: IOrderZone[] }> {
+        try {
+            this.logger.silly('Creating orderZones');
+            const orderZones: IOrderZone[] = await this.orderZoneModel.bulkCreate(orderZoneInputList);
+
+            if (!orderZones) {
+                throw new Error('zone Order mappings could not be created');
+            }
+
+            return { orderZone: orderZones };
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    public async bulkDeleteZone(orderId: number): Promise<{}> {
+        try {
+            this.logger.silly('Deleting orders');
+
+            const orderZones: IOrderZone[] = await this.orderZoneModel.destroy({
+                where: {
+                    orderId: orderId,
+                },
+            });
+
+            return {};
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
     }
 }

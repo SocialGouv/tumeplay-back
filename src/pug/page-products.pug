@@ -34,6 +34,8 @@ block content
 								th Qté disponible
 								th Photo
 								th Mis à jour
+								if zones.length > 1 
+									th Zone(s)
 								th Actif
 								th Actions
 						tbody
@@ -56,24 +58,35 @@ block content
 										if product.picture && product.picture.path
 											img.pic-image-box(src=product.picture.path)
 									td #{prettyDate(product.updatedAt)}
+									if zones.length > 1
+										td
+											ul
+												for zone in product.availability_zone
+													li #{zone.name}
+                                    
 									td
 										if product.active
 											i.fa.fa-check.fa-lg
 										else
 											i.fa.fa-cross.fa-lg
 									td
-										a(class='btn btn-primary' href="/products/edit/" + product.id data-id=`${product.id}`) 
-											i.fa.fa-fw.fa-lg.fa-check-circle 
-											| Éditer
-										| &nbsp;&nbsp;&nbsp;
-										form(action="/products/delete/" + product.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
-											button(class='delete-item btn btn-secondary' type="submit" data-id=`${product.id}`) 
-												i.fa.fa-fw.fa-lg.fa-times-circle
-												| Supprimer
-				.tile-footer
-					a(class='btn btn-primary' href="/products/add") 
-						i.fa.fa-fw.fa-lg.fa-plus 
-						| Créer un produit						
+										if isAllowed(req, "products", "global", "edit")
+											a(class='btn btn-primary' href="/products/edit/" + product.id data-id=`${product.id}`) 
+												i.fa.fa-fw.fa-lg.fa-check-circle 
+												| Éditer
+											
+										if isAllowed(req, "products", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											form(action="/products/delete/" + product.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+												button(class='delete-item btn btn-secondary' type="submit" data-id=`${product.id}`) 
+													i.fa.fa-fw.fa-lg.fa-times-circle
+													| Supprimer
+				
+				if isAllowed(req, "products", "global", "add")
+					.tile-footer
+						a(class='btn btn-primary' href="/products/add") 
+							i.fa.fa-fw.fa-lg.fa-plus 
+							| Créer un produit
 
 block specific-js
 	// Data table plugin

@@ -1,0 +1,90 @@
+script(type='text/javascript').
+		
+		Pace.on('done', function() {
+			generateContentGraphs();
+		});
+		
+		function generateContentByFamily(contentStatistics, colors)
+		{
+		    var _values = [];
+			var _labels = [];
+			Object.keys(contentStatistics['byFamily']).forEach(function(familyName) {
+				_values.push(contentStatistics['byFamily'][familyName]);
+				_labels.push(contentStatistics['families'][familyName]);
+			});
+			
+			var ctxp = $("#contents_statistics_by_family").get(0).getContext("2d");
+			
+			new Chart(ctxp).Bar({
+				labels: _labels,
+				datasets:  [{                  
+			        fillColor: colors[0].color,
+			        data: _values
+			    }],
+			    
+			});
+			
+			
+		}
+		
+		function generateContentByThematic(contentStatistics, colors)
+		{
+			var _values = [];
+			var _labels = [];
+			
+			Object.keys(contentStatistics['byTheme']).forEach(function(themeName) {
+				_values.push(contentStatistics['byTheme'][themeName]);
+				_labels.push(contentStatistics['themes'][themeName]);
+			});
+			
+			var ctxp = $("#contents_statistics_by_theme").get(0).getContext("2d");
+			
+			new Chart(ctxp).Bar({
+				labels: _labels,
+				datasets:  [{                  
+			        fillColor: colors[0].color,
+			        data: _values
+			    }],
+			    
+			});
+			
+			
+		}
+		
+		function generateContentByState(contentStatistics, contentStates, colors)
+		{
+			var _values = [];
+			var _labels = [];
+			
+			Object.keys(contentStatistics['byState']).forEach(function(stateId) {
+				_values.push(contentStatistics['byState'][stateId]);
+				_labels.push(contentStates[stateId]);
+			});
+			
+			var ctxp = $("#contents_statistics_by_state").get(0).getContext("2d");
+			
+			new Chart(ctxp).Bar({
+				labels: _labels,
+				datasets:  [{                  
+			        fillColor: colors[0].color,
+			        data: _values
+			    }],                             
+			});                                 
+		}
+		
+		function generateContentGraphs() 
+		{
+			var colors 	  = [
+				{ color : '#46BFBD', highlight: '#5AD3D1' },
+				{ color : '#F7464A', highlight: '#FF5A5E' },
+				{ color : '#2196F3', highlight: '#64baff' },
+				{ color : '#ffc107', highlight: '#ffd452' },
+				
+			];
+			var contentStates 		= JSON.parse('!{JSON.stringify(contentStates).replace(/[\/\(\)\']/g, "\\'")}')
+			var contentStatistics 	= JSON.parse('!{JSON.stringify(contentStatistics).replace(/[\/\(\)\']/g, "\\'")}')
+			
+			generateContentByThematic(contentStatistics, colors);
+			generateContentByFamily(contentStatistics, colors);
+			generateContentByState(contentStatistics, contentStates, colors);                                    
+		}

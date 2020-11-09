@@ -1,0 +1,60 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-user-review'
+	// - var activeGroup = 'tables'
+
+block title
+	title Avis - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-comments
+				|  Avis utilisateur
+			p Avis recensés
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Avis
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					.toolbar.mb-3
+
+					
+					table.table.table-hover.table-bordered#ordersDataTable
+						thead
+							tr
+								th Date de création
+								th Question
+								th Type d'avis
+								th Commentaire
+						tbody
+							each feedback in feedbacks
+								tr
+									td #{prettyDate(feedback.createdAt)}
+									td
+										a(href="/contents/edit/" + feedback.question.id data-id=`${feedback.question.id}`)
+											| #{feedback.question.title}
+
+									td
+										if feedback.feedback
+											| #{feedback.feedback.title}
+									td #{feedback.comment}
+
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#ordersDataTable').DataTable();

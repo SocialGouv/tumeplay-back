@@ -9,17 +9,20 @@ const route = Router();
 
 export default (app: Router) => {
     const ROOT_URL = '/poi';
+    const aclSection = 'poi';
 
     app.use(ROOT_URL, route);
 
-    route.get('/', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get('/', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'view'),  
+    	async (req: Request, res: Response) => {
         try {
             const PoiModel: any = Container.get('poiModel');
 
             const pois = await PoiModel.findAll();
 
-            return res.render('page-poi', {
-                username: req['session'].name,
+            return res.render('page-poi', {   
                 pois,
             });
         } catch (e) {
@@ -27,7 +30,11 @@ export default (app: Router) => {
         }
     });
 
-    route.get('/add', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	'/add', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
             const types = ['cegidd', 'pickup'];
             return res.render('page-poi-edit', {
@@ -38,7 +45,11 @@ export default (app: Router) => {
         }
     });
 
-    route.get('/edit/:id', middlewares.isAuth, async (req: Request, res: Response) => {
+    route.get(
+    	'/edit/:id', 
+    	middlewares.isAuth,
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),  
+    	async (req: Request, res: Response) => {
         try {
             const documentId = +req.params.id;
             const poiServiceInstance: PoiService = Container.get(PoiService);
@@ -48,7 +59,6 @@ export default (app: Router) => {
             const { poi } = await poiServiceInstance.findById(documentId, true);
 
             return res.render('page-poi-edit', {
-                username: req['session'].name,
                 poi,
                 types: types,
             });
@@ -57,7 +67,11 @@ export default (app: Router) => {
         }
     });
 
-    route.post('/add', middlewares.isAuth, async (req: any, res: Response) => {
+    route.post(
+    	'/add', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),  
+    	async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
         logger.debug('Calling Front Create endpoint with body: %o', req.body);
 
@@ -83,7 +97,11 @@ export default (app: Router) => {
         }
     });
 
-    route.post('/edit/:id', middlewares.isAuth, async (req: any, res: Response) => {
+    route.post(
+    	'/edit/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'edit'),  
+    	async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
         logger.debug('Calling Front Create endpoint with body: %o', req.body);
 
@@ -117,18 +135,17 @@ export default (app: Router) => {
         }
     });
 
-    route.post('/delete/:id', middlewares.isAuth, async (req: any, res: Response) => {
+    route.post(
+    	'/delete/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'delete'),  
+    	async (req: any, res: Response) => {
         const logger: any = Container.get('logger');
         logger.debug('Calling Front Create endpoint with body: %o', req.body);
 
         try {
             const documentId = req.params.id;
-
-            const boxServiceInstance: BoxService = Container.get(BoxService);
-            await boxServiceInstance.bulkDelete(req.params.id);
-
-            await boxServiceInstance.update(documentId, { deleted: true });
-
+            
             return res.redirect(ROOT_URL);
         } catch (e) {
             throw e;

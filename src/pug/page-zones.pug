@@ -1,0 +1,88 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'zones'
+
+block title
+	title Zones - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-comments
+				|  Zones disponibles
+			p Liste des zones accessibles
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Zones
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#contentsDataTable
+						thead
+							tr
+								th Nom
+								th Date de création
+								th Activé
+								th Actions
+						tbody
+							each zone in  zones
+								tr
+									td #{zone.name}
+
+									td #{prettyDate(zone.createdAt)}
+									td
+										if zone.enabled
+											i.fa.fa-check.fa-lg
+										else
+											i.fa.fa-cross.fa-lg
+
+									td
+										a(class='btn btn-primary' href="/zones/edit/" + zone.id data-id=`${zones.id}`)
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer
+										| &nbsp;&nbsp;&nbsp;
+										a(class='delete-item btn btn-secondary' href="#" data-id=`${zone.id}`)
+											i.fa.fa-fw.fa-lg.fa-times-circle
+											| Supprimer
+				.tile-footer
+					a(class='btn btn-primary' href="/zones/add")
+						i.fa.fa-fw.fa-lg.fa-plus 
+						| Créer une zone
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();
+		$('.delete-item').click(function(){
+			swal({
+				title				: "Supprimer la zone ?",
+				text				: "La suppression d'une zone est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Supprimé", "[WIP/TODO] Supprimer élément", "success");
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				}
+			});
+		});

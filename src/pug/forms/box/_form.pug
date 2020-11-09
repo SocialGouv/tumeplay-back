@@ -2,105 +2,121 @@
 - var loopCounter = 0
 
 .row
-	.col-md-12
-		.tile
-			if box 
-				h3.tile-title Modifier une box
-			else
-				h3.tile-title Créer une nouvelle box
-			
-			if box
-				- var targetUrl = "/boxs/edit/" + box.id
-			else
-				- var targetUrl = "/boxs/add"
+    .col-md-12
+        .tile
+            if box
+                h3.tile-title Modifier une box
+            else
+                h3.tile-title Créer une nouvelle box
 
-			form.product-form(action=`${targetUrl}`, method="POST", enctype="multipart/form-data")
-				
-				.row
-				
-					.col-md-8
-						if product
-							input(type="hidden" value=`${box.id}`)
-										
-						.form-group
-							label.control-label Titre
-							if box
-								input.form-control(type="text", name="title", placeholder="Nom de la box" value=`${box.title}`)
-							else
-								input.form-control(type="text", name="title", placeholder="Nom de la box")
-						.form-group
-							label.control-label Description
-							if box
-								input.form-control(type="text", name="description", placeholder="Description" value=`${box.description}`)
-							else
-								input.form-control(type="text", name="description", placeholder="Description")
-						.form-group
-							label.control-label Description courte
-							if box
-								input.form-control(type="text", name="shortDescription", placeholder="Description courte" value=`${box.shortDescription}`)
-							else
-								input.form-control(type="text", name="shortDescription", placeholder="Description courte")
-						
-						if product
-							if box.picture && box.picture.path
-								img.pic-image-box-normal(src="../../"+box.picture.path)
-						input.form-control(type="file" name="boxPicture")
-					
-						.animated-checkbox
-							label
-								if box
-									input(type="checkbox" name="active" checked=box.active)
-								else
-									input(type="checkbox" name="active")
+            if box
+                - var targetUrl = "/boxs/edit/" + box.id
+            else
+                - var targetUrl = "/boxs/add"
 
-								span.label-text Publié
-						
-						.animated-checkbox
-							label
-								if box
-									input(type="checkbox" name="available" checked=box.available)
-								else
-									input(type="checkbox" name="available")
+            form.product-form(action=`${targetUrl}`, method="POST", enctype="multipart/form-data")
 
-								span.label-text Disponible à la commande
-				
-					.col-md-4
-						.tile
-							h4 Produits associés
-							
-							while loopCounter < maxProducts 
-								.row
-									
-									.col-md-8
-										label.control-label Produit
-										select.form-control(name="selectedProduct[]")
-											option(value=0) - Sélectionner -
-												each product in products
-													if box && currentProducts[loopCounter] && currentProducts[loopCounter].productId == product.id
-														option(value=product.id, selected="selected")  #{product.title}    
-													else
-														option(value=product.id) #{product.title}    
-						
-									.col-md-4
-										label.control-label Quantité
-										if box && currentProducts[loopCounter] && currentProducts[loopCounter].qty
-											input.form-control(type="text", name="qty[]", value=`${ currentProducts[loopCounter].qty }`, placeholder="Quantité")
-										else
-											input.form-control(type="text", name="qty[]", placeholder="Quantité")
-			                    
-								hr
-								
-								- loopCounter = loopCounter + 1
-										
-				.tile-footer
-					button.btn.btn-primary(type="submit")
-						i.fa.fa-fw.fa-lg.fa-check-circle
-						| Valider
-					| &nbsp;&nbsp;&nbsp;
-					a.btn.btn-secondary(href="/products")
-						i.fa.fa-fw.fa-lg.fa-times-circle
-						| Annuler                                
-	.clearfix
-        
+                .row
+
+                    .col-md-8
+                        if product
+                            input(type="hidden" value=`${box.id}`)
+
+                        .form-group
+                            label.control-label Titre
+                            if box
+                                input.form-control(type="text", name="title", placeholder="Nom de la box" value=`${box.title}`)
+                            else
+                                input.form-control(type="text", name="title", placeholder="Nom de la box")
+                        .form-group
+                            label.control-label Description
+                            if box
+                                input.form-control(type="text", name="description", placeholder="Description" value=`${box.description}`)
+                            else
+                                input.form-control(type="text", name="description", placeholder="Description")
+                        .form-group
+                            label.control-label Description courte
+                            if box
+                                input.form-control(type="text", name="shortDescription", placeholder="Description courte" value=`${box.shortDescription}`)
+                            else
+                                input.form-control(type="text", name="shortDescription", placeholder="Description courte")
+
+                        if product
+                            if box.picture && box.picture.path
+                                img.pic-image-box-normal(src="../../" + box.picture.path)
+                        input.form-control(type="file" name="boxPicture")
+
+                        .animated-checkbox
+                            label
+                                if box
+                                    input(type="checkbox" name="active" checked=box.active)
+                                else
+                                    input(type="checkbox" name="active")
+
+                                span.label-text Publié
+
+                        .animated-checkbox
+                            label
+                                if box
+                                    input(type="checkbox" name="available" checked=box.available)
+                                else
+                                    input(type="checkbox" name="available")
+
+                                span.label-text Disponible à la commande
+                        br
+                        if zones && zones.length > 1
+                            .form-group.form-inline
+                                label.col-3.pl-0.control-label(style="justify-content: left;") Zones disponibles
+                                
+                                each zone in zones
+                                    .animated-checkbox.mr-3
+                                        label
+                                            if box && box.zoneIds.includes(zone.id)
+                                                input(type="checkbox" name="zoneId" checked=true value=zone.id)
+                                            else
+                                                input(type="checkbox" name="zoneId" value=zone.id)
+
+                                            span.label-text #{zone.name}
+
+
+
+                    .col-md-4
+                        .tile
+                            h4 Produits associés
+
+                            while loopCounter < maxProducts
+                                .row
+
+                                    .col-md-8
+                                        label.control-label Produit
+                                        select.form-control(name="selectedProduct[]")
+                                            option(value=0) - Sélectionner -
+                                                each product in products
+                                                    if box && currentProducts[loopCounter] && currentProducts[loopCounter].productId === product.id
+                                                        option(value=product.id, selected="selected")  #{product.title}
+                                                    else
+                                                        option(value=product.id) #{product.title}
+
+                                    .col-md-4
+                                        label.control-label Quantité
+                                        if box && currentProducts[loopCounter] && currentProducts[loopCounter].qty
+                                            input.form-control(type="text", name="qty[]", value=`${currentProducts[loopCounter].qty}`, placeholder="Quantité")
+                                        else
+                                            input.form-control(type="text", name="qty[]", placeholder="Quantité")
+
+                                hr
+
+                                - loopCounter = loopCounter + 1
+
+                .tile-footer
+                    button.btn.btn-primary(type="submit")
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Valider
+                    | &nbsp;&nbsp;&nbsp;
+                    a.btn.btn-secondary(href="/boxs")
+                        i.fa.fa-fw.fa-lg.fa-times-circle
+                        | Annuler
+    .clearfix
+
 
 block specific-js

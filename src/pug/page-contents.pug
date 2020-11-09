@@ -1,440 +1,598 @@
 extends layouts/_layout.pug
 
 block variables
-	- var activePage = 'page-contents'
-	// - var activeGroup = 'tables'
+    - var activePage = 'page-contents'
+    // - var activeGroup = 'tables'
 
 block title
-	title Contenus - Tumeplay
+    title Contenus - Tumeplay
 
 block content
-	.app-title
-		div
-			h1
-				i.fa.fa-book
-				|  Contenus
-			p Liste des contenus accessibles dans la section "Informations"
+    .app-title
+        div
+            h1
+                i.fa.fa-book
+                |  Contenus
+            p Liste des contenus accessibles dans la section "Informations"
 
-		ul.app-breadcrumb.breadcrumb.side
-			li.breadcrumb-item
-				i.fa.fa-home.fa-lg
-			//li.breadcrumb-item
-			//	| Tables
-			li.breadcrumb-item.active
-				a(href="#") Contenus
+        ul.app-breadcrumb.breadcrumb.side
+            li.breadcrumb-item
+                i.fa.fa-home.fa-lg
+            //li.breadcrumb-item
+            //	| Tables
+            li.breadcrumb-item.active
+                a(href="#") Contenus
 
-	.row
-		.col-md-12
-			.tile
-				.tile-body
-					.toolbar.mb-3
-						label.mr-3 Actions : 
-						a.btn.btn-sm.btn-primary(href="/contents/add") Ajouter 
-						.btn.ml-3.btn-sm.btn-primary.filter Filtrer
-						.btn.ml-3.btn-sm.btn-primary.state.disabled État
-						.btn.ml-3.btn-sm.btn-primary.archive.disabled Archiver
-						.btn.ml-3.btn-sm.btn-primary.duplicate.disabled Dupliquer
-						.btn.ml-3.btn-sm.btn-primary.assign.disabled Assigner à
-						
-						.toolbar-filter.mt-3.form-inline(style="display:none;")
-							label.mr-3 Thématique : 
-							select.col-2.form-control-sm.mr-3(name="filter_thematique")
-								option(value="") - Sélectionner -
-								each theme in thematiques
-									option(value=theme.id) #{theme.title}
-			
-							
-							span.mr-3 |
-							
-							label.mr-3 Catégorie : 
-							select.col-2.form-control-sm.mr-3(name="filter_category")
-								option(value="") - Sélectionner -
-								each category in categories
-									option(value=category.id) #{category.title}
-							
-							span.mr-3 |
-							
-							label.mr-3 État :
-							select.col-2.form-control-sm.mr-3(name="filter_state")
-								option(value="") - Sélectionner -
-								each contentState in contentStates
-									option(value=contentState.id) #{contentState.title}
-									
-						.toolbar-state.mt-3.form-inline(style="display:none;")
-							label.mr-3 Modifier l'état :
-							select.col-2.form-control-sm.mr-3(name="assign_state")
-								option(value="") - Sélectionner -
-								each contentState in contentStates
-									option(value=contentState.id) #{contentState.title}
-							
-							span.mr-3 |
-							
-							.btn.btn-sm.btn-primary.assign-validate.disabled Valider
-						
-						.toolbar-assign.mt-3.form-inline(style="display:none;")
-							label.mr-3 Thématique : 
-							select.col-2.form-control-sm.mr-3(name="assign_thematique")
-								option(value="") - Sélectionner -
-								each theme in thematiques
-									option(value=theme.id) #{theme.title}
-									
-							span.mr-3 |
-							
-							label.mr-3 Catégorie : 
-							select.col-2.form-control-sm.mr-3(name="assign_category")
-								option(value="") - Sélectionner -
-								each category in categories
-									option(value=category.id) #{category.title}
-							
-							span.mr-3 |
-							
-							.btn.btn-sm.btn-primary.assign-validate.disabled Valider
-							
-						hr
-						
-					table.table.table-hover.table-bordered#contentsDataTable
-						thead
-							tr
-								th.sorting_disabled(data-sortable="false", data-orderable="false")
-								th ID
-								th Titre
-								th Famille
-								th Catégorie
-								th Photo
-								th Date de mise à jour
-								th État
-						tbody
-							each content in contents
-								tr
-									td.text-center
-										.animated-checkbox
-											label
-												input.product-checkbox(type="checkbox" value="" + content.id +"")
-												span.label-text 
-                                    	
-									td #{content.id}
-									td 
-										a(href="/contents/edit/" + content.id data-id=`${content.id}`) 
-											| #{content.title}
-									td 
-										if content.itsTheme
-											| #{content.itsTheme.title}
-									td
-										if content.itsQuestionCategory
-											| #{content.itsQuestionCategory.title}
-									td
-										if content.picture && content.picture.path
-											img.pic-image-box(src=content.picture.path)
-									td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
-									td
-										| #{contentStatesArray[content.published]}
+    .row
+        .col-md-12
+            .tile
+                .tile-body
+                    .toolbar.mb-3
+                        label.mr-3 Actions :
+                        a.btn.btn-sm.btn-primary(href="/contents/add") Ajouter
+                        .btn.ml-3.btn-sm.btn-primary.filter Filtrer
+                        .btn.ml-3.btn-sm.btn-primary.state.disabled État
+                        .btn.ml-3.btn-sm.btn-primary.archive.disabled Archiver
+                        .btn.ml-3.btn-sm.btn-primary.duplicate.disabled Dupliquer
+                        .btn.ml-3.btn-sm.btn-primary.assign.disabled Assigner à
+                        
+                        .btn.ml-3.btn-sm.float-right.btn-primary.export Export CSV
+                        
+                        if zones.length > 1 
+                            .btn.ml-3.btn-sm.btn-primary.assign-zone.disabled Assigner une zone
 
-				.tile-footer
-					a(class='btn btn-primary' href="/contents/add") 
-						i.fa.fa-fw.fa-lg.fa-plus 
-						| Créer un contenu						
+                        .toolbar-filter.mt-3.form-inline(style="display:none;")
+                            label.mr-3 Thématique :
+                            select.col-2.form-control-sm.mr-3(name="filter_thematique")
+                                option(value="") - Tous -
+                                each theme in thematiques
+                                    option(value=theme.id) #{theme.title}
+
+
+                            span.mr-3 |
+
+                            label.mr-3 Catégorie :
+                            select.col-2.form-control-sm.mr-3(name="filter_category")
+                                option(value="") - Tous -
+                                each category in categories
+                                    option(value=category.id) #{category.title}
+
+                            span.mr-3 |
+
+                            label.mr-3 État :
+                            select.col-2.form-control-sm.mr-3(name="filter_state")
+                                option(value="") - Tous -
+                                each contentState in contentStates
+                                    option(value=contentState.id) #{contentState.title}
+
+                        .toolbar-state.mt-3.form-inline(style="display:none;")
+                            label.mr-3 Modifier l'état :
+                            select.col-2.form-control-sm.mr-3(name="assign_state")
+                                option(value="") - Sélectionner -
+                                each contentState in contentStates
+                                    option(value=contentState.id) #{contentState.title}
+
+                            span.mr-3 |
+
+                            .btn.btn-sm.btn-primary.assign-validate.disabled Valider
+
+                        .toolbar-assign.mt-3.form-inline(style="display:none;")
+                            label.mr-3 Thématique :
+                            select.col-2.form-control-sm.mr-3(name="assign_thematique")
+                                option(value="") - Sélectionner -
+                                each theme in thematiques
+                                    option(value=theme.id) #{theme.title}
+
+                            span.mr-3 |
+
+                            label.mr-3 Catégorie :
+                            select.col-2.form-control-sm.mr-3(name="assign_category")
+                                option(value="") - Sélectionner -
+                                each category in categories
+                                    option(value=category.id) #{category.title}
+
+                            span.mr-3 |
+
+                            .btn.btn-sm.btn-primary.assign-validate.disabled Valider
+
+                        if zones.length > 1 
+                            .toolbar-assign-zone.mt-3.form-inline(style="display:none;")
+                                label.mr-3 Zone :
+                                select.col-2.form-control-sm.mr-3(name="assign_zone")
+                                    option(value="") - Sélectionner -
+                                    each zone in zones
+                                        option(value=zone.id) #{zone.name}
+                                               
+                                span.mr-3 |
+
+                                .btn.btn-sm.btn-primary.assign-validate.disabled.mr-3(data-type="del") Retirer de la zone
+                                
+                                span.mr-3 |
+                                
+                                .btn.btn-sm.btn-primary.assign-validate.disabled(data-type="add") Ajouter à la zone
+
+                        hr
+
+                    table.table.table-hover.table-bordered#contentsDataTable
+                        thead
+                            tr
+                                th.sorting_disabled(data-sortable="false", data-orderable="false")
+                                    .animated-checkbox
+                                        label.text-right(style="margin:0;padding:0;")
+                                            input.select-all(type="checkbox")
+                                            span.label-text
+
+                                th ID
+                                th Titre
+                                th Famille
+                                th Catégorie
+                                th Photo
+                                th Date de mise à jour
+                                if zones.length > 1 
+                                    th(style="min-width: 75px;") Zone(s)
+                                th État
+                                th(style="min-width: 100px;") Ratio +/-
+                        tbody
+                            each content in contents
+                                tr
+                                    td.text-center
+                                        .animated-checkbox
+                                            label
+                                                input.product-checkbox(type="checkbox" value="" + content.id + "")
+                                                span.label-text
+
+                                    td #{content.id}
+                                    td
+                                        a(href="/contents/edit/" + content.id data-id=`${content.id}`)
+                                            | #{content.title}
+                                    td
+                                        if content.itsTheme
+                                            | #{content.itsTheme.title}
+                                    td
+                                        if content.itsQuestionCategory
+                                            | #{content.itsQuestionCategory.title}
+                                    td
+                                        if content.picture && content.picture.path
+                                            img.pic-image-box(src=content.picture.path)
+                                    td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
+                                    if zones.length > 1
+                                        td
+                                            ul
+                                            for zone in content.availability_zone
+                                                li #{zone.name}
+                                    td
+                                        | #{contentStatesArray[content.published]}
+                                    td 
+                                        span.green #{content.likes}% 
+                                        span / 
+                                        span.red #{content.dislikes}%
+                                        form(action="/contents/reset/" + content.id,class="ml-3", style="display: inline-block;", method="POST", onsubmit="resetConfirmation(this); return false;")
+                                            button(class='delete-item btn-sm btn-secondary' type="submit" data-id=`${content.id}`, style="border: 0;")
+                                                i.fa.fa-refresh
+
+
+                .tile-footer
+                    a(class='btn btn-primary' href="/contents/add")
+                        i.fa.fa-fw.fa-lg.fa-plus
+                        | Créer un contenu
 
 block specific-js
-	// Data table plugin
-	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
-	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
-	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
-	script(type='text/javascript').
-		var _mainDataTable = $('#contentsDataTable').DataTable();
-		
-		$('.btn-primary.filter').on('click', function() {
-			$('.toolbar > .btn').removeClass('active');
-			$('.toolbar-state').slideUp();
-			$('.toolbar-assign').slideUp();
-			
-			var _toolbar = $('.toolbar-filter');
-			
-			if( $(this).hasClass('active') )
-			{
-				$(this).removeClass('active');
-				
-				$(_toolbar).slideUp();
-			}
-			else
-			{
-				$(this).addClass('active');
-				
-				$(_toolbar).slideDown();
-			}
-			              
-		});
-		
-		$('.btn-primary.state').on('click', function() {
-			$('.toolbar > .btn').removeClass('active');
-			$('.toolbar-filter').slideUp();
-			$('.toolbar-assign').slideUp();
-			
-			var _toolbar = $('.toolbar-state');
-			
-			if( $(this).hasClass('active') )
-			{
-				$(this).removeClass('active');
-				
-				$(_toolbar).slideUp();
-			}
-			else
-			{
-				$(this).addClass('active');
-				
-				$(_toolbar).slideDown();
-			}
-			              
-		});
-		
-		
-		$('.btn-primary.assign').on('click', function() {
-			$('.toolbar > .btn').removeClass('active');
-			$('.toolbar-filter').slideUp();
-			$('.toolbar-state').slideUp();
-			
-			var _toolbar = $('.toolbar-assign');
-			
-			if( $(this).hasClass('active') )
-			{
-				$(this).removeClass('active');
-				
-				$(_toolbar).slideUp();
-			}
-			else
-			{
-				$(this).addClass('active');
-				
-				$(_toolbar).slideDown();
-			}
-			              
-		});
-		
-		$('.toolbar-filter select').on('change', function() {
-			var _source = $(this).attr('name');
-			
-			var _target = false;
-			
-			if( _source == 'filter_thematique' )
-			{
-				_target = 3;
-			}
-			
-			if( _source == 'filter_category' )
-			{
-				_target = 4;
-			}
-			
-			if( _source == 'filter_state' )
-			{
-				_target = 7;
-			}
-			
-			var _value  = $(this).find('option:selected').val();
-			
-			if( _value == '' )
-			{
-				_mainDataTable
-					.columns(_target)
-					.search('')
-					.draw();	
-				
-				return;
-			}
-			
-			var _filter = $(this).find('option:selected').text();
-			
-			_mainDataTable
-				.columns(_target)
-				.search(_filter)
-				.draw();
-		});
-		
-		$('.toolbar-assign select').on('change', function() {
-			var _handled = false;
-			
-			$('.toolbar-assign select').each(function(){
-				var _value  = $(this).find('option:selected').val();	
-				
-				if( _value != '' )
-				{
-					$('.toolbar-assign > .btn').removeClass('disabled');	
-					_handled = true;
-				}
-			});
-			
-			if( !_handled )
-			{
-			    $('.toolbar-assign > .btn').addClass('disabled');
-			}                                                    			                                                     
-		});
-		
-		$('.toolbar-state select').on('change', function() {
-			
-			var _value  = $(this).find('option:selected').val();	
-				
-			if( _value != '' )
-			{
-				$('.toolbar-state > .btn').removeClass('disabled');	
-			
-			}
-			else
-			{
-			    $('.toolbar-state > .btn').addClass('disabled');
-			}                                                    			                                                     
-		});
-		
-		
-		$('.toolbar > .btn.duplicate').on('click', function() {
-			if( $(this).hasClass('disabled') )
-			{
-				return;
-			}
-			
-			if( $(_contents).length == 0 )
-			{
-				return;
-			}
-			
-			var _data = {
-				'contents' : _contents,
-			};
-			askConfirmation(function() {
-				$.post('/contents/duplicate', _data, successHandler());
-			});
-		});
-		
-		$('.toolbar > .btn.archive').on('click', function() {
-			if( $(this).hasClass('disabled') )
-			{
-				return;
-			}
-			
-			if( $(_contents).length == 0 )
-			{
-				return;
-			}
-			var _data = {
-				'contents' : _contents,
-				'targetState' : 0, // Target State = Archivé
-			};
-			askConfirmation(function() {
-				$.post('/contents/change-state', _data, successHandler());
-			});
-		});
-		
-		$('.toolbar-state > .btn').on('click', function() {
-			if( $(this).hasClass('disabled') )
-			{
-				return;
-			}
-			
-			if( $(_contents).length == 0 )
-			{
-				return;
-			}
-			
-			var _value  = $('.toolbar-state select').find('option:selected').val();	
-				
-			if( _value == '' )
-			{
-				return;
-			}
-			
-			var _data = {
-				'contents' : _contents,
-				'targetState' : _value, // Target State = Archivé
-			};
-			askConfirmation(function() {
-				$.post('/contents/change-state', _data, successHandler());
-			});
-		});
-		
-		$('.toolbar-assign > .btn').on('click', function() {
-			if( $(this).hasClass('disabled') )
-			{
-				return;
-			}
-			
-			if( $(_contents).length == 0 )
-			{
-				return;
-			}
-			
-			var _thematique = $('.toolbar-assign select[name="assign_thematique"] option:selected').val();
-			var _category	= $('.toolbar-assign select[name="assign_category"] option:selected').val();
-			
-			var _data = {
-				'contents' 	 : _contents,
-				'thematique' : _thematique,
-				'category' 	 : _category
-			};
-			askConfirmation(function() {
-				$.post('/contents/change-category', _data, successHandler());
-			});
-		});
-		
-		var _contents = [];
-		$(document).on('click', '.product-checkbox', function() {
-			if( $(this).is(':checked') )
-			{
-				_contents.push($(this).val())
-			}
-			else
-			{
-				var _target = $(this).val();
-				_contents = _contents.filter(function (element) {
-					return element != _target;
-				});
-			}
-			
-			if( $(_contents).length == 0 )
-			{
-				$('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign').addClass('disabled');				
-			}
-			else
-			{
-				$('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign').removeClass('disabled');
-			}
-		}); 
-		
-		function askConfirmation(submitHandler){
-			
-			swal({
-				title				: "Effectuer cette action ?",
-				text				: "Souhaitez-vous réellement effectuer cette action ? ",
-				type				: "warning",
-				showCancelButton	: true,
-				confirmButtonText	: "Confirmer",
-				cancelButtonText	: "Annuler",
-				closeOnConfirm		: false,
-				closeOnCancel		: false
-			}, 
-			function(isConfirm) 
-			{
-				if (isConfirm) 
-				{
-				    submitHandler();
-					return;
-				} else {
-					swal("Annulé", "Aucune action n'a été réalisée.", "error");
-					return;
-				}
-			});
-		}
-		
-		function successHandler()
-		{
-		    swal({
-				title				: "Confirmé",
-				text				: "L'action a bien été effectuée.",
-				type				: "success",
-				showCancelButton	: false,
-				confirmButtonText	: "Fermer",
-				closeOnConfirm		: false,
-				closeOnCancel		: false
-			}, 
-			function(isConfirm) 
-			{
-				location.reload();
-			});
-		}                       
+    // Data table plugin
+    script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+    script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+    script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+    script(type='text/javascript').
+        var _mainDataTable = $('#contentsDataTable').DataTable();
+
+        $('.btn-primary.filter').on('click', function () {
+            $('.toolbar > .btn').removeClass('active');
+            $('.toolbar-state').slideUp();
+            $('.toolbar-assign').slideUp();
+            $('.toolbar-assign-zone').slideUp();
+
+            var _toolbar = $('.toolbar-filter');
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+
+                $(_toolbar).slideUp();
+            } else {
+                $(this).addClass('active');
+
+                $(_toolbar).slideDown();
+            }
+
+        });
+
+        $('.btn-primary.state').on('click', function () {
+            $('.toolbar > .btn').removeClass('active');
+            $('.toolbar-filter').slideUp();
+            $('.toolbar-assign').slideUp();
+            $('.toolbar-assign-zone').slideUp();
+
+            var _toolbar = $('.toolbar-state');
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+
+                $(_toolbar).slideUp();
+            } else {
+            	if( !$(this).hasClass('disabled') )
+            	{
+                	$(this).addClass('active');
+
+                	$(_toolbar).slideDown();
+                }
+            }
+        });
+
+
+        $('.btn-primary.assign').on('click', function () {
+            $('.toolbar > .btn').removeClass('active');
+            $('.toolbar-filter').slideUp();
+            $('.toolbar-state').slideUp();
+            $('.toolbar-assign-zone').slideUp();
+
+            var _toolbar = $('.toolbar-assign');
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+
+                $(_toolbar).slideUp();
+            } else {
+            	if( !$(this).hasClass('disabled') )
+            	{
+                	$(this).addClass('active');
+
+                	$(_toolbar).slideDown();
+                }
+            }
+        });
+        
+        $('.btn-primary.assign-zone').on('click', function () {
+            $('.toolbar > .btn').removeClass('active');
+            $('.toolbar-filter').slideUp();
+            $('.toolbar-state').slideUp();
+            $('.toolbar-assign').slideUp();
+
+            var _toolbar = $('.toolbar-assign-zone');
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+
+                $(_toolbar).slideUp();
+            } else {
+            	if( !$(this).hasClass('disabled') )
+            	{
+                	$(this).addClass('active');
+
+                	$(_toolbar).slideDown();
+                }
+            }
+
+        });
+
+        $('.toolbar-filter select').on('change', function () {
+            var _source = $(this).attr('name');
+
+            var _target = false;
+
+            if (_source == 'filter_thematique') {
+                _target = 3;
+            }
+
+            if (_source == 'filter_category') {
+                _target = 4;
+            }
+
+            if (_source == 'filter_state') {
+                _target = 7;
+            }
+
+            var _value = $(this).find('option:selected').val();
+
+            if (_value == '') {
+                _mainDataTable
+                    .columns(_target)
+                    .search('')
+                    .draw();
+
+                return;
+            }
+
+            var _filter = $(this).find('option:selected').text();
+
+            _mainDataTable
+                .columns(_target)
+                .search(_filter)
+                .draw();
+        });
+
+        $('.toolbar-assign select').on('change', function () {
+            var _handled = false;
+
+            $('.toolbar-assign select').each(function () {
+                var _value = $(this).find('option:selected').val();
+
+                if (_value != '') {
+                    $('.toolbar-assign > .btn').removeClass('disabled');
+                    _handled = true;
+                }
+            });
+
+            if (!_handled) {
+                $('.toolbar-assign > .btn').addClass('disabled');
+            }
+        });
+
+        $('.toolbar-state select').on('change', function () {
+
+            var _value = $(this).find('option:selected').val();
+
+            if (_value != '') {
+                $('.toolbar-state > .btn').removeClass('disabled');
+
+            } else {
+                $('.toolbar-state > .btn').addClass('disabled');
+            }
+        });
+        
+        $('.toolbar-assign-zone select').on('change', function () {
+            var _handled = false;
+
+            $('.toolbar-assign-zone select').each(function () {
+                var _value = $(this).find('option:selected').val();
+
+                if (_value != '') {
+                    $('.toolbar-assign-zone > .btn').removeClass('disabled');
+                    _handled = true;
+                }
+            });
+
+            if (!_handled) {
+                $('.toolbar-assign-zone > .btn').addClass('disabled');
+            }
+        });
+
+
+        $('.toolbar > .btn.duplicate').on('click', function () {
+            if ($(this).hasClass('disabled')) {
+                return;
+            }
+
+            if ($(_contents).length == 0) {
+                return;
+            }
+
+            var _data = {
+                'contents': _contents,
+            };
+            askConfirmation(function () {
+                $.post('/contents/duplicate', _data, successHandler());
+            });
+        });
+
+        $('.toolbar > .btn.archive').on('click', function () {
+            if ($(this).hasClass('disabled')) {
+                return;
+            }
+
+            if ($(_contents).length == 0) {
+                return;
+            }
+            var _data = {
+                'contents': _contents,
+                'targetState': 0, // Target State = Archivé
+            };
+            askConfirmation(function () {
+                $.post('/contents/change-state', _data, successHandler());
+            });
+        });
+
+        $('.toolbar-state > .btn').on('click', function () {
+            if ($(this).hasClass('disabled')) {
+                return;
+            }
+
+            if ($(_contents).length == 0) {
+                return;
+            }
+
+            var _value = $('.toolbar-state select').find('option:selected').val();
+
+            if (_value == '') {
+                return;
+            }
+
+            var _data = {
+                'contents': _contents,
+                'targetState': _value, // Target State = Archivé
+            };
+            askConfirmation(function () {
+                $.post('/contents/change-state', _data, successHandler());
+            });
+        });
+
+        $('.toolbar-assign > .btn').on('click', function () {
+            if ($(this).hasClass('disabled')) {
+                return;
+            }
+
+            if ($(_contents).length == 0) {
+                return;
+            }
+
+            var _thematique = $('.toolbar-assign select[name="assign_thematique"] option:selected').val();
+            var _category = $('.toolbar-assign select[name="assign_category"] option:selected').val();
+
+            var _data = {
+                'contents': _contents,
+                'thematique': _thematique,
+                'category': _category
+            };
+            askConfirmation(function () {
+                $.post('/contents/change-category', _data, successHandler());
+            });
+        });
+        
+        $('.toolbar-assign-zone > .btn').on('click', function () {
+            if ($(this).hasClass('disabled')) {
+                return;
+            }
+
+            if ($(_contents).length == 0) {
+                return;
+            }
+                                                         
+            var _target = $(this).attr('data-type');
+            var _zone = $('.toolbar-assign-zone select[name="assign_zone"] option:selected').val();
+
+            var _data = {
+                'contents': _contents,
+                'zone': _zone
+            };
+            
+            askConfirmation(function () {
+                $.post('/contents/change-zone/' + _target, _data, successHandler());
+            });
+        });
+
+        var _contents = [];
+        $(document).on('click', '.product-checkbox', function () {
+            if ($(this).is(':checked')) {
+                _contents.push($(this).val())
+            } else {
+                var _target = $(this).val();
+                _contents = _contents.filter(function (element) {
+                    return element != _target;
+                });
+            }
+
+            if ($(_contents).length == 0) {
+                $('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign, .toolbar > .assign-zone').addClass('disabled');
+                $('.toolbar-filter').slideUp();
+            	$('.toolbar-state').slideUp();
+            	$('.toolbar-assign').slideUp();
+            	$('.toolbar-assign-zone').slideUp();
+            } else {
+                $('.toolbar > .state, .toolbar > .archive, .toolbar > .duplicate, .toolbar > .assign, .toolbar > .assign-zone, .toolbar > .export').removeClass('disabled');
+            }
+        });
+        
+        $(document).on('click', '.select-all', function() {
+        	_contents = [];
+        	var rows = _mainDataTable.rows({ 'search': 'applied' }).nodes();
+      	
+      		$('input[type="checkbox"]', rows).prop('checked', this.checked);
+      		
+      		$('input[type="checkbox"]', rows).each(function(item) {
+      			_contents.push($(this).val());
+      		});
+        });
+        
+        $(document).on('click', '.export', function() {
+            $.ajax({
+                type: 'POST',
+                url: '/contents/export/csv', 
+                data: {ids : _contents }, 
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(blob, status, xhr) {
+                    // check for a filename
+                    var filename = "";
+                    var disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        var matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                    }
+
+                    if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                        window.navigator.msSaveBlob(blob, filename);
+                    } else {
+                        var URL = window.URL || window.webkitURL;
+                        var downloadUrl = URL.createObjectURL(blob);
+
+                        if (filename) {
+                            // use HTML5 a[download] attribute to specify filename
+                            var a = document.createElement("a");
+                            // safari doesn't support this yet
+                            if (typeof a.download === 'undefined') {
+                                window.location.href = downloadUrl;
+                            } else {
+                                a.href = downloadUrl;
+                                a.download = filename;
+                                document.body.appendChild(a);
+                                a.click();
+                            }
+                        } else {
+                            window.location.href = downloadUrl;
+                        }
+
+                        setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
+                    }
+                }
+        	});
+        });
+
+        function askConfirmation(submitHandler) {
+
+            swal({
+                    title: "Effectuer cette action ?",
+                    text: "Souhaitez-vous réellement effectuer cette action ? ",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Confirmer",
+                    cancelButtonText: "Annuler",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        submitHandler();
+                        return;
+                    } else {
+                        swal("Annulé", "Aucune action n'a été réalisée.", "error");
+                        return;
+                    }
+                });
+        }
+
+        function successHandler() {
+            swal({
+                    title: "Confirmé",
+                    text: "L'action a bien été effectuée.",
+                    type: "success",
+                    showCancelButton: false,
+                    confirmButtonText: "Fermer",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function (isConfirm) {
+                    location.reload();
+                });
+        }
+
+        function resetConfirmation(form) {
+            swal({
+                    title: "Remettre à zéro les likes ?",
+                    text: "La remise à zéro des likes est définitive.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "valider",
+                    cancelButtonText: "Annuler",
+                    closeOnConfirm: false,
+                    closeOnCancel: false
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        swal("Remise à zéro", "La remise a zéro a été effectuée", "success");
+                        form.submit();
+                        return;
+                    } else {
+                        swal("Annulé", "Aucune action n'a été réalisée.", "error");
+                        return;
+                    }
+                });
+        }

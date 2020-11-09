@@ -1,0 +1,35 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-zone-edit'
+	// - var activeGroup = 'tables'
+
+block title
+	if availability_zone
+		title Modifier une ZONE - Tumeplay
+	else
+		title Créer une ZONE - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  ZONE
+			p Liste des ZONES accessibles via l'application
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") ZONE
+
+	.row
+		.col-md-12
+			include ./forms/zone/_form.pug
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript').
+		$('#contentsDataTable').DataTable();
