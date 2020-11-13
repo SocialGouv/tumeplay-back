@@ -92,11 +92,15 @@
                         textarea.form-control.limited-length(rows="5", data-maxlength="1000", name="comment", placeholder="Commentaire")
                     label.limited-counter 1000 caractères restants.
                     
-                label.control-label Photo associée
-                if content
-                    if content.picture && content.picture.path
-                        img.pic-image-box-normal(src="../../" + content.picture.path)
-                input.form-control(type="file" name="contentPicture")
+                .form-group.form-inline
+                    label.col-12.pl-0.control-label(style="justify-content: left;") Photo associée
+                
+                    if content && content.picture && content.picture.path
+                        img.col-1.pic-image-box-normal(src="../../" + content.picture.path, style="justify-content: left;margin: 0; padding-left: 0;")
+                        input.col-10.form-control(type="file" name="contentPicture")
+                        
+                    else
+                        input.form-control(type="file" name="contentPicture")
 
                 hr
                 

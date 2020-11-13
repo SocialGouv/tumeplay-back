@@ -149,7 +149,7 @@ export default (app: Router) => {
 	            };
 
 	            // Setup picture
-	            const picObject: IPictureInputDTO = req.file;
+	            const picObject: IPictureInputDTO = req.files.contentPicture;
 
 	            if (picObject) {
 	                // Processing the file if any file in req.file (PICTURE)
@@ -174,7 +174,7 @@ export default (app: Router) => {
                 const {content} = await Container.get(ContentService).create(contentItem);
                 
                 
-                if( targetZones.length > 0 )
+                if( targetZones && targetZones.length > 0 )
                 {
 					await handleZones(content.id, targetZones);	
                 }
@@ -213,6 +213,7 @@ export default (app: Router) => {
                     id: documentId,
                 },
                 include: [
+                	'picture',
                 	'itsQuestionContent',
                 	'availability_zone',
                 	'sounds'
