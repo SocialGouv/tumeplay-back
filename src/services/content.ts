@@ -301,7 +301,7 @@ export default class ContentService {
 	    _lastPublished.forEach( content => {
 			_return['lastPublished'].push({
 				'id' : content.id,
-				'title' : content.title,
+				'title' : content.title.split('"').join('').split("'").join(''),
 				'updatedAt' : content.updatedAt,
 				'itsTheme' : content.itsTheme.title,
 				'itsFamily': content.itsQuestionCategory.title,
