@@ -130,7 +130,7 @@ block content
                                 th Date de mise à jour
                                 if zones.length > 1 
                                     th(style="min-width: 75px;") Zone(s)
-                                th État
+                                th.state-column État
                                 th(style="min-width: 100px;") Ratio +/-
                         tbody
                             each content in contents
@@ -286,9 +286,12 @@ block specific-js
             }
 
             if (_source == 'filter_state') {
-                _target = 7;
+                _target = $('th').filter(
+                    function(){
+                        return $(this).hasClass('state-column');
+                    }).index();   
             }
-
+            
             var _value = $(this).find('option:selected').val();
 
             if (_value == '') {
