@@ -8,6 +8,7 @@ export default class SoundService {
         @Inject('soundModel') private soundModel: Models.SoundModel,
         @Inject('contentSoundModel') private contentSoundModel: Models.ContentSoundModel,
         @Inject('questionSoundModel') private questionSoundModel: Models.QuestionSoundModel,
+        @Inject('thematiqueSoundModel') private thematiqueSoundModel: Models.ThematiqueSoundModel,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
     ) {}
@@ -75,16 +76,22 @@ export default class SoundService {
 		await this.contentSoundModel.destroy({ where: {contentId: contentId, soundId: soundId}}) ;
 	}
 	
-	public async deleteQuestionSound(contentId, soundId)
+	public async deleteQuestionSound(questionId, soundId)
 	{
-		await this.questionSoundModel.destroy({ where: {questionId: contentId, soundId: soundId}}) ;
+		await this.questionSoundModel.destroy({ where: {questionId: questionId, soundId: soundId}}) ;
+	}
+	
+	public async deleteThematicSound(thematicId, soundId)
+	{
+		await this.thematiqueSoundModel.destroy({ where: {thematiqueId: thematicId, soundId: soundId}}) ;
 	}
     
-    public async handleQuestionSound(questionId, soundId)
+    public async handleQuestionSound(questionId, soundId, soundType)
     {
 		const questionSoundInput = {
 			questionId: questionId,
 			soundId: soundId,
+			soundType: soundType,
 		}
 		
 		const questionSound = await this.questionSoundModel.create({
@@ -96,6 +103,25 @@ export default class SoundService {
         }
 
         return { questionSound };
+	
+    }
+    
+    public async handleThematicSound(thematicId, soundId)
+    {
+		const thematicSoundInput = {
+			thematiqueId: thematicId,
+			soundId: soundId,
+		}
+		
+		const thematicSound = await this.thematiqueSoundModel.create({
+            ...thematicSoundInput,
+        });
+
+        if (!thematicSound) {
+            throw new Error('Question Sound cannot be created');
+        }
+
+        return { thematicSound };
 	
     }
 }

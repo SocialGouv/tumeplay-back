@@ -5,6 +5,7 @@ import ContactModel from '../models/contact';
 import QuestionContentModel from '../models/question.content';
 import QuestionCategoryModel from '../models/question.category';
 import ThematiqueModel from '../models/thematiques';
+
 import PictureModel from '../models/picture';
 import ProfileModel from '../models/profile';
 import QuestionAnswerModel from '../models/question.answer';
@@ -34,6 +35,7 @@ import PoiModel from '../models/poi';
 import SoundModel from '../models/sound';
 import QuestionSoundModel from '../models/question.sound';
 import ContentSoundModel from '../models/content.sound';
+import ThematiqueSoundModel from '../models/thematiques.sound';
 
 import config from '../config';
 import { Container } from 'typedi';
@@ -56,8 +58,11 @@ export default async () => {
     const Thematique = ThematiqueModel(sequelize, Sequelize);
     const Picture = PictureModel(sequelize, Sequelize);
     const Sound = SoundModel(sequelize, Sequelize);
+    
     const QuestionSound = QuestionSoundModel(sequelize, Sequelize);
     const ContentSound = ContentSoundModel(sequelize, Sequelize);
+    const ThematiqueSound = ThematiqueSoundModel(sequelize, Sequelize);
+    
     const QuestionAnswer = QuestionAnswerModel(sequelize, Sequelize);
     const Product = ProductModel(sequelize, Sequelize);
     const ShippingMode = ShippingModeModel(sequelize, Sequelize);
@@ -114,7 +119,15 @@ export default async () => {
     QuestionSound.belongsTo(Sound, { foreignKey: 'soundId', as: 'sound' });
     
     Thematique.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
-
+    Thematique.belongsToMany(Sound, {
+        through: ThematiqueSound,
+        as: 'sounds',
+        foreignKey: 'thematiqueId',
+    });
+    
+    ThematiqueSound.belongsTo(Thematique, { foreignKey: 'thematiqueId', as: 'thematique' });
+    ThematiqueSound.belongsTo(Sound, { foreignKey: 'soundId', as: 'sound' });                      
+    
     Profile.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
     User.hasOne(Profile, { foreignKey: 'userId', as: 'profile' });
@@ -218,6 +231,7 @@ export default async () => {
     module.exports = QuestionContent;
     module.exports = questionCategory;
     module.exports = Thematique;
+    module.exports = ThematiqueSound;
     module.exports = Picture;
     module.exports = Sound;
     module.exports = ContentSound;
@@ -251,6 +265,7 @@ export default async () => {
         questionModel: QuestionContent,
         questionCategoryModel: questionCategory,
         thematiqueModel: Thematique,
+        thematiqueSoundModel: ThematiqueSound,
         pictureModel: Picture,
         soundModel: Sound,
         contentSoundModel: ContentSound,

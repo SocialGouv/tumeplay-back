@@ -33,7 +33,7 @@ var contentMulterStorage = multer.diskStorage({
       {
           cb(null, 'uploads/sounds/content')
       }
-      else if ( file.fieldname.includes('questionSound') )
+      else if ( file.fieldname.includes('questionSound') || file.fieldname.includes('questionAnswerSound') )
       {
           cb(null, 'uploads/sounds/question')
       }
@@ -149,14 +149,24 @@ export default (app: Router) => {
 	            };
 
 	            // Setup picture
-	            const picObject: IPictureInputDTO = req.file;
-
-	            if (picObject) {
-	                // Processing the file if any file in req.file (PICTURE)
-	                const { picture } = await Container.get(PictureService).create(picObject);
-	                // Assigning pic id to the thematique item
-	                contentItem.pictureId = picture.id;
-	            }
+	            let contentPicture = null;
+                let questionPicture = null;
+				
+				if( req.files && req.files.length > 0 )
+				{
+	                for( let i = 0; i < req.files.length; i++ )
+					{
+						const currentFile = req.files[i];
+						if( currentFile.fieldname == 'contentPicture')	
+						{
+							contentPicture = currentFile;
+						}
+						if( currentFile.fieldname == 'questionPicture' )	
+						{
+							questionPicture = currentFile;
+						}                         
+					}
+				}  
 	            
 	            let   targetZones = [];
                 const zones = await Container.get(UserService).getAllowedZones(req);
@@ -169,12 +179,12 @@ export default (app: Router) => {
 					targetZones = req.body.zoneId;
                 }   
                 
-	            contentItem.questionId = await handleQuestionData(req, req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems, targetZones);
+	            contentItem.questionId = await handleQuestionData(req, req.body.question, req.body.theme, req.body.category, questionPicture, req.body.answerItems, targetZones);
 
                 const {content} = await Container.get(ContentService).create(contentItem);
                 
                 
-                if( targetZones.length > 0 )
+                if( targetZones && targetZones.length > 0 )
                 {
 					await handleZones(content.id, targetZones);	
                 }
@@ -213,11 +223,13 @@ export default (app: Router) => {
                     id: documentId,
                 },
                 include: [
+                	'picture',
                 	'itsQuestionContent',
                 	'availability_zone',
                 	'sounds'
                 ]
             });
+            
             
             if( !content )
             {
@@ -328,11 +340,28 @@ export default (app: Router) => {
                     pictureId: undefined
                 };
                 
-                const picObject: IPictureInputDTO = req.files.contentPicture;
-
-                if (picObject) {
+                let contentPicture = null;
+                let questionPicture = null;
+				
+				if( req.files && req.files.length > 0 )
+				{
+	                for( let i = 0; i < req.files.length; i++ )
+					{
+						const currentFile = req.files[i];
+						if( currentFile.fieldname == 'contentPicture')	
+						{
+							contentPicture = currentFile;
+						}
+						if( currentFile.fieldname == 'questionPicture' )	
+						{
+							questionPicture = currentFile;
+						}
+					}
+				}                              
+				
+                if (contentPicture) {
                     // Processing the file if any file in req.file (PICTURE)
-                    const { picture } = await Container.get(PictureService).create(picObject[0]);
+                    const { picture } = await Container.get(PictureService).create(contentPicture);
                     // Assigning pic id to the thematique item
                     contentItem.pictureId = picture.id;
                 }
@@ -347,7 +376,7 @@ export default (app: Router) => {
                 {
 					targetZones = req.body.zoneId;
                 }                                                                                                                                                             
-                contentItem.questionId = await handleQuestionData(req, req.body.question, req.body.theme, req.body.category, req.files.questionContentPicture, req.body.answerItems, targetZones);
+                contentItem.questionId = await handleQuestionData(req, req.body.question, req.body.theme, req.body.category, questionPicture, req.body.answerItems, targetZones);
                 
                 await Container.get(ContentService).update(req, documentId, contentItem);
                 
@@ -535,7 +564,20 @@ export default (app: Router) => {
 					
 					if( sound )
 					{
-						await Container.get(SoundService).handleQuestionSound(questionId, sound.id);
+						await Container.get(SoundService).handleQuestionSound(questionId, sound.id, "question");
+					}
+				}
+				
+				if( currentFile.fieldname.includes('questionAnswerSound') )	
+				{
+					const targetZone = currentFile.fieldname.replace('questionAnswerSound[zone_', '').replace(']', '');
+					
+					currentFile.availabilityZoneId = parseInt(targetZone);                                 
+					const {sound} = await Container.get(SoundService).create(currentFile);
+					
+					if( sound )
+					{
+						await Container.get(SoundService).handleQuestionSound(questionId, sound.id, "answer");
 					}
 				}
 			}
@@ -588,7 +630,7 @@ export default (app: Router) => {
         // Processing picture
         if (picObject) {
             // Processing the file if any file in req.file (PICTURE)
-            const { picture } = await Container.get(PictureService).create(picObject[0] as IPictureInputDTO);
+            const { picture } = await Container.get(PictureService).create(picObject as IPictureInputDTO);
             // Assigning pic id to the thematique item
             questionContentItem.pictureId = picture.id;
         }
@@ -621,6 +663,7 @@ export default (app: Router) => {
                     };
                 }
             });
+        
             if (answerItems.length > 0) {
                 // Creating answers
                 await Container.get('questionAnswerModel').destroy({ where: { questionContentId: questionId } });
