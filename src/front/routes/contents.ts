@@ -61,9 +61,7 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'global', 'view'),  
     	async (req: Request, res: Response) => {
         try {
-            let likes = '';
-            let dislikes = '';
-            
+
             const logger: any = Container.get('logger');
 
             const contentServiceInstance = Container.get(ContentService);
@@ -74,10 +72,10 @@ export default (app: Router) => {
             for( let i = 0; i < contents.length; i++ )
             {
                 let content = contents[i];
+				
+				const statistics = await questionFeedbackService.getContentStatistics(content.questionId);
 
-                likes 	 = await questionFeedbackService.getLikedContents(content.questionId);
-                dislikes = await questionFeedbackService.getDislikedContents(content.questionId);
-                content	 = Object.assign(content, {likes: likes},{dislikes: dislikes});
+                content	 = Object.assign(content, {likes: statistics.likes},{dislikes: statistics.dislikes});
             }
                
                
@@ -94,7 +92,6 @@ export default (app: Router) => {
                 thematiques: themes,
                 categories: categories,
                 contentStatesArray: contentStatesArray,
-                contentLikes: likes,
                 zones: zones
             });
         } catch (e) {

@@ -5,6 +5,7 @@ import ProductOrderService from './product.order';
 import { IProductOrderInputDTO } from '../interfaces/IProductOrder';
 import { Op } from 'sequelize';
 import { IOrderZone, IOrderZoneDTO } from '../interfaces/IOrderZone';
+import config from '../config';
 
 @Service()
 export default class OrderService {
@@ -355,5 +356,88 @@ export default class OrderService {
             this.logger.error(e);
             throw e;
         }
+    }
+    
+    public async markAsDelivered(req, orderId)
+    {
+		try {
+			let criterias = {where : { id : orderId }};
+            this.logger.silly('Setting order as delivered');
+            
+            this.alterQuery(req, criterias);
+            
+            const order = await this.orderModel.findOne(criterias);
+            
+            if( order )
+            {
+				await order.update({ delivered : true });
+            }
+            
+            return order;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    public async findOne(req, criterias)
+    {
+		try {
+            this.logger.silly('Finding one order');
+            
+            this.alterQuery(req, criterias);
+            
+            const order = await this.orderModel.findOne(criterias);
+            
+            return order;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    public async findAll(req, criterias)
+    {
+		try {
+            this.logger.silly('Finding orders');
+            
+            this.alterQuery(req, criterias);
+            
+            const contents = await this.orderModel.findAll(criterias);
+            
+            return contents;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+                 
+    private alterQuery(req, criterias)
+    {
+        if( typeof req.session !== 'undefined' && typeof req.session.zones !== "undefined" && req.session.zones.length > 0 )
+        {
+            if( req.session.roles.indexOf(config.roles.administrator) < 0 )
+            {
+                this.logger.silly("Altering criterias to add zone constraints");
+                
+                if(typeof criterias.include === 'undefined' )
+                {
+                    criterias.include = [];
+                }
+                
+                criterias.include.push({
+                    association: 'availability_zone',
+                    where: { id : req.session.zones}   
+                });
+            }
+            else
+            {
+                this.logger.silly("Skipping due to user role.");
+            }
+        }
+        
+        this.logger.silly("Out of alter.");
+        
+        return criterias;
     }
 }

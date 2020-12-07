@@ -26,6 +26,9 @@ import ProductZoneModel from '../models/zone-models/product';
 import UserZoneModel from '../models/zone-models/user';
 import QuestionZoneModel from '../models/zone-models/quiz';
 
+import UserStockModel from '../models/user.stocks'
+import UserOrderModel from '../models/user.orders';
+import UserOrderStockModel from '../models/user.orders.stocks';
 
 import BoxModel from '../models/box';
 import BoxProductModel from '../models/box.products';
@@ -85,6 +88,9 @@ export default async () => {
     const Feedback = FeedbackModel(sequelize, Sequelize);
     const QuestionFeedback = QuestionFeedbackModel(sequelize, Sequelize);
 
+    const UserStock = UserStockModel(sequelize, Sequelize);
+    const UserOrder = UserOrderModel(sequelize, Sequelize);
+    const UserOrderStock = UserOrderStockModel(sequelize, Sequelize);
 
     // Setup of relationships
     Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
@@ -148,7 +154,7 @@ export default async () => {
         as: 'products',
         foreignKey: 'orderId',
     });
-
+                       
     ProductOrder.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
     ProductOrder.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
 
@@ -160,7 +166,18 @@ export default async () => {
     ProductStock.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
     QuestionFeedback.belongsTo(QuestionContent, { foreignKey: 'questionContentId', as: 'question' });
     QuestionFeedback.belongsTo(Feedback, { foreignKey: 'feedbackId', as: 'feedback' });
+    
+    UserStock.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+    UserStock.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
+    UserOrder.belongsTo(User, { foreignKey: 'userId', as: 'user'}); 
+    UserOrder.belongsTo(Box, { foreignKey: 'boxId', as: 'box'});
+    UserOrder.belongsTo(Order, { foreignKey: 'orderId', as: 'order'});
+    
+    UserOrderStock.belongsTo(User, { foreignKey: 'userId', as: 'user'});
+    UserOrderStock.belongsTo(UserOrder, { foreignKey: 'orderId', as: 'order'});
+    UserOrderStock.belongsTo(Product, { foreignKey: 'productId', as: 'product'});
+    
     Content.belongsToMany(AvailabilityZone, {
         through: ContentZone,
         as: 'availability_zone',
@@ -225,6 +242,9 @@ export default async () => {
                                  
     module.exports = User;
     module.exports = UserZone;
+    module.exports = UserStock;
+    module.exports = UserOrder;
+    module.exports = UserOrderStock;
     module.exports = Profile;
     module.exports = ShippingAddress;
     module.exports = Content;
@@ -259,6 +279,9 @@ export default async () => {
     return {
         userModel: User,
         userZoneModel: UserZone,
+        userStockModel: UserStock,
+        userOrderModel: UserOrder,
+        userOrderStockModel: UserOrderStock,
         profileModel: Profile,
         shippingAddressModel: ShippingAddress,
         contentModel: Content,

@@ -12,7 +12,7 @@ export default (app: Router) => {
                 where: {
                     published: 1,
                 },
-                include: ['picture', 'sounds'],
+                include: ['picture', 'sounds', 'itsTheme'],
             };
             
             if( req.query.zone )
@@ -44,7 +44,7 @@ export default (app: Router) => {
                     id: content.id,
                     numberOfLines: 3,
                     theme: content.themeId,
-                    category: content.categoryId,
+                    category: ( content.itsTheme.isSpecial ? 1 : content.categoryId ),
                     picture: content.picture ? content.picture.destination + '/' + content.picture.filename : false,
                     sound: localSound ? localSound.destination + '/' + localSound.filename : false,
                     title: content.title,

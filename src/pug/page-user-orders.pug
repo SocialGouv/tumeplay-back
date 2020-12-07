@@ -1,0 +1,288 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-order-management'
+	// - var activeGroup = 'tables'
+
+block title
+	title Commandes - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Commandes
+			p Liste des commandes
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Commandes
+
+	.row
+		.col-md-12
+			
+			
+			.tile
+				include ./layouts/_flash.pug
+					
+				.tile-body
+					
+					.toolbar.mb-3
+						label.mr-3 Actions : 
+						a.btn.btn-sm.btn-primary(href="/user/orders/export/csv") Export CSV 
+					
+						hr
+					
+					table.table.table-hover.table-bordered#ordersDataTable
+						thead
+							tr
+								th Réference (ID)
+								th Date de commande
+								th Destinataire
+								th E-mail
+								th Address de livraison
+								th Type de livraison
+								th Box
+								th Livrée
+								th Informations<br/>Anonymes
+								th Actions
+						tbody
+							each order in orders
+								tr(class="order-"+ order.id)
+									td #{order.id}
+									td(data-sort=order.orderDate) #{order.orderDate ? prettyDate(order.orderDate) : ""}
+									td #{order.profileFullName}
+									td #{order.profileEmail}
+									if order.shippingModeText == 'pickup'
+										td 
+											| #{order.pickup.name}
+											br 
+											| #{order.pickup.street}  
+											br 
+											| #{order.pickup.zipCode} #{order.pickup.city}  
+									else
+										td #{order.shippingAddressConcatenation}
+									td #{order.shippingModeText}
+									td #{order.box.title}
+									td.is-delivered
+										if order.delivered
+											i.fa.fa-fw.fa-lg.fa-check-circle(style="color: green")
+										else
+											i.fa.fa-fw.fa-lg.fa-times-circle(style="color: red")
+									td.has-informations
+										if order.hasPersonalInformations
+											i.fa.fa-fw.fa-lg.fa-check-circle(style="color: green")
+										else
+											i.fa.fa-fw.fa-lg.fa-times-circle(style="color: red")
+									td
+										a(class='btn btn-primary' style="margin-right: 5px;" data-toggle="tooltip" title="Voir / Modifier" href="/user/orders/edit/"+ order.id data-id=`${order.id}`)
+											i.fa.fa-fw.fa-lg.fa-pencil-square-o( style="margin-right:0;")
+										
+										if order.hasPersonalInformations
+											a(class='btn btn-success personal-informations'  style="margin-right: 5px;" data-toggle="tooltip" title="Renseigner les informations anonymes" data-id=`${order.id}` href="#")
+												i.fa.fa-fw.fa-lg.fa-user-circle( style="margin-right:0;")
+										else
+											a(class='btn btn-danger personal-informations'  style="margin-right: 5px;" data-toggle="tooltip" title="Renseigner les informations anonymes" data-id=`${order.id}` href="#")
+												i.fa.fa-fw.fa-lg.fa-user-circle( style="margin-right:0;")
+										
+										if order.delivered
+											a(class='btn btn-primary btn-success mark-delivered' data-toggle="tooltip" title="Marquer comme 'Livrée'" href="#" data-id=`${order.id}`)
+												i.fa.fa-fw.fa-lg.fa-paper-plane( style="margin-right:0;")
+										else
+											a(class='btn btn-primary btn-danger mark-delivered' data-toggle="tooltip" title="Marquer comme 'Livrée'" href="#" data-id=`${order.id}`)
+												i.fa.fa-fw.fa-lg.fa-paper-plane( style="margin-right:0;")
+										
+											
+										if isAllowed(req, "orders", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											form(action="/orders/management/delete/" + order.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+												button(class='delete-item btn btn-secondary' type="submit") 
+													i.fa.fa-fw.fa-lg.fa-times-circle
+													| Annuler
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#ordersDataTable').DataTable();
+		
+		$('body').on('click', '.mark-delivered', function() {
+			var _orderId = $(this).attr('data-id');
+		
+			swal({
+				title				: "Commande livrée",
+				text				: "<br /><p>Marquer la commande comme étant Livrée ?</p><br /><p>Cette action diminuera votre stock personnel automatiquement.</p>",
+				html				: true,
+				showCancelButton	: true,
+				type				: "info",
+				confirmButtonText	: "Valider",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false,
+			},
+			function(isConfirm)
+			{
+				if (isConfirm)
+				{
+					$.get('/user/orders/ajax/set-delivered/'+ _orderId, function(data) {
+						$('.order-' + _orderId + ' td.is-delivered').html($(generateGreenCheck()));
+						$('.order-' + _orderId + ' a.mark-delivered').removeClass('btn-danger').addClass('btn-success');
+						
+						swal({
+							title				: "Confirmé",
+							text				: "L'action a bien été effectuée.",
+							type				: "success",
+							showCancelButton	: false,
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false
+						});
+						return;
+					})
+
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		});
+		
+		$('body').on('click', '.personal-informations', function() {
+			var _orderId = $(this).attr('data-id');
+			
+			$.get('/user/orders/ajax/get-informations/' + _orderId, function(data) {
+				var _defaultAge 	= 0;
+				var _defaultSexe 	= "";
+				var _defaultScolarity = "";
+				var _defaultHouse 	  = "";
+				if( data.order )
+				{
+					console.log(data.order);
+					_defaultAge 	= data.order.age;
+					_defaultSexe 	= data.order.sexe;
+					_defaultScolarity 	= data.order.scolarity;
+					_defaultHouse 		= data.order.house;
+				}
+				var _age = buildInput("age", "Age", "number",_defaultAge);
+				var _sexe = buildInput("sexe", "Sexe", "text",_defaultSexe);
+				var _scolarity = buildInput("scolarity", "Scolarité", "text", _defaultScolarity);
+				var _house = buildInput("house", "House", "text", _defaultHouse);
+				
+				var _localForm = $('<div />')
+					.append( $(_age ) )
+					.append( $(_sexe ) )
+					.append( $(_scolarity ) )
+					.append( $(_house ) );
+				
+				var _fullText  = '<div style="position: relative;"><p style="margin-top: 20px; margin-bottom: 12px;">Veuillez indiquer les informations anonymes :</p><p>'+ $(_localForm).prop('outerHTML') +'</p></div>';
+				
+			
+				swal({
+					title				: "Informations anonymes",
+					text				: _fullText,
+					html				: true,
+					showCancelButton	: true,
+					confirmButtonText	: "Valider",
+					cancelButtonText	: "Annuler",
+					closeOnConfirm		: false,
+					closeOnCancel		: false,
+				},
+				function(isConfirm)
+				{
+					if (isConfirm)
+					{
+						var _data = {
+					  		'age' 		: $('.sweet-alert .input-value-age').val(),
+					  		'sexe'		: $('.sweet-alert .input-value-sexe').val(),
+					  		'scolarity'	: $('.sweet-alert .input-value-scolarity').val(),
+					  		'house'		: $('.sweet-alert .input-value-house').val(),
+					  		'orderId'	: _orderId,
+						};
+						$.post('/user/orders/ajax/update-informations', { data: _data}, function(data) {
+							$('.order-' + _orderId + ' td.has-informations').html($(generateGreenCheck()));
+							$('.order-' + _orderId + ' a.personal-informations').removeClass('btn-danger').addClass('btn-success');
+							
+							swal({
+								title				: "Confirmé",
+								text				: "L'action a bien été effectuée.",
+								type				: "success",
+								showCancelButton	: false,
+								confirmButtonText	: "Fermer",
+								closeOnConfirm		: false,
+								closeOnCancel		: false
+							});
+							return;
+						})
+
+					} else {
+						swal("Annulé", "Aucune action n'a été réalisée.", "error");
+						return;
+					}
+				});
+			});	
+		});
+		
+		function generateGreenCheck()
+		{
+			return $('<i />')
+				.addClass('fa')
+				.addClass('fa-fw')
+				.addClass('fa-lg')
+				.addClass('fa-check-circle')
+				.css('color', 'green');
+		}
+		
+		function buildInput(name, label, type, defaultValue)
+		{
+			var _label = $('<label >')
+				.text(label)
+				.attr('for', name)
+				.css('text-align', 'left')
+				.addClass('col-4')
+				.addClass('control-label');
+			var _input = $('<input />')
+				.attr('value', defaultValue)
+				.trigger('change')
+				.attr('type', type)
+				.attr('name', name)
+				.css('display', 'inline-block')
+				.addClass('input-value-' + name)
+				.addClass('col-8')
+				.addClass('form-control');
+			
+			var _wrapper = $('<div>').addClass('col-12').append(_label).append(_input);
+			
+			return _wrapper;
+		}
+		
+		function deleteConfirmation(form){
+			swal({
+				title				: "Annuler la commande ?",
+				text				: "L'annulation d'une commande est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Commande annulée", "La commande a bien été annulée.", "success");
+					form.submit();
+					return;
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		}

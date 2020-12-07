@@ -25,6 +25,7 @@ import contacts from './routes/contacts';
 import feedback from './routes/feedback';
 import zones from './routes/zones';
 import user from './routes/user';
+import userOrders from './routes/user.orders';
 
 import config from '../config';
 
@@ -48,6 +49,7 @@ export default () => {
     feedback(app);
     zones(app);
     user(app);
+    userOrders(app);
 
     app.use('/', route);
 

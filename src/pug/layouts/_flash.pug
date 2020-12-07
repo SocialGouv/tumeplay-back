@@ -1,7 +1,7 @@
-if req.session.flash
+if flash
     hr
-    if req.session.flash.status
-        p.green #{req.session.flash.msg}
+    if flash.status
+        p.green #{flash.msg}
     else
-        p.red #{req.session.flash.msg}
+        p.red #{flash.msg}
     hr

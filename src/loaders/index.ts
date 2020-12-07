@@ -21,6 +21,18 @@ export default async ({ expressApp }) => {
                 model: models.userZoneModel,
             },
             {
+                name: 'userOrderModel',
+                model: models.userOrderModel,
+            },
+            {
+                name: 'userStockModel',
+                model: models.userStockModel,
+            },
+            {
+                name: 'userOrderStockModel',
+                model: models.userOrderStockModel,
+            },
+            {
                 name: 'contentModel',
                 model: models.contentModel,
             },

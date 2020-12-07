@@ -49,19 +49,19 @@ aside.app-sidebar
 					i.app-menu__icon.fa.fa-book
 					span.app-menu__label Produits
 
-		if isAllowed(req, "boxs", "global", "view")								
+		if isAllowed(req, "boxs", "global", "view")
 			li
 				a.app-menu__item(href='/boxs' class={'active': activePage.indexOf('page-box') !== -1 })
 					i.app-menu__icon.fa.fa-book
 					span.app-menu__label Boxs
 					
-		if isAllowed(req, "poi", "global", "view")								
+		if isAllowed(req, "poi", "global", "view")
 			li
 				a.app-menu__item(href='/poi' class={'active': activePage.indexOf('page-poi') !== -1 })
 					i.app-menu__icon.fa.fa-book
 					span.app-menu__label POI
 		
-		if isAllowed(req, "orders", "global", "view")											
+		if isAllowed(req, "orders", "global", "view")
 			li.treeview(class={'is-expanded': activePage.indexOf('page-order') !== -1})
 				a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-order') !== -1})
 					i.app-menu__icon.fa.fa-table
@@ -69,11 +69,20 @@ aside.app-sidebar
 					i.treeview-indicator.fa.fa-angle-right
 					
 				ul.treeview-menu
+					if isAllowed(req, "orders", "global", "delete")
+						li
+							a.treeview-item(href='/orders/management' class={'active': activePage.indexOf('page-order-management') !== -1})
+								i.icon.fa.fa-circle-o
+								span Gestion des commandes
 					li
-						a.treeview-item(href='/orders/management' class={'active': activePage.indexOf('page-order-management') !== -1})
+						a.treeview-item(href='/user/orders' class={'active': activePage.indexOf('page-order-management') !== -1})
 							i.icon.fa.fa-circle-o
-							span Gestion des commandes
-							
+							span Mes commandes
+					li
+						a.treeview-item(href='/user/orders/stocks' class={'active': activePage.indexOf('page-order-management') !== -1})
+							i.icon.fa.fa-circle-o
+							span Mes stocks
+					
 					if isAllowed(req, "orders", "global", "delete")											
 						li
 							a.treeview-item(href='/orders/shipping-mode' class={'active': activePage.indexOf('page-shipping-mode') !== -1})

@@ -228,6 +228,11 @@ export default class BoxService {
 					boxs[item.box.id].capacity = capacity;
                 }
                 
+                if( isNaN(boxs[item.box.id].capacity) )
+                {
+					boxs[item.box.id].capacity = 0;
+                }
+                
                 boxs[item.box.id].localProducts.push({ 
 					'product' : item.product.id,
 					'qty' 	  : item.qty,
