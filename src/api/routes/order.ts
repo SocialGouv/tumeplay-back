@@ -3,6 +3,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import OrderService from '../../services/order';
 import { IOrder, IOrderInputDTO } from '../../interfaces/IOrder';
 import { celebrate, Joi, errors } from 'celebrate';
+import { Op } from 'sequelize';
+
 import middlewares from '../middlewares';
 import UserService from '../../services/user';
 import BoxService from '../../services/box';
@@ -366,15 +368,28 @@ export default (app: Router) => {
 					
 					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
 	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
-	                
-	                const supports = await Container.get(UserService).findByRole(req, Config.roles.orders_support);
-	                if( supports && supports.length > 0 )
+				}
+				
+				if( localZone )
+				{
+					const criterias = {
+						where: { 
+							roles: { [Op.like]:  '%'+Config.roles.orders_support+'%' }
+						},
+						include: [{
+		                    association: 'availability_zone',
+		                    where: { id : localZone }   
+		                }]
+					};
+					
+		            const supports = await Container.get(UserService).findAll(req, criterias);
+		            if( supports && supports.length > 0 )
     				{
     					supports.forEach( async (support) => {
     						await Container.get(MailerService).send(support.email, 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables);
 						}); 
     				}
-				}
+			    }
             } catch (err) {
                 console.error(err); // TODO-low: should we notify in case of error here ?
             }

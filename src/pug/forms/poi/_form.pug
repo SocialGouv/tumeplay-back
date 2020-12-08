@@ -225,6 +225,24 @@
 										.col-md-1
 										.col-md-4
 											input.form-control(type="text", name="horaires[dimanche][]", placeholder="Après-midi ( HHMM-HHMM )")
+				
+				if zones && zones.length > 0
+					hr
+					.form-group
+					label.control-label Zone
+
+					.row.col-md-12
+						for zone in zones
+							.col-md-3.animated-checkbox
+								label
+									- var _name = "zones[zone_"+ zone.id +"]"
+									if user && user.zoneIds.includes(zone.id)
+										input(type="radio" name="poiZone" value=`${zone.id}` checked=true style="vertical-align: middle") 
+									else
+										input(type="radio" name="poiZone" value=`${zone.id}` checked=false style="vertical-align: middle") 
+
+									span.label-text(style="margin-left: 5px;","vertical-align: middle") #{zone.name}
+				hr
 				.animated-checkbox
 					label
 						if poi

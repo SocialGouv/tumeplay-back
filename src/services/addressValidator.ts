@@ -22,7 +22,8 @@ export default class AddressValidatorService {
 		  	'64',
 		  	'79',
 		  	'86',
-		  	'87'
+		  	'87',
+		  	'97'
 		];
 		const firstPart = zipCode.substring(0, 2);
 		return ( allowedZipCodes.indexOf(firstPart) >= 0 );

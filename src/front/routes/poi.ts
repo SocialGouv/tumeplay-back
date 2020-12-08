@@ -4,6 +4,7 @@ import middlewares from '../middlewares';
 import { IPoiInputDTO } from '../../interfaces/IPoi';
 
 import PoiService from '../../services/poi';
+import UserService from '../../services/user';
 
 const route = Router();
 
@@ -36,9 +37,12 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'global', 'edit'),  
     	async (req: Request, res: Response) => {
         try {
+        	const zones = await Container.get(UserService).getAllowedZones(req);
             const types = ['cegidd', 'pickup'];
+            
             return res.render('page-poi-edit', {
-                types: types,
+                types,
+                zones
             });
         } catch (e) {
             throw e;
@@ -52,15 +56,17 @@ export default (app: Router) => {
     	async (req: Request, res: Response) => {
         try {
             const documentId = +req.params.id;
-            const poiServiceInstance: PoiService = Container.get(PoiService);
+
+            const zones 	 = await Container.get(UserService).getAllowedZones(req);
 
             const types = ['cegidd', 'pickup'];
 
-            const { poi } = await poiServiceInstance.findById(documentId, true);
+            const { poi } = await  Container.get(PoiService).findById(documentId, true);
 
             return res.render('page-poi-edit', {
                 poi,
-                types: types,
+                types,
+                zones,
             });
         } catch (e) {
             throw e;
@@ -86,6 +92,7 @@ export default (app: Router) => {
                 latitude: req.body.latitude,
                 longitude: req.body.longitude,
                 active: req.body.active == 'on',
+                availabilityZoneId: req.body.poiZone,
             };
 
             const poiServiceInstance = Container.get(PoiService);
@@ -116,6 +123,7 @@ export default (app: Router) => {
                 active: req.body.active == 'on',
                 deleted: false,
                 pictureId: undefined,
+                availabilityZoneId: req.body.poiZone,
             };
 
             const boxServiceInstance: BoxService = Container.get(BoxService);
