@@ -58,6 +58,13 @@ export default ({ app }: { app: express.Application }) => {
 	    res.locals.req = req;
 	    next();
 	});
+	
+	app.use(function (req, res, next) {
+	    res.locals.flash 	= ( req.session.flash ? req.session.flash : false );
+	    req.session.flash 	= false;
+	    
+	    next();
+	});
     
     app.use(function (req, res, next) {
         res.locals.readable_roles = '';

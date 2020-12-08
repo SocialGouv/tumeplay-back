@@ -188,6 +188,8 @@ export default (app: Router) => {
                 
                 await handleSounds(req, content.id, content.questionId, targetZones, req.files);
                 
+                req.session.flash = {msg: "Le contenu a bien été créé.", status: true};
+                
             	return res.redirect('/contents');
         } catch (e) {
             throw e;
@@ -383,6 +385,8 @@ export default (app: Router) => {
                 }
                 
                 await handleSounds(req, documentId, contentItem.questionId, targetZones, req.files);
+                
+                req.session.flash = {msg: "Le contenu a bien été mis à jour.", status: true};
                                                                 
                 return res.redirect('/contents');
             } catch (e) {
@@ -400,7 +404,9 @@ export default (app: Router) => {
 
         try {
             await Container.get(ContentService).delete(req, req.params.id);
-                                               
+            
+            req.session.flash = {msg: "Le contenu a bien été supprimé.", status: true};
+            
             return res.redirect('/contents');
         } catch (e) {
             throw e;

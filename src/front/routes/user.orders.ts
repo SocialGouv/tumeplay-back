@@ -25,15 +25,10 @@ export default (app: Router) => {
     	async (req: Request, res: Response) => {
         try {
         	const userOrders = await Container.get(UserOrderService).getUserOrders(req, req.session.user.id);
-        	
-        	const flash 	 = req.session.flash ? req.session.flash : false;
-        	
-        	req.session.flash = false;
-        	
+        	      
             return res.render('page-user-orders', {
                 user: req.session.user,
-                orders: userOrders,
-                flash
+                orders: userOrders
             });
         } catch (e) {
             throw e;

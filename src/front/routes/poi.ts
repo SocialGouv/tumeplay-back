@@ -21,10 +21,10 @@ export default (app: Router) => {
         try {
             const PoiModel: any = Container.get('poiModel');
 
-            const pois = await PoiModel.findAll();
-
+            const pois 	= await PoiModel.findAll();
+            
             return res.render('page-poi', {   
-                pois,
+                pois, 
             });
         } catch (e) {
             throw e;
@@ -101,6 +101,8 @@ export default (app: Router) => {
             const poiServiceInstance = Container.get(PoiService);
             const { poi } = await poiServiceInstance.create(poiItem);
 
+            req.session.flash = {msg: "Le POI a bien été créé.", status: true};
+            
             return res.redirect(ROOT_URL);
         } catch (e) {
             throw e;
@@ -135,6 +137,8 @@ export default (app: Router) => {
             const poiServiceInstance = Container.get(PoiService);
             const { poi } = await poiServiceInstance.update(documentId, poiItem);
 
+            req.session.flash = {msg: "Le POI a bien été mis à jour.", status: true};
+            
             return res.redirect(ROOT_URL);
         } catch (e) {
             throw e;

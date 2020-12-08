@@ -23,7 +23,74 @@ export default (app: Router) => {
 
     app.use(ORDERS_ROOT, route);
     
-    route.post(
+    route.get('/test-empty', async(req, res) => {
+    	
+    	const name = "sdfkjs sdfksd   ";
+    	const first = name.trim();
+        
+        const { box } = await Container.get(BoxService).disableEmptyBoxes();
+    	
+		return res.json({'test' : first}).status(200);
+    });
+    
+    route.get('/test-mail', async (req, res) => {
+    	
+    	const { availabilityZone } = await Container.get(AvailabilityZoneService).findByName(req.query.zone);
+    	
+    	return res.json({'users' : availabilityZone}).status(200);
+    	
+    	const supports = await Container.get(UserService).findByRole(req, Config.roles.orders_support);
+    	
+    	const { order } = await Container.get(OrderService).findByIdDetailled(4);
+    	
+    	const variables = {
+			firstName: order.profileFirstName,
+			name: order.profileName,
+            orderId: String(order.id).padStart(3, '0'),
+            boxId: order.box.id,
+			boxName: order.box.title,
+			shippingMethodReadable: (order.shippingModeText == 'home') ? 'À domicile' : 'Point Relais',
+			shippingMethod: order.shippingModeText,
+			pickup: order.pickup,
+			shippingAddress: order.shipping,
+			products: order.products,
+			hostname: req.protocol + '://' + req.get('host'), // I'm a bit nervous using this one.
+			email: order.profileEmail,
+		};
+		
+		const datetime  = new Date(order.createdAt);
+		const orderReference = datetime.getTime().toString() + '-' + order.id;
+		
+		const mondialRelay = Container.get(MondialRelayService);
+				
+		variables.labelFile = false;/*await mondialRelay.createRemoteLabel(
+			orderReference, 
+			order.profileFullName, 
+			localProfile.email, 
+			order.shippingModeText, 
+			order.pickup,
+			order.shipping
+		);
+		
+		variables.labelFilename = variables.orderId + '-' + variables.boxId + ".pdf";
+    	
+    	*/
+    	if( supports && supports.length > 0 )
+    	{
+    		supports.forEach( async (support) => {
+    			await Container.get(MailerService).send(support.email, 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables);
+			}); 
+    	}
+    	
+    	return res.json({'users' : supports}).status(200);
+    	
+    	await mailService.send('romain.petiteville@celaneo.com', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+	    //await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
+	    
+	    
+		return res.json({'test' : 'test'}).status(200);
+    });
+	route.post(
 		'/is-allowed',
         middlewares.isAuth,
         celebrate({
@@ -181,7 +248,7 @@ export default (app: Router) => {
             }
 
             if (boxProducts.length == 0) {
-                throw Exception('No products');
+                //throw Exception('No products');
             }
 
             // Step 4.1 : Get profile from user
@@ -366,8 +433,8 @@ export default (app: Router) => {
 						variables.labelFilename = variables.orderId + '-' + variables.boxId + ".csv";
 					}
 					
-					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
-	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
+					//await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+	                //await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
 				}
 				
 				if( localZone )

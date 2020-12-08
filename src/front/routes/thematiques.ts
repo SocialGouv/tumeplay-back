@@ -104,6 +104,8 @@ export default (app: Router) => {
 	            const contentServiceInstance = Container.get(ThematiqueService);
 	            await contentServiceInstance.create(thematiqueItem);
 
+	            req.session.flash = {msg: "La thématique a bien été créée.", status: true};
+	            
 	            return res.redirect('/thematiques');
 	        } catch (e) {
 	            throw e;
@@ -163,6 +165,8 @@ export default (app: Router) => {
             await Container.get(ThematiqueService).update(documentId, thematiqueItem as IThematiqueInputDTO);
 
             await handleSounds(req, documentId, req.files);
+            
+            req.session.flash = {msg: "La thématique a bien été mise à jour.", status: true};
             
             return res.redirect('/thematiques');
         } catch (e) {

@@ -175,6 +175,8 @@ export default (app: Router) => {
                 
 	            await handleBoxZones(box, targetZones);
 	            
+	            req.session.flash = {msg: "La box a bien été créée.", status: true};
+	            
 	            return res.redirect(ROOT_URL);
             } catch (e) {
                 throw e;
@@ -234,6 +236,8 @@ export default (app: Router) => {
 	            if (req.body.selectedProduct && Array.isArray(req.body.selectedProduct)) {
 	                await handleProducts(box, req.body.selectedProduct, req.body.qty );
 	            }
+	            
+	            req.session.flash = {msg: "La box a bien été mise à jour.", status: true};
 	                        
 	            return res.redirect(ROOT_URL);
 	        } catch (e) {
