@@ -21,7 +21,7 @@ export default (app: Router) => {
         try {
             const PoiModel: any = Container.get('poiModel');
 
-            const pois 	= await Container.get(PoiService).findAllFiltered(req);
+            const pois 	= await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ]});
             
             return res.render('page-poi', {   
                 pois, 

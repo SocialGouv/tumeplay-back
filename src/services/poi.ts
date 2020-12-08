@@ -2,6 +2,8 @@ import { Service, Inject } from 'typedi';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 import {IPoi, IPoiInputDTO} from '../interfaces/IPoi';
 
+import  config from '../config';
+
 @Service()
 export default class PoiService {
     public constructor(
