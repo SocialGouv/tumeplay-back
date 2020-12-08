@@ -93,6 +93,7 @@ export default (app: Router) => {
                 longitude: req.body.longitude,
                 active: req.body.active == 'on',
                 availabilityZoneId: req.body.poiZone,
+                horaires: handleTimetable(req.body.horaires),
             };
 
             const poiServiceInstance = Container.get(PoiService);
@@ -115,27 +116,22 @@ export default (app: Router) => {
         try {
             const documentId = req.params.id;
 
-            let productItem: IBoxInputDTO = {
-                title: req.body.title,
-                description: req.body.description,
-                shortDescription: req.body.shortDescription,
-                price: req.body.price,
+            let poiItem = {
+                name: req.body.name,
+                description: req.body.text,
+                type: req.body.type,
+                zipCode: req.body.zipCode,
+                street: req.body.street,
+                city: req.body.city,
+                latitude: req.body.latitude,
+                longitude: req.body.longitude,
                 active: req.body.active == 'on',
-                deleted: false,
-                pictureId: undefined,
                 availabilityZoneId: req.body.poiZone,
+                horaires: handleTimetable(req.body.horaires),
             };
 
-            const boxServiceInstance: BoxService = Container.get(BoxService);
-
-            const { box } = await boxServiceInstance.findById(documentId);
-
-            if (req.body.selectedProduct && Array.isArray(req.body.selectedProduct)) {
-                handleProducts(box, req.body.selectedProduct, req.body.qty);
-            }
-            // Updating
-
-            await boxServiceInstance.update(documentId, productItem);
+            const poiServiceInstance = Container.get(PoiService);
+            const { poi } = await poiServiceInstance.update(documentId, poiItem);
 
             return res.redirect(ROOT_URL);
         } catch (e) {
@@ -159,4 +155,34 @@ export default (app: Router) => {
             throw e;
         }
     });
+    
+    function handleTimetable(bodyParams)
+    {
+		return JSON.stringify({
+			lundi: handleTimetableDay(bodyParams.lundi),
+			mardi: handleTimetableDay(bodyParams.mardi),
+			mercredi: handleTimetableDay(bodyParams.mercredi),
+			jeudi: handleTimetableDay(bodyParams.jeudi),
+			vendredi: handleTimetableDay(bodyParams.vendredi),
+			samedi: handleTimetableDay(bodyParams.samedi),
+			dimanche: handleTimetableDay(bodyParams.dimanche),
+		});
+    }
+    
+    function handleTimetableDay(timetable)
+    {
+        var _return = {
+            am: null,
+            pm: null,
+        };
+        if (timetable[0] != '') {
+            _return.am = timetable[0];
+        }
+
+        if (timetable[1] != '') {
+            _return.pm = timetable[1];
+        }
+
+        return _return;
+    }
 };

@@ -6,7 +6,7 @@
 			else
 				h3.tile-title Créer un nouveau POI
 			
-			if content
+			if poi
 				- var targetUrl = "/poi/edit/" + poi.id
 			else
 				- var targetUrl = "/poi/add"
@@ -85,7 +85,7 @@
 						.tile
 							label.control-label Horaires
 
-							if poi
+							if poi && poi.horaires
 								.form-group
 									.row
 										.col-md-3
