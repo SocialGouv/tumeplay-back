@@ -21,7 +21,7 @@ export default (app: Router) => {
         try {
             const PoiModel: any = Container.get('poiModel');
 
-            const pois 	= await PoiModel.findAll();
+            const pois 	= await Container.get(PoiService).findAllFiltered(req);
             
             return res.render('page-poi', {   
                 pois, 
@@ -65,6 +65,11 @@ export default (app: Router) => {
 
             poi.horaires = JSON.parse(poi.horaires);
             
+            if( !poi.phoneNumber )
+            {
+				poi.phoneNumber = '';
+            }
+            
             return res.render('page-poi-edit', {
                 poi,
                 types,
@@ -91,6 +96,7 @@ export default (app: Router) => {
                 zipCode: req.body.zipCode,
                 street: req.body.street,
                 city: req.body.city,
+                phoneNumber: req.body.phoneNumber,
                 latitude: req.body.latitude,
                 longitude: req.body.longitude,
                 active: req.body.active == 'on',
@@ -127,6 +133,7 @@ export default (app: Router) => {
                 zipCode: req.body.zipCode,
                 street: req.body.street,
                 city: req.body.city,
+                phoneNumber: req.body.phoneNumber,
                 latitude: req.body.latitude,
                 longitude: req.body.longitude,
                 active: req.body.active == 'on',

@@ -12,6 +12,7 @@ export default (sequelize, type) => {
         type: DataTypes.STRING,
         zipCode: DataTypes.STRING,
         street: DataTypes.STRING,
+        phoneNumber: DataTypes.STRING(20),
         city: DataTypes.STRING,
         latitude: DataTypes.FLOAT,
         longitude: DataTypes.FLOAT,
