@@ -63,6 +63,8 @@ export default (app: Router) => {
 
             const { poi } = await  Container.get(PoiService).findById(documentId, true);
 
+            poi.horaires = JSON.parse(poi.horaires);
+            
             return res.render('page-poi-edit', {
                 poi,
                 types,
@@ -172,8 +174,8 @@ export default (app: Router) => {
     function handleTimetableDay(timetable)
     {
         var _return = {
-            am: null,
-            pm: null,
+            am: '',
+            pm: '',
         };
         if (timetable[0] != '') {
             _return.am = timetable[0];
