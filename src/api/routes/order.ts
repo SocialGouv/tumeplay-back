@@ -6,6 +6,7 @@ import { celebrate, Joi, errors } from 'celebrate';
 import middlewares from '../middlewares';
 import UserService from '../../services/user';
 import BoxService from '../../services/box';
+import AvailabilityZoneService from '../../services/availability.zone';
 import ProductService from '../../services/product';
 import MailerService from '../../services/mail';
 import MondialRelayService from '../../services/mondial.relay';
@@ -117,6 +118,20 @@ export default (app: Router) => {
             const ShippingAddressModelService = Container.get('shippingAddressModel');
             const UserProfileModelService = Container.get('profileModel');
 
+            // Step -1 : Load zone if present
+            let localZone = null;
+            
+            if( req.query && req.query.zone )
+            {
+				const { availabilityZone } = await Container.get(AvailabilityZoneService).findByName(req.query.zone);	
+				
+				if( availabilityZone )
+				{
+					localZone = availabilityZone.id;	
+				}                                   
+            }
+            
+            
             // Step 0 : Load User
             const localUser = await Container.get(UserService).findById(userId);
 
@@ -236,6 +251,7 @@ export default (app: Router) => {
                 userId: userId,
                 boxId: box.id,
                 pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,
+                availabilityZone: localZone,
             };
 
             const order = await Container.get('orderModel').create(orderData);
@@ -346,6 +362,14 @@ export default (app: Router) => {
 					
 					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
 	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
+	                
+	                const supports = await Container.get(UserService).findByRole(req, Config.roles.orders_support);
+	                if( supports && supports.length > 0 )
+    				{
+    					supports.forEach( async (support) => {
+    						await Container.get(MailerService).send(support.email, 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables);
+						}); 
+    				}
 				}
             } catch (err) {
                 console.error(err); // TODO-low: should we notify in case of error here ?

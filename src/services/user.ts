@@ -1,6 +1,7 @@
 import { Service, Inject } from 'typedi';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 import { IUser, IUserInputDTO } from '../interfaces/IUser';
+import { Op } from 'sequelize';
 import config from '../config';
 import AclService from './acl';
 
@@ -40,6 +41,27 @@ export default class UserService {
             const user = await this.userModel.findOne(criterias);
             
             return user;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    public async findByRole(req, role)
+    {
+		try {
+			let criterias = {
+				where: { 
+					roles: { [Op.like]:  '%'+role+'%' }
+				}
+			};
+            this.logger.silly('Finding user');
+            
+            this.alterQuery(req, criterias);
+            
+            const users = await this.userModel.findAll(criterias);
+            
+            return users;
         } catch (e) {
             this.logger.error(e);
             throw e;
