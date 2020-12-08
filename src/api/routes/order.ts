@@ -250,12 +250,16 @@ export default (app: Router) => {
                 profileId: userProfile.id,
                 userId: userId,
                 boxId: box.id,
-                pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,
-                availabilityZone: localZone,
+                pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,                                 
             };
 
             const order = await Container.get('orderModel').create(orderData);
 
+            if( localZone )
+            {
+				await Container.get(OrderService).bulkCreateZone([{ orderId: order.id, availabilityZoneId: localZone}]);	
+            }
+            
             // Step 8 : Create order products
             const _orderProducts = [];
 
