@@ -181,7 +181,7 @@ export default (app: Router) => {
             }
 
             if (boxProducts.length == 0) {
-                //throw Exception('No products');
+                throw Exception('No products');
             }
 
             // Step 4.1 : Get profile from user

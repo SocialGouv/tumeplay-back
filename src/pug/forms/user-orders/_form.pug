@@ -1,0 +1,112 @@
+.row
+    .col-md-6
+        .tile
+            if order
+                h3.tile-title Gérer une commande
+            else
+                h3.tile-title Créer une nouvelle commande
+
+            if order
+                - var targetUrl = "/user/orders/edit/"+ order.id
+            else
+                - var targetUrl = "/user/orders/add"
+
+            form.order-form(action=`${targetUrl}`, method="POST")
+                if order
+                    input(type="hidden" value=`${order.id}`)
+
+                p
+                    b Réference (ID) :
+                    | #{order.id}
+                p
+                    b Date de commande :
+                    | #{order.orderDate ? prettyDate(order.orderDate) : ""}
+                p
+                    b Client :
+                    | #{order.profileFullName}
+                p
+                    b Addresse de livraison :
+                    if order.shippingModeText == 'pickup'
+                        | #{order.pickup.name}
+                        br
+                        | #{order.pickup.street}
+                        br
+                        | #{order.pickup.zipCode} #{order.pickup.city}
+                    else
+                        | #{order.shippingAddressConcatenation}
+                p
+                    b Type de livraison :
+                    | #{order.shippingModeText}
+                p
+                    b Date de création :
+                    | #{prettyDate(order.createdAt)}
+                p
+                    b Date de mise à jour :
+                    | #{prettyDate(order.updatedAt)}
+                .animated-checkbox
+                    label
+                        if order
+                            input(type="checkbox" name="sent" checked=order.sent)
+                        else
+                            input(type="checkbox" name="sent")
+
+                        span.label-text Envoyé
+                .animated-checkbox
+                    label
+                        if order
+                            input(type="checkbox" name="delivered" checked=order.delivered)
+                        else
+                            input(type="checkbox" name="delivered")
+
+                        span.label-text Livré
+                br
+                if zones && zones.length > 1
+                    .form-group.form-inline
+                        label.col-4.pl-0.control-label(style="justify-content: left;") Zones disponibles
+                        each zone in zones
+
+                            .animated-checkbox.mr-3
+                                label
+                                    if order && order.zoneIds.includes(zone.id)
+                                        input(type="checkbox" name="zoneId" checked=true value=zone.id)
+                                    else
+                                        input(type="checkbox" name="zoneId" value=zone.id)
+
+                                    span.label-text #{zone.name}
+                .tile-footer
+                    button.btn.btn-primary(type="submit")
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Valider
+                    | &nbsp;&nbsp;&nbsp;
+                    a.btn.btn-secondary(href="/user/orders")
+                        i.fa.fa-fw.fa-lg.fa-times-circle
+                        | Annuler
+    .col-md-6
+        .tile
+            div
+                h2 Produits commandés
+            if order.box
+                hr
+
+                h5
+                    | Box commandée : #{order.box.title}
+                hr
+
+            if order.products
+                table.table.table-hover.table-bordered#orderDataTable
+                    thead
+                        tr
+                            th Nom
+                            th Quantité
+                    tbody
+                        each product in order.products
+                            tr
+                                td #{product.title}
+                                td #{product.product_order.qty}
+    .clearfix
+
+
+block specific-js
+    script(type='text/javascript', src="/js/plugins//jquery.dataTables.min.js")
+    script(type='text/javascript', src="/js/plugins//dataTables.bootstrap.min.js")
+    script(type='text/javascript', src="/js/plugins//sweetalert.min.js")
