@@ -31,8 +31,13 @@ export default (sequelize, type) => {
         },
         age: DataTypes.STRING,
         sexe: DataTypes.STRING,
-        scolarity: DataTypes.STRING,
+        city: DataTypes.STRING,
         house: DataTypes.STRING,
+        scolarity: DataTypes.STRING,
+        localBox: DataTypes.STRING,
+        firstBox: DataTypes.STRING,
+        lastBox: DataTypes.STRING,
+        custom: DataTypes.STRING,
         comment: DataTypes.STRING(1000),
         
     });
