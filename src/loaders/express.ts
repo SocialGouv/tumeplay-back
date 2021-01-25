@@ -32,7 +32,8 @@ export default ({ app }: { app: express.Application }) => {
     app.use('/uploads/pictures/question', express.static('uploads/pictures/question'));
     app.use('/uploads/pictures/theme', express.static('uploads/pictures/theme'));
     app.use('/uploads/sounds/content', express.static('uploads/sounds/content'));
-    app.use('/uploads/sounds/question', express.static('uploads/sounds/content'));
+    app.use('/uploads/sounds/question', express.static('uploads/sounds/question'));
+    app.use('/uploads/sounds/theme', express.static('uploads/sounds/theme'));
 
     // In default question files, may be accessed via api:
     // ----------------------------------------------------------------------------------------------------
