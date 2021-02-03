@@ -100,6 +100,9 @@ const permissions = {
 	},
 	boxs: {
 		global: {
+			'add' : [
+				config.roles.administrator_local,
+			],
 			'view': [
 				config.roles.moderator,
 			],
@@ -147,7 +150,7 @@ const permissions = {
 			],
 			'edit': [config.roles.administrator_local],
 			'delete': [config.roles.administrator],
-			'add_zone': [config.roles.administrator],
+			'add_zone': [config.roles.administrator_local],
 		},
 		dashboard: {
 			'superadministrator': [ 

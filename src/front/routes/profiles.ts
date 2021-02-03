@@ -48,6 +48,7 @@ export default (app: Router) => {
             
             return res.render(pageNames.profile.viewList, {
                 users,
+                rolesLabels: config.roles_readable,
             });
         } catch (e) {
             throw e;
