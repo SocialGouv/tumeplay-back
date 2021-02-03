@@ -63,7 +63,9 @@ export default (app: Router) => {
 
             const { poi } = await  Container.get(PoiService).findById(documentId, true);
 
-            poi.horaires = JSON.parse(poi.horaires);
+            poi.horaires = prepareTimetable(poi.horaires);
+            
+            console.log(poi.horaires);
             
             if( !poi.phoneNumber )
             {
@@ -169,6 +171,45 @@ export default (app: Router) => {
         }
     });
     
+    function prepareTimetable(itemTimeTable)
+    {
+    	if( itemTimeTable )
+    	{
+			let localTable = JSON.parse(itemTimeTable);
+			console.log(localTable);
+			itemTimeTable = {
+				lundi: prepareExistingTimeTable(localTable.lundi),
+				mardi: prepareExistingTimeTable(localTable.mardi),
+				mercredi: prepareExistingTimeTable(localTable.mercredi),
+				jeudi: prepareExistingTimeTable(localTable.jeudi),
+				vendredi: prepareExistingTimeTable(localTable.vendredi),
+				samedi: prepareExistingTimeTable(localTable.samedi),
+				dimanche: prepareExistingTimeTable(localTable.dimanche),
+			};
+			
+			console.log(itemTimeTable);
+    	}
+		
+		return itemTimeTable;
+    }
+    
+    function prepareExistingTimeTable(dayTable)
+    {
+		var _return = {
+            am: '',
+            pm: '',
+        };
+        if (dayTable.am != '' && dayTable.am != "null" && typeof dayTable.am != 'undefined') {
+            _return.am = dayTable.am;
+        }
+
+        if (dayTable.pm != '' && dayTable.pm != "null"&& typeof dayTable.pm != 'undefined') {
+            _return.pm = timetable.pm;
+        }
+
+        return _return;
+    }
+    
     function handleTimetable(bodyParams)
     {
 		return JSON.stringify({
@@ -188,11 +229,11 @@ export default (app: Router) => {
             am: '',
             pm: '',
         };
-        if (timetable[0] != '') {
+        if (timetable[0] != '' && timetable[0] != "null" && typeof timetable[0] != 'undefined') {
             _return.am = timetable[0];
         }
 
-        if (timetable[1] != '') {
+        if (timetable[1] != '' && timetable[1] != "null"&& typeof timetable[1] != 'undefined') {
             _return.pm = timetable[1];
         }
 

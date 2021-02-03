@@ -28,6 +28,7 @@ import QuestionZoneModel from '../models/zone-models/quiz';
 
 import UserStockModel from '../models/user.stocks'
 import UserOrderModel from '../models/user.orders';
+import UserPoiModel from '../models/user.pois';
 import UserOrderStockModel from '../models/user.orders.stocks';
 
 import BoxModel from '../models/box';
@@ -91,6 +92,7 @@ export default async () => {
     const UserStock = UserStockModel(sequelize, Sequelize);
     const UserOrder = UserOrderModel(sequelize, Sequelize);
     const UserOrderStock = UserOrderStockModel(sequelize, Sequelize);
+    const UserPoi = UserPoiModel(sequelize, Sequelize);
 
     // Setup of relationships
     Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
@@ -217,6 +219,16 @@ export default async () => {
         as: 'availability_zone',
         foreignKey: 'userId',
     });
+    
+        
+    UserPoi.belongsTo(Poi, { foreignKey: 'poiId', as: 'poi' });
+    UserPoi.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+    
+    User.belongsToMany(Poi, {
+        through: UserPoi,
+        as: 'poi',
+        foreignKey: 'userId',
+    });
 
     UserZone.belongsTo(User, { foreignKey: 'userId', as: 'user' });
     UserZone.belongsTo(AvailabilityZone, { foreignKey: 'availabilityZoneId', as: 'zone' });
@@ -246,6 +258,7 @@ export default async () => {
     module.exports = UserZone;
     module.exports = UserStock;
     module.exports = UserOrder;
+    module.exports = UserPoi;
     module.exports = UserOrderStock;
     module.exports = Profile;
     module.exports = ShippingAddress;
@@ -283,6 +296,7 @@ export default async () => {
         userZoneModel: UserZone,
         userStockModel: UserStock,
         userOrderModel: UserOrder,
+        userPoiModel: UserPoi,
         userOrderStockModel: UserOrderStock,
         profileModel: Profile,
         shippingAddressModel: ShippingAddress,

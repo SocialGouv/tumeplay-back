@@ -69,6 +69,7 @@ export default (app: Router) => {
                     id: box.id,
                     title: box.title,
                     description: box.description,
+                    shortDescription: box.shortDescription,
                     available: box.available,
                     price: 500,
                     products: [],

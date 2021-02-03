@@ -370,15 +370,15 @@ export default (app: Router) => {
 	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
 				}
 				
-				if( localZone )
+				if( localZone && order.shippingModeText == 'pickup' )
 				{
 					const criterias = {
 						where: { 
 							roles: { [Op.like]:  '%'+Config.roles.orders_support+'%' }
 						},
 						include: [{
-		                    association: 'availability_zone',
-		                    where: { id : localZone }   
+		                    association: 'poi',
+		                    where: { id : selectedPickup.id }   
 		                }]
 					};
 					

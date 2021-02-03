@@ -59,7 +59,7 @@ export default {
         ROLE_ADMINISTRATOR_LOCAL: 'Admin.',
         ROLE_REDACTOR: 'Rédacteur',
         ROLE_MODERATOR: 'Modérateur',
-        ROLE_ORDERS_SUPPORT: 'Support',
+        ROLE_ORDERS_SUPPORT: 'Référent / Support',
         ROLE_USER: 'Utilisateur',
     },
 

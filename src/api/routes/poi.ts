@@ -126,6 +126,13 @@ export default (app: Router) => {
                 if( localTimetable )
                 {
 	                Object.keys(localTimetable).forEach(function(key) {
+	                	if( 
+	                		( localTimetable[key]['am'] == '' && localTimetable[key]['pm'] == '' ) ||  
+	                	    ( !localTimetable[key]['am'] && !localTimetable[key]['pm'] )
+	                	)
+	                	{
+							return;
+	                	}
 	                    parsedTimetable[key] = {
 	                        am: formatTimetableRow(localTimetable[key]['am']),
 	                        pm: formatTimetableRow(localTimetable[key]['pm']),

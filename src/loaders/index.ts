@@ -23,6 +23,10 @@ export default async ({ expressApp }) => {
             {
                 name: 'userOrderModel',
                 model: models.userOrderModel,
+            },            
+            {
+                name: 'userPoiModel',
+                model: models.userPoiModel,
             },
             {
                 name: 'userStockModel',

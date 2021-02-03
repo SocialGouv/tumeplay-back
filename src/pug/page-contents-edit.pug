@@ -127,6 +127,27 @@ block specific-js
 		function buildSelectOptions() {
 
 		}
+
+		$('.content-form').on('submit', function() {
+			var _textLength = $('textarea[name="text"]').val().length;
+
+			if( _textLength > 1000 )
+			{
+				swal({
+					title                : "",
+					type				: "error",
+					text                : 'Le champ "Contenu" dépasse la limite de 1000 caractères.',
+					html                : true,
+					showCancelButton    : false,
+					confirmButtonText    : "OK",    
+					closeOnConfirm        : false,
+					closeOnCancel        : false,
+				});
+
+				return false;
+			}
+		});
+
 		$('.remove-question').on('click', function() {
 			var _targetQuestion = $(this).attr('data-content');
 			swal({

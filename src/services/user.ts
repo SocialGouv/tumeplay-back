@@ -10,6 +10,7 @@ export default class UserService {
     public constructor(
         @Inject('userModel') private userModel: Models.UserModel,
         @Inject('userZoneModel') private userZoneModel: Models.UserZone,
+        @Inject('userPoiModel') private userPoiModel: Models.UserPoi,
         @Inject('availabilityZoneModel') private availabilityZoneModel: Models.AvailabilityZoneModel,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
@@ -223,6 +224,25 @@ export default class UserService {
             throw e;
         }
     }
+    
+    
+    public async assignPois(userId, userPois): Promise<> {
+        try {
+            await this.userPoiModel.destroy({ where: { userId: userId}} );
+            
+            if( userPois.length > 0 )                  
+            {
+            	const localPois = [{ userId: userId, poiId: userPois.replace("poi_", "")}];
+	                             
+	            await this.userPoiModel.bulkCreate(localPois);
+			}
+            return;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
     
     public async getAllowedZones(req)
     {
