@@ -13,6 +13,37 @@ block content
 			width: 800px;
 			margin-left: -370px;
 		}
+		div.sweet-alert .fulltext 
+		{
+			min-width: 600px;
+		}
+		@media screen and (max-width: 640px) {
+		  div.sweet-alert 
+		  {
+		    width: auto;
+		    max-width: 500px;
+		    margin-left: auto;
+		  }
+		  div.sweet-alert .fulltext 
+		  {
+				min-width: 400px;
+		  }
+		  div.sweet-alert .col-12 label 
+		  {
+		  	display: block;
+		  	max-width: 100%;
+		  	flex: 0 0 100%;
+		  	padding-left: 0;
+		  }
+		  div.sweet-alert .col-12 input,
+		  div.sweet-alert .col-12 textarea,
+		  div.sweet-alert .col-12 select 
+		  {
+		  	display: block;
+		  	max-width: 100%;
+		  	flex: 0 0 100%;
+		  }
+		}
 	.app-title
 		div
 			h1
@@ -256,7 +287,7 @@ block specific-js
 					.append( $(_comment) )
 					;
 				
-				var _fullText  = '<div style="position: relative;min-width: 600px;"><p style="margin-top: 20px; margin-bottom: 12px;">Veuillez indiquer les informations anonymes :</p><p>'+ $(_localForm).prop('outerHTML') +'</p></div>';
+				var _fullText  = '<div class="fulltext" style="position: relative;"><p style="margin-top: 20px; margin-bottom: 12px;">Veuillez indiquer les informations anonymes :</p><p>'+ $(_localForm).prop('outerHTML') +'</p></div>';
 				
 			
 				swal({

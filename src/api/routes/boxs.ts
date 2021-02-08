@@ -81,6 +81,7 @@ export default (app: Router) => {
                         boxId: box.id,
                     },
                     include: ['product'],
+                    order: [['id', 'ASC']]
                 });
 
                 for (var z = 0; z < localProducts.length; z++) {

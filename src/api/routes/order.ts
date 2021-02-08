@@ -383,10 +383,12 @@ export default (app: Router) => {
 					};
 					
 		            const supports = await Container.get(UserService).findAll(req, criterias);
+		            const targetTemplate = Container.get(MailerService).getLocalTemplate('new_order_supplier_' + req.query.zone, 'new_order_supplier');
+		            
 		            if( supports && supports.length > 0 )
     				{
     					supports.forEach( async (support) => {
-    						await Container.get(MailerService).send(support.email, 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables);
+    						await Container.get(MailerService).send(support.email, 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, targetTemplate, variables);
 						}); 
     				}
 			    }
