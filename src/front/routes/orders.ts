@@ -10,6 +10,7 @@ import ExportGeneratorService from '../../services/export.generator';
 import DateFormatterService from '../../services/date.formatter';
 import ProductService from '../../services/product';
 import ProductOrderService from '../../services/product.order';
+import MondialRelayService from '../../services/mondial.relay';
 import UserService from '../../services/user';
 import { IOrderZoneDTO } from '../../interfaces/IOrderZone';
 const route = Router();
@@ -115,6 +116,66 @@ export default (app: Router) => {
             throw e;
         }
     });
+    
+    route.get(
+        `${routes.ORDER_MANAGEMENT_ROOT}/generate-mondial-relay/:id`,
+        middlewares.isAuth,
+        middlewares.isAllowed(aclSection, 'global', 'edit'),
+        async (req: Request, res: Response) => {
+            try {
+                const orderServiceInstance = Container.get(OrderService);
+		                
+		        const { order } = await orderServiceInstance.findByIdDetailled(req.params.id);
+		        console.log(order);
+		        
+		        if( order )
+		        {
+			        const variables = {
+			            firstName: order.profileFirstName,
+			            name: order.profileName,
+			            orderId: String(order.id).padStart(3, '0'),
+			            boxId: order.box.id,
+			            boxName: order.box.title,
+			            shippingMethodReadable: (order.shippingModeText == 'home') ? 'À domicile' : 'Point Relais',
+			            shippingMethod: order.shippingModeText,
+			            pickup: order.pickup,
+			            shippingAddress: order.shipping,
+			            products: order.products,
+			            hostname: req.protocol + '://' + req.get('host'), // I'm a bit nervous using this one.
+			            email: order.profileEmail,
+			        };
+			        
+			        const mondialRelay   = Container.get(MondialRelayService);
+			        const datetime  	 = new Date(order.createdAt);
+					const orderReference = datetime.getTime().toString() + '-' + order.id;        
+					
+			        variables.labelFile = await mondialRelay.createRemoteLabel(
+			            orderReference, 
+			            order.profileFullName, 
+			            order.profileEmail, 
+			            order.shippingModeText, 
+			            order.pickup,
+			            order.shipping
+			        );
+			        
+			        variables.labelFilename = variables.orderId + '-' + variables.boxId + ".pdf"; 
+			        
+			        if( variables.labelFile )
+			        {
+						return res.json({ success : true, path : variables.labelFile }).status(200);
+			        }
+			        else
+			        {
+						return res.json({ success : false }).status(200);
+			        }
+			        
+				}
+		        return res.json({ success : false }).status(200);
+            } catch (e) {
+                throw e;
+            }
+        },
+    );
 
     route.get(
         `${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`,

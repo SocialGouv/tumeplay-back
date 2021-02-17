@@ -62,7 +62,11 @@ block content
 											| #{order.pickup.zipCode} #{order.pickup.city}  
 									else
 										td #{order.shippingAddressConcatenation}
-									td #{order.shippingModeText}
+									td 
+										| #{order.shippingModeText}
+										if order.shippingModeText == 'pickup'
+											button.generate-print.btn-sm.btn-secondary.ml-3(style="border: 0;", title="Régénérer une étiquette", data-id=order.id)
+												i.fa.fa-refresh
 									td #{order.box.title}						
 									if zones.length > 1
 										td
@@ -110,4 +114,47 @@ block specific-js
 					return;
 				}
 			});
-		}
+		}      
+		
+		$(document).on('click', '.generate-print', function() {
+			var _localId = $(this).attr('data-id');
+		    swal({
+				title				: "Générer une nouvelle étiquette ?",
+				text				: "<br /><p>Souhaitez-vous générer une nouvelle étiquette MR pour cette commande ?</p><br />",
+				type				: "info",
+				html				: true,
+				showCancelButton	: true,
+				confirmButtonText	: "Générer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					$.get('/orders/management/generate-mondial-relay/' + _localId, function(data){
+						if( data.success )
+						{
+							swal({
+								title				: "Succès",
+								text				: '<br /><p>Une nouvelle étiquette est disponible sur <a href="/uploads/labels/'+ data.path +'" target="_blank">ce lien</a>.</p><br />',
+								type				: "success",
+								html				: true,
+								showCancelButton	: false,
+								confirmButtonText	: "Terminer", 
+							})
+						}
+						else
+						{
+							swal("Annulé", "Une erreur est survenue durant la génération.", "error");
+						}
+					});
+					
+					return;
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		});
