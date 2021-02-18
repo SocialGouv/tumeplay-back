@@ -16,7 +16,7 @@ block content
 		.text Contenu
 			each product in products
 				- var qty = ( product.product_order.qty ? product.product_order.qty : 1 )
-				.text -  #{product.shortDescription} : #{qty}
+				.text -  #{product.title} : #{qty}
 				- totalItems++
 		br
 		.text Total des éléments de la box : #{totalItems}							

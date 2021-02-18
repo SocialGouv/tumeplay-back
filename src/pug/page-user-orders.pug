@@ -43,6 +43,17 @@ block content
 		  	max-width: 100%;
 		  	flex: 0 0 100%;
 		  }
+		  
+		  .delivery-mode, 
+		  .user-email
+		  {
+		  	display: none;
+		  }
+		  
+		  .delivery-address
+		  {
+		  	min-width: 100px;
+		  }
 		}
 	.app-title
 		div
@@ -80,9 +91,9 @@ block content
 								th Réference (ID)
 								th Date de commande
 								th Destinataire
-								th E-mail
-								th Address de livraison
-								th Type de livraison
+								th.user-email E-mail
+								th.delivery-address Address de livraison
+								th.delivery-mode Type de livraison
 								th Box
 								th Livrée
 								th Informations<br/>Anonymes
@@ -93,17 +104,17 @@ block content
 									td #{order.id}
 									td(data-sort=order.orderDate) #{order.orderDate ? prettyDate(order.orderDate) : ""}
 									td #{order.profileFullName}
-									td #{order.profileEmail}
+									td.user-email #{order.profileEmail}
 									if order.shippingModeText == 'pickup'
-										td 
+										td.delivery-address
 											| #{order.pickup.name}
 											br 
 											| #{order.pickup.street}  
 											br 
 											| #{order.pickup.zipCode} #{order.pickup.city}  
 									else
-										td #{order.shippingAddressConcatenation}
-									td #{order.shippingModeText}
+										td.delivery-address #{order.shippingAddressConcatenation}
+									td.delivery-mode #{order.shippingModeText}
 									td #{order.box.title}
 									td.is-delivered
 										if order.delivered

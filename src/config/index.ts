@@ -9,10 +9,10 @@ if (!envFound) {
 
 export default {
     port: parseInt(process.env.SERVER_PORT, 10),
-    databaseHost: process.env.DATABASE_HOST,
-    databaseLogin: process.env.DATABASE_LOGIN,
-    databasePassword: process.env.DATABASE_PASSWORD,
-    databaseName: process.env.DATABASE_NAME,
+    databaseHost: process.env.PGHOST,
+    databaseLogin: process.env.PGUSER,
+    databasePassword: process.env.PGPASSWORD,
+    databaseName: process.env.PGDATABASE,
     databaseForce: process.env.DATABASE_FORCE,
     jwtSecret: process.env.JWT_SECRET,
     environment: process.env.ENVIRONMENT || 'prod',

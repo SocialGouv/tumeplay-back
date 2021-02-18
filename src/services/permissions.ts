@@ -14,6 +14,26 @@ const permissions = {
 			'delete': [ 
 				config.roles.administrator_local,
 			],
+		},
+		status: {
+			'0'	 : [
+				config.roles.moderator,
+			],
+			'1'	 : [
+				config.roles.moderator,
+			],
+			'2'	 : [
+				config.roles.moderator,
+			],
+			'3'	 : [
+				config.roles.redactor,
+			],
+			'4'	 : [
+				config.roles.moderator,
+			],
+			'5'	 : [
+				config.roles.redactor,
+			],
 		}
 	},
 	questions : {

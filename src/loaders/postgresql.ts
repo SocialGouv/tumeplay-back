@@ -50,6 +50,9 @@ export default async () => {
         host: config.databaseHost,
         dialect: 'postgres',
         logging: false,
+		dialectOptions: {
+			ssl: true
+		}
     });
 
     const Contact = ContactModel(sequelize, Sequelize);

@@ -42,10 +42,12 @@
                     select.col-3.form-control(name="published")
                         option(value=0) - Sélectionner -
                             each contentState in contentStates
+                                -var _isAllowed = isAllowed(req, "contents", "status", contentState.id )
+                                    
                                 if content && contentState.id == content.published
-                                    option(value=contentState.id, selected="selected")  #{contentState.title}
+                                    option(value=contentState.id, selected="selected")&attributes(_isAllowed !== true ? {'disabled': 'true'} : {})  #{contentState.title}
                                 else
-                                    option(value=contentState.id) #{contentState.title}
+                                    option(value=contentState.id)&attributes(_isAllowed !== true ? {'disabled': 'true'} : {}) #{contentState.title}
 
                 .form-group.form-inline
                     label.col-1.control-label.pl-0(style="justify-content: left;") Famille
