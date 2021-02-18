@@ -39,10 +39,10 @@ There's a bunch of environment variables needed to run the project.
 #### Backend : 
 
 - JWT_SECRET : Secret passphrase, used to encode JWT Tokens
-- DATABASE_HOST : Host running the database ( in context of provided docker-compose, "db" )
-- DATABASE_LOGIN : Login used to connect to database ( in context of provided docker-compose, should be the same as POSTGRES_USER )
-- DATABASE_PASSWORD : Password used to connect to database ( in context of provided docker-compose, should be the same as POSTGRES_PASSWORD )
-- DATABASE_NAME : Target database name ( in context of provided docker-compose, should be the same as POSTGRES_DB )
+- PGHOST : Host running the database ( in context of provided docker-compose, "db" )
+- PGUSER : Login used to connect to database ( in context of provided docker-compose, should be the same as POSTGRES_USER )
+- PGPASSWORD : Password used to connect to database ( in context of provided docker-compose, should be the same as POSTGRES_PASSWORD )
+- PGDATABASE : Target database name ( in context of provided docker-compose, should be the same as POSTGRES_DB )
 - DATABASE_FORCE : *CAUTION*. This setting *drop and recreate* the target database. Use only in a "first run" context.
 - SERVER_PORT : NodeJS Express port used ( usually 5000 )
 - DEFAULT_ADMIN_LOGIN : First user's login created on first run, checked otherwise. 

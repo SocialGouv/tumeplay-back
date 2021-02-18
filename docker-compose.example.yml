@@ -18,10 +18,10 @@ services:
           - "db"
         environment:
             JWT_SECRET: token_secret
-            DATABASE_HOST: db
-            DATABASE_NAME: database_name
-            DATABASE_LOGIN: database_user
-            DATABASE_PASSWORD: database_password
+            PGHOST: db
+            PGDATABASE: database_name
+            PGUSER: database_user
+            PGPASSWORD: database_password
             DATABASE_FORCE: 0
             SERVER_PORT: 5000
             DEFAULT_ADMIN_LOGIN: default@admin.com
