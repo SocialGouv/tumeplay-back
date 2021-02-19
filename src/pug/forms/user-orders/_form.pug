@@ -7,9 +7,9 @@
                 h3.tile-title Créer une nouvelle commande
 
             if order
-                - var targetUrl = "/user/orders/edit/"+ order.id
+                - var targetUrl = "/user/orders/edit/"+ order.id +( ownOrders ? "?ownorders" : "" )
             else
-                - var targetUrl = "/user/orders/add"
+                - var targetUrl = "/user/orders/add" +( ownOrders ? "?ownorders" : "" )
 
             form.order-form(action=`${targetUrl}`, method="POST")
                 if order
@@ -78,7 +78,7 @@
                         i.fa.fa-fw.fa-lg.fa-check-circle
                         | Valider
                     | &nbsp;&nbsp;&nbsp;
-                    a.btn.btn-secondary(href="/user/orders")
+                    a.btn.btn-secondary(href="/user/orders"+ ( ownOrders ? "?ownorders" : "" ))
                         i.fa.fa-fw.fa-lg.fa-times-circle
                         | Annuler
     .col-md-6

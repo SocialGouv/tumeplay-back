@@ -107,13 +107,13 @@ const permissions = {
 	products: {
 		global: {
 			'view': [
-				config.roles.moderator,       
+				config.roles.administrator_local,       
 			],
 			'add': [
-			    config.roles.moderator,       
+			    config.roles.administrator_local,       
 			],
 			'edit': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'delete': [config.roles.administrator],
 		},
@@ -124,10 +124,10 @@ const permissions = {
 				config.roles.administrator_local,
 			],
 			'view': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'edit': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'delete': [config.roles.administrator],
 		},
@@ -135,13 +135,13 @@ const permissions = {
 	poi: {
 		global: {
 			'view': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'add' : [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'edit': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'delete': [config.roles.administrator],
 		},
@@ -150,7 +150,7 @@ const permissions = {
 		global: {
 			'view': [config.roles.orders_support],
 			'edit': [config.roles.orders_support],
-			'delete': [config.roles.administrator],
+			'delete': [config.roles.administrator_local],
 		},
 	},
 	global: {
@@ -169,7 +169,7 @@ const permissions = {
 				config.roles.administrator_local
 			],
 			'edit': [config.roles.administrator_local],
-			'delete': [config.roles.administrator],
+			'delete': [config.roles.administrator_local],
 			'add_zone': [config.roles.administrator_local],
 		},
 		dashboard: {

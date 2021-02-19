@@ -24,11 +24,14 @@ export default (app: Router) => {
     	middlewares.isAuth,    	
     	async (req: Request, res: Response) => {
         try {
-        	const userOrders = await Container.get(UserOrderService).getUserOrders(req, req.session.user.id);
+        	const _ownOrders = ( typeof req.query.ownorders !== "undefined" );
+        	
+        	const userOrders = await Container.get(UserOrderService).getUserOrders(req, _ownOrders);
         	      
             return res.render('page-user-orders', {
                 user: req.session.user,
-                orders: userOrders
+                orders: userOrders,
+                ownOrders : _ownOrders,
             });
         } catch (e) {
             throw e;
@@ -43,8 +46,8 @@ export default (app: Router) => {
             try {
                 const documentId = +req.params.id;
                 const zones 	 = await Container.get(UserService).getAllowedZones(req);
-                                                                   
-                const { order } = await Container.get(OrderService).findByIdDetailled(documentId);
+                const _ownOrders = ( typeof req.query.ownorders !== "undefined" );                                                  
+                const { order }  = await Container.get(OrderService).findByIdDetailled(documentId);
                 
                 order.zoneIds = order.availability_zone.map(item => {
 					return item.id;
@@ -53,6 +56,7 @@ export default (app: Router) => {
                 return res.render('page-user-orders-edit', {
                     order,
                     zones: false,
+                    ownOrders : _ownOrders,
                 });
             } catch (e) {
                 throw e;
@@ -75,13 +79,13 @@ export default (app: Router) => {
                 };
                 
                 const id = +req.params.id;
-
+                const _ownOrders = ( typeof req.query.ownorders !== "undefined" );
                 
                 await Container.get(OrderService).update(id, orderInput);
                 
                 req.session.flash = {msg: "La commande a bien été mise à jour.", status: true};
                               
-                return res.redirect('/user/orders');
+                return res.redirect('/user/orders' + ( _ownOrders ? "?ownorders" : ""));
             } catch (e) {
                 logger.error('🔥 error: %o', e);
                 throw e;
@@ -217,12 +221,13 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'global', 'view'),  
     	async (req: Request, res: Response) => {
     	try {
+    		let _ownOrders 		= ( typeof req.query.ownorders !== "undefined" );
     		const logger: any 	= Container.get('logger');
     		              
     		const dateService   = Container.get(DateFormatterService);
 			const exportService = Container.get(ExportGeneratorService);	
 			              
-			const  dbOrders		= await Container.get(UserOrderService).getUserOrders(req, req.session.user.id);
+			const  dbOrders		= await Container.get(UserOrderService).getUserOrders(req, _ownOrders);
 			
 			const orders = dbOrders.map(item => {
 				const dateObject = new Date(item.orderDate);

@@ -82,7 +82,11 @@ block content
 					.toolbar.mb-3
 						label.mr-3 Actions : 
 						a.btn.btn-sm.btn-primary(href="/user/orders/export/csv") Export CSV 
-					
+						
+						.animated-checkbox.float-right
+							label(style="margin-top: 7px;")
+								input(type="checkbox", name="my_orders" class="my_orders")&attributes(ownOrders == true ? {'checked' : 'checked'} : {}) 
+								span.label-text Mes commandes
 						hr
 					
 					table.table.table-hover.table-bordered#ordersDataTable
@@ -127,7 +131,7 @@ block content
 										else
 											i.fa.fa-fw.fa-lg.fa-times-circle(style="color: red")
 									td
-										a(class='btn btn-primary' style="margin-right: 5px;" data-toggle="tooltip" title="Voir / Modifier" href="/user/orders/edit/"+ order.id data-id=`${order.id}`)
+										a(class='btn btn-primary' style="margin-right: 5px;" data-toggle="tooltip" title="Voir / Modifier" href="/user/orders/edit/"+ order.id +(ownOrders ? "?ownorders" : "") data-id=`${order.id}`)
 											i.fa.fa-fw.fa-lg.fa-pencil-square-o( style="margin-right:0;")
 										
 										if order.hasPersonalInformations
@@ -159,7 +163,18 @@ block specific-js
 	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
 	script(type='text/javascript').
 		$('#ordersDataTable').DataTable();
-		
+		$('.my_orders').on('click', function() {
+			if( $(this).is(':checked') )
+			{
+				var search = window.location.search + (window.location.search ? "&" : "?");
+				search += "ownorders";
+				window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname + search;
+			}
+			else
+			{
+				window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname;
+			}
+		});
 		$('body').on('click', '.mark-delivered', function() {
 			var _orderId = $(this).attr('data-id');
 		

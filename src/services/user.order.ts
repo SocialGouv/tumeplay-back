@@ -4,6 +4,7 @@ import { IUser, IUserInputDTO } from '../interfaces/IUser';
 import config from '../config';
 import AclService from './acl';
 
+import UserService from './user';
 import ProductService from './product';
 import OrderService from './order';
 
@@ -53,14 +54,36 @@ export default class UserOrderService {
         }
     }
     
-    public async getUserOrders(req, userId)
+    public async getUserOrders(req, onlyOwnOrders)
     {
 		try {
             this.logger.silly('Finding user products');
             
             // Beginning from products : handle the case when user has no defined stocks for specific products
             let   ordersIds = [];
-            const rawOrders = await Container.get(OrderService).findAll(req, {include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],});
+            let   queryParams = {include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],};
+            
+            if( onlyOwnOrders )
+            {
+            	const user = await  Container.get(UserService).findOne(req, {
+	                where: {
+	                    id: req.session.user.id
+	                },
+	                include: [               
+                		'poi',
+	                ]
+	            });
+	            
+	            if( user.poi && user.poi.length > 0 )
+	            {
+					queryParams.where = {
+						pickupId : user.poi[0].id
+					};
+				}
+            }
+            
+            
+            const rawOrders = await Container.get(OrderService).findAll(req, queryParams);
             const orders	= rawOrders.map(item => {
             	
             	ordersIds.push(item.id);
