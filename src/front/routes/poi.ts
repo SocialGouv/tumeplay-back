@@ -204,7 +204,7 @@ export default (app: Router) => {
         }
 
         if (dayTable.pm != '' && dayTable.pm != "null"&& typeof dayTable.pm != 'undefined') {
-            _return.pm = timetable.pm;
+            _return.pm = dayTable.pm;
         }
 
         return _return;
