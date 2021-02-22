@@ -152,6 +152,11 @@ const permissions = {
 			'edit': [config.roles.orders_support],
 			'delete': [config.roles.administrator_local],
 		},
+		shipping: {
+			'view': [config.roles.administrator],
+			'edit': [config.roles.administrator],
+			'delete': [config.roles.administrator],
+		}
 	},
 	global: {
 		reset: {

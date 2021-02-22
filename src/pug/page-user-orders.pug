@@ -1,7 +1,7 @@
 extends layouts/_layout.pug
 
 block variables
-	- var activePage = 'page-order-management'
+	- var activePage = 'page-user-order-management'
 	// - var activeGroup = 'tables'
 
 block title
@@ -151,7 +151,7 @@ block content
 											
 										if isAllowed(req, "orders", "global", "delete")
 											| &nbsp;&nbsp;&nbsp;
-											form(action="/orders/management/delete/" + order.id, method="POST", onsubmit="deleteConfirmation(this); return false;")
+											form(action="/user/orders/delete/" + order.id +(ownOrders ? "?ownorders" : ""), method="POST", onsubmit="deleteConfirmation(this); return false;")
 												button(class='delete-item btn btn-secondary' type="submit") 
 													i.fa.fa-fw.fa-lg.fa-times-circle
 													| Annuler

@@ -12,6 +12,10 @@ import DateFormatterService from '../../services/date.formatter';
 import UserOrderService from '../../services/user.order';
 import OrderService from '../../services/order';
 
+import ProductService from '../../services/product';
+import ProductOrderService from '../../services/product.order';
+
+
 const route = Router();
 
 export default (app: Router) => {
@@ -214,6 +218,50 @@ export default (app: Router) => {
         return res.json({success: false});
     });
     
+    
+    
+
+    route.post(
+	    '/delete/:id', 
+	    middlewares.isAuth, 
+	    middlewares.isAllowed(aclSection, 'global', 'delete'),    
+	    async (req: any, res: Response) => {
+        const logger: any = Container.get('logger');
+        logger.debug('Calling Front Delete Order endpoint with body: %o', req.body);
+
+        try {
+            const orderId = req.params.id;
+
+            const orderInput: Partial<IOrderInputDTO> = {
+                deleted: true,
+                updatedAt: new Date(),
+            };
+            
+            const _ownOrders = ( typeof req.query.ownorders !== "undefined" );
+            
+            await Container.get(OrderService).update(orderId, orderInput);
+            
+            const { orderProducts } = await Container.get(ProductOrderService).findByOrder(orderId);
+            
+            logger.debug("Got " + orderProducts.length + " item to increase.");
+            
+            const productService: ProductService = Container.get(ProductService);
+            
+            if( orderProducts && orderProducts.length > 0 )
+            {
+				for( let i = 0; i < orderProducts.length; i++ )
+				{
+					const product = orderProducts[i];
+					await productService.increaseStock(product.productId, product.qty); 
+				}
+            }
+            
+            return res.redirect('/user/orders' + ( _ownOrders ? "?ownorders" : "") );
+        } catch (e) {
+            throw e;
+        }
+    });
+
     
     route.get(
     	'/export/csv', 

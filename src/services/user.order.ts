@@ -61,7 +61,7 @@ export default class UserOrderService {
             
             // Beginning from products : handle the case when user has no defined stocks for specific products
             let   ordersIds = [];
-            let   queryParams = {include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],};
+            let   queryParams = {where: { deleted: false }, include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],};
             
             if( onlyOwnOrders )
             {
@@ -76,9 +76,9 @@ export default class UserOrderService {
 	            
 	            if( user.poi && user.poi.length > 0 )
 	            {
-					queryParams.where = {
+					queryParams.where.push({
 						pickupId : user.poi[0].id
-					};
+					});
 				}
             }
             
