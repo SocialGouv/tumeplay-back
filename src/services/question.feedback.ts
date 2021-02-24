@@ -81,6 +81,33 @@ export default class QuestionFeedbackService {
         return ( ratio ? ratio.toFixed(2) : 0 );
     }
     
+    public async getContentStatistics(id)
+    {  
+    	const allFeedback =  await this.questionFeedbackModel.findAll({ where: { questionContentId: id}});
+    	
+    	let likes 	 = 0;
+    	let dislikes = 0;
+    	
+    	allFeedback.forEach( item => {
+			if( item.isLiked )
+			{
+				likes++;
+			}
+			if( item.isDisliked)
+			{
+				dislikes++;
+			}
+    	})
+    	
+        const likesRatio 	= await this.calculateRatio( ( likes + dislikes ), likes);
+        const dislikesRatio = await this.calculateRatio( ( likes + dislikes ), dislikes);
+        return {
+			likes: 	  ( likesRatio 		? likesRatio.toFixed(1) : 0 ),
+			dislikes: ( dislikesRatio 	? dislikesRatio.toFixed(1) : 0 ),
+        };
+    }
+    
+    
     public async bulkDelete(contentId: number): Promise<{}> {
         try {
             this.logger.silly('Deleting question feedback');

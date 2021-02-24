@@ -71,13 +71,14 @@ export default (app: Router) => {
             const contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
             
             const questionFeedbackService = Container.get(QuestionFeedbackService);
+            
             for( let i = 0; i < contents.length; i++ )
             {
                 let content = contents[i];
+				
+				const statistics = await questionFeedbackService.getContentStatistics(content.questionId);
 
-                likes 	 = await questionFeedbackService.getLikedContents(content.questionId);
-                dislikes = await questionFeedbackService.getDislikedContents(content.questionId);
-                content	 = Object.assign(content, {likes: likes},{dislikes: dislikes});
+                content	 = Object.assign(content, {likes: statistics.likes},{dislikes: statistics.dislikes});
             }
                
                
