@@ -33,7 +33,7 @@ export default (app: Router) => {
 
             if( typeof splitted[0] !== 'undefined' && splitted[0] != '' )
             {
-            	if( Number.isNaN(splitted[0]) )
+            	if( isNaN(splitted[0]) )
             	{
 					_return = splitted[0];
             	}
@@ -46,7 +46,7 @@ export default (app: Router) => {
             
             if( typeof splitted[1] !== 'undefined' && splitted[1] != '' )
             {
-            	if( Number.isNaN(splitted[1]) )
+            	if( isNaN(splitted[1]) )
             	{
 					_return = _return + "-" + splitted[1];
             	}
