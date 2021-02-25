@@ -33,12 +33,28 @@ export default (app: Router) => {
 
             if( typeof splitted[0] !== 'undefined' && splitted[0] != '' )
             {
-				_return = splitted[0].substr(0, 2) + 'h' +splitted[0].substr(2);
+            	if( Number.isNaN(splitted[0]) )
+            	{
+					_return = splitted[0];
+            	}
+            	else
+            	{
+					_return = splitted[0].substr(0, 2) + 'h' +splitted[0].substr(2);	
+            	}
+				
             }
             
             if( typeof splitted[1] !== 'undefined' && splitted[1] != '' )
             {
-				_return = _return + "-" + splitted[1].substr(0, 2) + 'h' +splitted[1].substr(2);
+            	if( Number.isNaN(splitted[1]) )
+            	{
+					_return = _return + "-" + splitted[1];
+            	}
+            	else
+            	{
+				
+					_return = _return + "-" + splitted[1].substr(0, 2) + 'h' +splitted[1].substr(2);
+				}
             }
         }
         return _return;
