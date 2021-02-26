@@ -131,6 +131,11 @@ const permissions = {
 			],
 			'delete': [config.roles.administrator],
 		},
+		ajax: {
+			'products': [
+				config.roles.orders_support
+			]
+		}
 	},
 	poi: {
 		global: {

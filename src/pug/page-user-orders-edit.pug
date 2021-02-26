@@ -1,34 +1,106 @@
 extends layouts/_layout.pug
 
 block variables
-	- var activePage = 'page-user-order-management-edit'
+    - var activePage = 'page-user-order-management-edit'
 
 block title
-	if order
-		title Modifier une commande - Tumeplay
-	else
-		title Créer une commande - Tumeplay
+    if order
+        title Modifier une commande - Tumeplay
+    else
+        title Créer une commande - Tumeplay
 
 block content
-	.app-title
-		div
-			h1
-				i.fa.fa-book
-				|  Gestion de commande (Reference no: #{order ? order.id : "_"})
-			p Visualisation des details de la commande
+    .app-title
+        div
+            h1
+                i.fa.fa-book
+                |  Gestion de commande (Reference no: #{order ? order.id : "_"})
+            p Visualisation des details de la commande
 
-		ul.app-breadcrumb.breadcrumb.side
-			li.breadcrumb-item
-				i.fa.fa-home.fa-lg
-			li.breadcrumb-item.active
-				a(href="#") order
+        ul.app-breadcrumb.breadcrumb.side
+            li.breadcrumb-item
+                i.fa.fa-home.fa-lg
+            li.breadcrumb-item.active
+                a(href="#") order
 
-	.row
-		.col-md-12
-			include ./forms/user-orders/_form.pug
+    .row
+        .col-md-12
+            include ./forms/user-orders/_form.pug
 block specific-js
-	// Data table plugin
-	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
-	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
-	script(type='text/javascript').
-		$('#contentsDataTable').DataTable();
+    // Data table plugin
+    script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+    script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+    script(type='text/javascript').
+        function addProductRow(selectedValue, qty)
+        {
+            if( $('.product-table .new-product-row').length > 0 )
+            {
+                var _totalRows = $('.product-table tbody tr').length;
+                var _sampleRow = $('.product-table .new-product-row').first().clone();
+                
+                $(_sampleRow).removeAttr('hidden').removeClass('new-product-row');
+                
+                $(_sampleRow).find('.qty-field').attr('name', 'qty['+_totalRows+']').val(qty);
+                $(_sampleRow).find('.selectedProduct').attr('name', 'products['+_totalRows+']').val(selectedValue);
+                
+                
+                $('.product-table .new-product-row').before(_sampleRow);
+            }
+        }
+        
+        $(document).on('click', '.load-box', function() {
+            var _selectedBox = $('.selectedBox').val();
+            
+            if( _selectedBox )
+            {
+                $.get('/boxs/ajax/products/' + _selectedBox, function(data){
+                    $(data.currentProducts).each(function(index, item) {
+                       console.log(item);
+                       
+                       addProductRow(item.productId, item.qty);
+                    });
+                    console.log(data);
+                });
+
+            }
+            console.log("changed : ", _selectedBox);
+            return false;
+        });    
+        
+        $(document).on('click', '.add-product', function() {
+            addProductRow("", 0);
+            return false;
+        });
+        
+        $(document).on('click', '.plus-one,.minus-one', function(){
+            var _targetQte = $(this).parent().find('input').first();
+
+            var _currQte   = $(_targetQte).val();
+
+            if( ( !_currQte || isNaN(_currQte) ) )
+            {
+                if( $(this).hasClass('plus-one') )
+                {
+                    $(_targetQte).val("1");
+                }
+                else
+                {
+                    $(_targetQte).val("0");
+                }
+                return;
+            }
+
+            if( $(this).hasClass('plus-one') )
+            {
+                $(_targetQte).val( parseInt(_currQte) + 1 );
+                
+                return;
+            }
+
+            if( $(this).hasClass('minus-one') && _currQte > 0 )
+            {
+                $(_targetQte).val( parseInt(_currQte) - 1 );
+                
+                return;
+            }
+        });

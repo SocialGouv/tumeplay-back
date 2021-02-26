@@ -273,6 +273,36 @@ export default (app: Router) => {
         }
     });
     
+    
+    route.get(
+    	'/ajax/products/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'ajax', 'products'),  
+    	async (req: Request, res: Response) => {
+        	try {
+        		const documentId = req.params.id;
+                const zones 	 = await Container.get(UserService).getAllowedZones(req);
+                const products 	 = await Container.get(ProductService).findAll(req, {
+                    where: {
+                        deleted: false,
+                    },
+                });
+                
+                
+                const currentProducts = await Container.get('boxProductModel').findAll({
+                    where: {
+                        boxId: documentId,
+                    },
+                });
+                
+                return res.json({ currentProducts }).status(200);
+            } catch (e) {
+                throw e;
+            }
+        },
+    );
+
+    
     const handleBoxZones = async (currentBox, zoneId) => {
 		zoneId = ( typeof zoneId != 'undefined' &&  Array.isArray(zoneId) ) ? zoneId : [zoneId];
 

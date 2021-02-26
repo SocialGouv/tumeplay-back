@@ -15,6 +15,9 @@ import OrderService from '../../services/order';
 import ProductService from '../../services/product';
 import ProductOrderService from '../../services/product.order';
 
+import PoiService from '../../services/poi';
+import BoxService from '../../services/box';
+
 
 const route = Router();
 
@@ -42,6 +45,126 @@ export default (app: Router) => {
         }
     });
     
+    route.get('/add', 
+    	middlewares.isAuth,    	
+    	async (req: Request, res: Response) => {
+        try {
+        	const _ownOrders = ( typeof req.query.ownorders !== "undefined" );
+        	
+        	const zones  = await Container.get(UserService).getAllowedZones(req);
+            const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ], order: ['name']});
+            const boxs   = await Container.get(BoxService).findAll(req, {
+                where: {
+                    deleted: false,
+                },
+                include: ['picture', 'availability_zone'],
+            });
+            const products = await Container.get(ProductService).findAll(req, {
+                where: {
+                    deleted: false,
+                },
+            });
+        	      
+            return res.render('page-user-orders-edit', {
+                user: req.session.user,
+                ownOrders : _ownOrders,
+                zones,
+                pois,
+                boxs,
+                products
+            });
+        } catch (e) {
+            throw e;
+        }
+    });
+    
+    
+    route.post(
+        '/add',
+        middlewares.isAuth,
+        middlewares.isAllowed(aclSection, 'global', 'edit'),    
+        async (req: Request, res: Response) => {
+            const logger: any = Container.get('logger');
+            logger.debug('Calling Front edit order with body: %o', req.body);
+
+            try {
+                const orderInput: Partial<IOrderInputDTO> = {
+                    sent: req.body.sent ? req.body.sent === 'on' : false,
+                    delivered: req.body.delivered ? req.body.delivered === 'on' : false,
+                };
+                
+                const id = +req.params.id;
+                const _ownOrders = ( typeof req.query.ownorders !== "undefined" );
+                
+                const shippingData = { title: 'pickup' };
+                const localShipping = await Container.get('shippingModeModel').findOne({ where: shippingData });
+                const localPoi 		= await Container.get('poiModel').findOne({where: {id: req.body.selectedPickup}})
+                
+                let localProfile = {
+	                name: req.body.lastName,
+	                surname: req.body.firstName,
+	                email: "",
+	                userId: req.session.user.id,
+	            };
+	            
+	            localProfile = await  Container.get('profileModel').create(localProfile);
+	            
+                
+                
+				let localUserAdress = {
+	                num: '',
+	                cp: '',
+	                city: localPoi.city,
+	                concatenation: `${localPoi.zipCode},${localPoi.city},${localPoi.adress}`,
+	                street: localPoi.adress,
+	                streetMore: localPoi.adressMore,
+	                zipCode: localPoi.zipCode,
+	                phoneNumber: '',
+	                userId: req.session.user.id,
+	            };
+                
+                localUserAdress = await  Container.get('shippingAddressModel').create(localUserAdress);
+                
+                const orderData = {
+                	userId			: req.session.user.id,
+	                boxId			: req.body.selectedBox,
+	                pickupId		: req.body.selectedPickup ? req.body.selectedPickup : null,
+	                sent			: req.body.sent ? req.body.sent === 'on' : false,
+	                delivered		: req.body.delivered ? req.body.delivered === 'on' : false,
+	                orderDate		: new Date(),
+	                shippingModeId	: localShipping.id,
+	                shippingAddressId: localUserAdress.id,
+	                profileId		: localProfile.id,
+	            };
+                
+                
+            	const order = await Container.get('orderModel').create(orderData);
+                
+                let targetZones = [];
+	            const zones = await Container.get(UserService).getAllowedZones(req);
+                if( zones && zones.length == 1 )
+                {
+					targetZones = [zones[0].id];
+                }   
+                else
+                {
+					targetZones = req.body.zoneId;
+                } 
+                await handleZones(order.id, targetZones);
+                    
+                await handleOrderProducts(req.body, order.id);
+                
+                
+                req.session.flash = {msg: "La commande a bien été mise à jour.", status: true};
+                              
+                return res.redirect('/user/orders' + ( _ownOrders ? "?ownorders" : ""));
+            } catch (e) {
+                logger.error('🔥 error: %o', e);
+                throw e;
+            }
+        },
+    );
+    
     route.get(
         '/edit/:id',
         middlewares.isAuth,
@@ -57,9 +180,18 @@ export default (app: Router) => {
 					return item.id;
 	            });    
                 
+                
+                const products = await Container.get(ProductService).findAll(req, {
+                    where: {
+                        deleted: false,
+                    },
+                });
+                
+                
                 return res.render('page-user-orders-edit', {
                     order,
                     zones: false,
+                    products,
                     ownOrders : _ownOrders,
                 });
             } catch (e) {
@@ -87,6 +219,33 @@ export default (app: Router) => {
                 
                 await Container.get(OrderService).update(id, orderInput);
                 
+                
+                const { orderProducts } = await Container.get(ProductOrderService).findByOrder(id);
+                await releaseProductsStocks(orderProducts);
+                
+                await Container.get('productOrderModel').destroy({
+                    where: {
+                        orderId: id,
+                    },
+                });                
+                await handleOrderProducts(req.body, id);
+                
+                const zones 	= await Container.get(UserService).getAllowedZones(req);
+                let targetZones = [];
+                if( zones && zones.length == 1 )
+                {
+					targetZones = [zones[0].id];
+                }   
+                else
+                {
+					targetZones = req.body.zoneId;
+                }                                                                                                                                                             
+                
+                if( targetZones )
+                {
+					await handleZones(id, targetZones);	
+                }                                      
+                
                 req.session.flash = {msg: "La commande a bien été mise à jour.", status: true};
                               
                 return res.redirect('/user/orders' + ( _ownOrders ? "?ownorders" : ""));
@@ -96,6 +255,78 @@ export default (app: Router) => {
             }
         },
     );
+    
+    const releaseProductsStocks = async(orderProducts) => 
+    {
+        const productService = Container.get(ProductService);
+        
+        if( orderProducts && orderProducts.length > 0 )
+        {
+            for( let i = 0; i < orderProducts.length; i++ )
+            {
+                const product = orderProducts[i];
+                await productService.increaseStock(product.productId, product.qty); 
+            }
+        }
+    }
+    
+    const handleOrderProducts = async(bodyRequest, orderId) => 
+    {
+        const boxProducts    = [];
+        const _orderProducts = [];
+        if( 
+            bodyRequest.products && bodyRequest.products.length > 0 &&
+            bodyRequest.qty && bodyRequest.qty.length > 0 && 
+            bodyRequest.products.length == bodyRequest.qty.length
+        )
+        {
+            const productService = Container.get(ProductService);
+            bodyRequest.products.forEach(async (item, index) => {
+                if( item != "" && typeof item !== "undefined" )
+                {
+                    _orderProducts.push({
+                        productId: item,
+                        orderId: orderId,
+                        qty: ( bodyRequest.qty[index] != "" ? bodyRequest.qty[index] : null ) 
+                    });
+                    
+                    if( bodyRequest.qty[index] != "" )
+                    {
+						await productService.decreaseStock(item, bodyRequest.qty[index]);    	
+                    }
+                    
+
+                }                                                                
+            });
+            
+            await  Container.get('productOrderModel').bulkCreate(_orderProducts);
+        }
+    }
+    
+    
+    const handleZones = async (currentOrder, zoneId) => {
+        const OrderServiceInstance = Container.get(OrderService);
+
+        await OrderServiceInstance.bulkDeleteZone(currentOrder);
+
+        zoneId = typeof zoneId != 'undefined' && Array.isArray(zoneId) ? zoneId : [zoneId];
+        var filteredZones = zoneId.filter(function(el) {
+            return el != 0;
+        });
+        let zonesItems: IOrderZoneDTO[] = filteredZones.map(zoneItem => {
+            return {
+                orderId: currentOrder,
+                availabilityZoneId: zoneItem,
+            };
+        });
+
+        if (zonesItems.length > 0) {
+            // Creating zones
+            await OrderServiceInstance.bulkCreateZone(zonesItems);
+        }
+    };
+    
+    
                     
     route.get('/stocks', 
     	middlewares.isAuth,

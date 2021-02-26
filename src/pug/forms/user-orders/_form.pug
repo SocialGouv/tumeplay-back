@@ -1,112 +1,183 @@
-.row
-    .col-md-6
-        .tile
-            if order
-                h3.tile-title Gérer une commande
-            else
-                h3.tile-title Créer une nouvelle commande
+if order
+    - var targetUrl = "/user/orders/edit/"+ order.id +( ownOrders ? "?ownorders" : "" )
+else
+    - var targetUrl = "/user/orders/add" +( ownOrders ? "?ownorders" : "" )
 
-            if order
-                - var targetUrl = "/user/orders/edit/"+ order.id +( ownOrders ? "?ownorders" : "" )
-            else
-                - var targetUrl = "/user/orders/add" +( ownOrders ? "?ownorders" : "" )
-
-            form.order-form(action=`${targetUrl}`, method="POST")
+form.order-form(action=`${targetUrl}`, method="POST")
+    .row
+        .col-md-6
+            .tile
+                if order
+                    h3.tile-title Gérer une commande
+                else
+                    h3.tile-title Créer une nouvelle commande
+                
+                
                 if order
                     input(type="hidden" value=`${order.id}`)
 
-                p
-                    b Réference (ID) :
-                    | #{order.id}
-                p
-                    b Date de commande :
-                    | #{order.orderDate ? prettyDate(order.orderDate) : ""}
-                p
-                    b Client :
-                    | #{order.profileFullName}
-                p
-                    b Addresse de livraison :
-                    if order.shippingModeText == 'pickup'
-                        | #{order.pickup.name}
-                        br
-                        | #{order.pickup.street}
-                        br
-                        | #{order.pickup.zipCode} #{order.pickup.city}
+                if order
+                    .form-group.form-inline
+                        label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Réference (ID) :
+                        span.col-6 #{order.id}
+                    
+                    .form-group.form-inline
+                        label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Date de commande :
+                        span.col-6 #{order.orderDate ? prettyDate(order.orderDate) : ""}                                  
+                    
+                    .form-group.form-inline
+                        label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Date de création :
+                        span.col-6 #{prettyDate(order.createdAt)}
+                    .form-group.form-inline
+                         label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Date de mise à jour :
+                         span.col-6 #{prettyDate(order.updatedAt)}
+                    hr
+                .form-group.form-inline
+                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Nom / Prénom :
+                        
+                    if order
+                        span.col-6 #{order.profileFullName}
                     else
-                        | #{order.shippingAddressConcatenation}
-                p
-                    b Type de livraison :
-                    | #{order.shippingModeText}
-                p
-                    b Date de création :
-                    | #{prettyDate(order.createdAt)}
-                p
-                    b Date de mise à jour :
-                    | #{prettyDate(order.updatedAt)}
-                .animated-checkbox
-                    label
+                        input.col-4.mr-3.form-control(type="text", name="lastName", placeholder="Nom")
+                        input.col-4.form-control(type="text", name="firstName", placeholder="Prénom")
+                
+                .form-group.form-inline
+                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Type de livraison :
+                    
+                    if order
+                        span.col-6 #{order.shippingModeText == 'pickup' ? 'Point-Relais / Référent' : 'Livraison'}
+                    else
+                        select.col-4.form-control(type="text", name="shippingMode", disabled="disabled", placeholder="Livraison")
+                            option(value="pickup") Point-Relais / Référent
+                    
+                    
+                .form-group.form-inline&attributes( (!order && pois && pois.length > 0) ? {} : {'style': 'align-items: start;'}) 
+                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Adresse de livraison :
+                
+                    if order
+                        span.col-6
+                            if order.shippingModeText == 'pickup'
+                                | #{order.pickup.name}
+                                br
+                                | #{order.pickup.street}
+                                br
+                                | #{order.pickup.zipCode} #{order.pickup.city}
+                            else
+                                | #{order.shippingAddressConcatenation}
+                    else
+                        if pois && pois.length > 0
+                            select.col-4.form-control(type="text", name="selectedPickup", placeholder="Adresse de livraison")
+                                option(value="") - Point de livraison -
+                                each poi in pois
+                                    option(value=poi.id) #{poi.name}
+                
+                .form-group.form-inline.animated-checkbox
+                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Status :
+                    label.col-3(style="justify-content: left;")
                         if order
                             input(type="checkbox" name="sent" checked=order.sent)
                         else
                             input(type="checkbox" name="sent")
 
                         span.label-text Envoyé
-                .animated-checkbox
-                    label
+                    label.col-3(style="justify-content: left;")
                         if order
                             input(type="checkbox" name="delivered" checked=order.delivered)
                         else
                             input(type="checkbox" name="delivered")
 
                         span.label-text Livré
-                br
+                      
                 if zones && zones.length > 1
-                    .form-group.form-inline
-                        label.col-4.pl-0.control-label(style="justify-content: left;") Zones disponibles
+                    hr
+                    .form-group.form-inline.animated-checkbox
+                        label.col-3.pl-0.control-label.font-weight-bold(style="justify-content: left;") Zone(s)
+                        
                         each zone in zones
+                            label.col-3(style="justify-content: left;")
+                                if order && order.zoneIds.includes(zone.id)
+                                    input(type="checkbox" name="zoneId" checked=true value=zone.id)
+                                else
+                                    input(type="checkbox" name="zoneId" value=zone.id)
 
-                            .animated-checkbox.mr-3
-                                label
-                                    if order && order.zoneIds.includes(zone.id)
-                                        input(type="checkbox" name="zoneId" checked=true value=zone.id)
-                                    else
-                                        input(type="checkbox" name="zoneId" value=zone.id)
-
-                                    span.label-text #{zone.name}
+                                span.label-text #{zone.name}
                 .tile-footer
                     button.btn.btn-primary(type="submit")
                         i.fa.fa-fw.fa-lg.fa-check-circle
                         | Valider
                     | &nbsp;&nbsp;&nbsp;
-                    a.btn.btn-secondary(href="/user/orders"+ ( ownOrders ? "?ownorders" : "" ))
+                    a.btn.btn-secondary(href="/user/orders" + (ownOrders ? "?ownorders" : "") )
                         i.fa.fa-fw.fa-lg.fa-times-circle
                         | Annuler
-    .col-md-6
-        .tile
-            div
-                h2 Produits commandés
-            if order.box
-                hr
+        .col-md-6
+            .tile
+                div
+                    h2 Produits commandés
+                    hr
+                    if order && order.box
+                        h5.col-6 Box commandée : #{order.box.title}
+                    else
+                        .form-group.form-inline(style="margin-bottom: 0")
+                            h5.col-3.mt-2 Box commandée : 
+                            if boxs && boxs.length > 0
+                                select.col-4.mr-3.form-control.selectedBox(type="text", name="selectedBox", placeholder="Box commandée")
+                                    option(value="") - Sélectionner -
+                                    each box in boxs
+                                        option(value=box.id) #{box.title}
+                            a.btn.btn-sm.btn-primary.load-box(href="#",data-toggle="tooltip" title="Charger les produits de la box" )
+                                i.fa.fa-fw.mr-0.fa-lg.fa-refresh
+                    hr
 
-                h5
-                    | Box commandée : #{order.box.title}
-                hr
-
-            if order.products
-                table.table.table-hover.table-bordered#orderDataTable
+            
+                table.table.table-hover.table-bordered.product-table#orderDataTable
                     thead
                         tr
                             th Nom
-                            th Quantité
+                            th(style="width: 170px;") Quantité
                     tbody
-                        each product in order.products
-                            tr
-                                td #{product.title}
-                                td #{product.product_order.qty}
-    .clearfix
+                        if order && order.products
+                            - var _index = 0;
+                            each orderProduct in order.products
+                                - _index        = _index + 1
+                                - var _product  = "products["+ _index +"]"
+                                - var _qty      = "qty["+ _index +"]"
+                                tr
+                                    td
+                                        select.form-control.selectedProduct(type="text", name=_product, placeholder="Produit")
+                                            option(value="") - Ajouter un produit -
+                                            each product in products
+                                                option(value=product.id)&attributes( (orderProduct.id == product.id) ? {"selected" : "selected"} : {})  #{product.title}
+                                    
+                                    td
+                                        .form-group.form-inline.animated-checkbox.mb-0
+                                            input.mr-2.form-control.qty-field(type="text", size=2, name=_qty, placeholder="Qté", inputmode="numeric", value=orderProduct.product_order.qty)
+                                        
+                                            a.btn.mr-2.btn-sm.btn-success.plus-one(href="#")
+                                                i.fa.fa-fw.mr-0.fa-lg.fa-plus
+                                            a.btn.btn-sm.btn-danger.minus-one(href="#")
+                                                i.fa.fa-fw.mr-0.fa-lg.fa-minus
+                                    
+                        if products && products.length > 0 
+                            tr.new-product-row(hidden)
+                                td
+                                    select.form-control.selectedProduct(type="text", name="products[]", placeholder="Produit")
+                                        option(value="") - Ajouter un produit -
+                                        each product in products
+                                            option(value=product.id) #{product.title}
+                                td
+                                    .form-group.form-inline.animated-checkbox.mb-0
+                                        input.mr-2.form-control.qty-field(type="text", size=2, name="qty[]", placeholder="Qté", inputmode="numeric")
+                                    
+                                        a.btn.mr-2.btn-sm.btn-success.plus-one(href="#")
+                                            i.fa.fa-fw.mr-0.fa-lg.fa-plus
+                                        a.btn.btn-sm.btn-danger.minus-one(href="#")
+                                            i.fa.fa-fw.mr-0.fa-lg.fa-minus
+                .tile-footer
+                    button.btn.btn-primary.add-product
+                        i.fa.fa-fw.fa-lg.fa-check-circle
+                        | Ajouter un produit
+        .clearfix
 
 
 block specific-js
-    script(type='text/javascript', src="/js/plugins//jquery.dataTables.min.js")
-    script(type='text/javascript', src="/js/plugins//dataTables.bootstrap.min.js")
-    script(type='text/javascript', src="/js/plugins//sweetalert.min.js")
+           

@@ -5,14 +5,18 @@ import { IShippingMode, IShippingModeDTO } from '../../interfaces/IShippingMode'
 import ShippingModeService from '../../services/shipping.mode';
 import { celebrate, Joi } from 'celebrate';
 import middlewares from '../middlewares';
-import OrderService from '../../services/order';
-import ExportGeneratorService from '../../services/export.generator';
-import DateFormatterService from '../../services/date.formatter';
-import ProductService from '../../services/product';
-import ProductOrderService from '../../services/product.order';
-import MondialRelayService from '../../services/mondial.relay';
-import UserService from '../../services/user';
 import { IOrderZoneDTO } from '../../interfaces/IOrderZone';
+
+import OrderService             from '../../services/order';
+import ExportGeneratorService   from '../../services/export.generator';
+import DateFormatterService     from '../../services/date.formatter';
+import ProductService           from '../../services/product';
+import ProductOrderService      from '../../services/product.order';
+import MondialRelayService      from '../../services/mondial.relay';
+import UserService              from '../../services/user';
+import PoiService               from '../../services/poi';
+import BoxService               from '../../services/box';
+
 const route = Router();
 
 export default (app: Router) => {
@@ -177,6 +181,39 @@ export default (app: Router) => {
         },
     );
 
+    
+    route.get(
+        `${routes.ORDER_MANAGEMENT_ROOT}/add`,
+        middlewares.isAuth,
+        middlewares.isAllowed(aclSection, 'global', 'edit'),
+        async (req: Request, res: Response) => {
+            try {
+                const zones  = await Container.get(UserService).getAllowedZones(req);
+                const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ], order: ['name']});
+                const boxs   = await Container.get(BoxService).findAll(req, {
+                    where: {
+                        deleted: false,
+                    },
+                    include: ['picture', 'availability_zone'],
+                });
+                const products = await Container.get(ProductService).findAll(req, {
+                    where: {
+                        deleted: false,
+                    },
+                });
+                return res.render(pageNames.orderManagement.addEdit, {
+                    zones,
+                    pois,
+                    boxs,
+                    products
+                });
+            } catch (e) {
+                throw e;
+            }
+        },
+    );                     
+    
+    
     route.get(
         `${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`,
         middlewares.isAuth,
@@ -192,38 +229,26 @@ export default (app: Router) => {
                 
                 order.zoneIds = order.availability_zone.map(item => {
 					return item.id;
-	            });    
+	            });
+	            
+	            const products = await Container.get(ProductService).findAll(req, {
+                    where: {
+                        deleted: false,
+                    },
+                });
+                    
                 
                 return res.render(pageNames.orderManagement.addEdit, {
                     order,
-                    zones
+                    zones,
+                    products
                 });
             } catch (e) {
                 throw e;
             }
         },
-    );
-    const handleZones = async (currentOrder, zoneId) => {
-        const OrderServiceInstance = Container.get(OrderService);
-
-        await OrderServiceInstance.bulkDeleteZone(currentOrder);
-
-        zoneId = typeof zoneId != 'undefined' && Array.isArray(zoneId) ? zoneId : [zoneId];
-        var filteredZones = zoneId.filter(function(el) {
-            return el != 0;
-        });
-        let zonesItems: IOrderZoneDTO[] = filteredZones.map(zoneItem => {
-            return {
-                orderId: currentOrder,
-                availabilityZoneId: zoneItem,
-            };
-        });
-
-        if (zonesItems.length > 0) {
-            // Creating zones
-            await OrderServiceInstance.bulkCreateZone(zonesItems);
-        }
-    };
+    );                     
+    
     route.post(
         `${routes.ORDER_MANAGEMENT_ROOT}/edit/:id`,
         middlewares.isAuth,
@@ -246,6 +271,7 @@ export default (app: Router) => {
                 
                 const id = +req.params.id;
 
+                console.log(req.body);
                 
                 await Container.get(OrderService).update(id, orderInput);
                 
@@ -261,6 +287,19 @@ export default (app: Router) => {
                 }                                                                                                                                                             
                 
                 await handleZones(id, targetZones);
+                
+                const { orderProducts } = await Container.get(ProductOrderService).findByOrder(id);
+
+                
+                await releaseProductsStocks(orderProducts);
+                
+                const productZones: IProductZone[] = await Container.get('productOrderModel').destroy({
+                    where: {
+                        orderId: id,
+                    },
+                });                
+                
+                await handleOrderProducts(req.body, id);
                 
                 return res.redirect(`${routes.ORDERS_ROOT}${routes.ORDER_MANAGEMENT_ROOT}`);
             } catch (e) {
@@ -296,20 +335,79 @@ export default (app: Router) => {
             
             const productService: ProductService = Container.get(ProductService);
             
-            if( orderProducts && orderProducts.length > 0 )
-            {
-				for( let i = 0; i < orderProducts.length; i++ )
-				{
-					const product = orderProducts[i];
-					await productService.increaseStock(product.productId, product.qty); 
-				}
-            }
+            
+            await releaseProductsStocks(orderProducts);
             
             return res.redirect(routes.ORDERS_ROOT + routes.ORDER_MANAGEMENT_ROOT);
         } catch (e) {
             throw e;
         }
     });
+    
+    const releaseProductsStocks = async(orderProducts) => 
+    {
+        const productService = Container.get(ProductService);
+        
+        if( orderProducts && orderProducts.length > 0 )
+        {
+            for( let i = 0; i < orderProducts.length; i++ )
+            {
+                const product = orderProducts[i];
+                await productService.increaseStock(product.productId, product.qty); 
+            }
+        }
+    }
+    
+    const handleOrderProducts = async(bodyRequest, orderId) => 
+    {
+        const boxProducts    = [];
+        const _orderProducts = [];
+        if( 
+            bodyRequest.products && bodyRequest.products.length > 0 &&
+            bodyRequest.qty && bodyRequest.qty.length > 0 && 
+            bodyRequest.products.length == bodyRequest.qty.length
+        )
+        {
+            const productService = Container.get(ProductService);
+            bodyRequest.products.forEach(async (item, index) => {
+                if( item != "" && typeof item !== "undefined" )
+                {
+                    _orderProducts.push({
+                        productId: item,
+                        orderId: orderId,
+                        qty: bodyRequest.qty[index], 
+                    });
+                    
+                    await productService.decreaseStock(item, bodyRequest.qty[index]);    
+
+                }                                                                
+            });
+            
+            await  Container.get('productOrderModel').bulkCreate(_orderProducts);
+        }
+    }
+    
+    const handleZones = async (currentOrder, zoneId) => {
+        const OrderServiceInstance = Container.get(OrderService);
+
+        await OrderServiceInstance.bulkDeleteZone(currentOrder);
+
+        zoneId = typeof zoneId != 'undefined' && Array.isArray(zoneId) ? zoneId : [zoneId];
+        var filteredZones = zoneId.filter(function(el) {
+            return el != 0;
+        });
+        let zonesItems: IOrderZoneDTO[] = filteredZones.map(zoneItem => {
+            return {
+                orderId: currentOrder,
+                availabilityZoneId: zoneItem,
+            };
+        });
+
+        if (zonesItems.length > 0) {
+            // Creating zones
+            await OrderServiceInstance.bulkCreateZone(zonesItems);
+        }
+    };
 
     /**
      * @description Shipping mode routes
