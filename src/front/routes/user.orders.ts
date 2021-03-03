@@ -119,7 +119,7 @@ export default (app: Router) => {
 	                street: localPoi.adress,
 	                streetMore: localPoi.adressMore,
 	                zipCode: localPoi.zipCode,
-	                phoneNumber: '',
+	                phoneNumber: req.body.phoneNumber,
 	                userId: req.session.user.id,
 	            };
                 
@@ -407,6 +407,7 @@ export default (app: Router) => {
         logger.debug('Calling Update inforamtions endpoint with body: %o', req.body);
 
         try {
+        	let isFilled 	  = false;
         	const localData   = req.body.data;
         	const globalOrder = await Container.get(UserOrderService).getUserOrder(req, localData.orderId);
         	
@@ -416,9 +417,10 @@ export default (app: Router) => {
 				                               
 				await Container.get(UserOrderService).handleOrderPersonalInformations(req.session.user.id, userOrder, localData);
 			
+				isFilled = Container.get(UserOrderService).isPersonalInformationsFilled(localData);
         	}
 
-            return res.json({success : true}).status(200);
+            return res.json({success : true, filled: isFilled}).status(200);
         } catch (e) {
             throw e;
         }

@@ -41,6 +41,15 @@ form.order-form(action=`${targetUrl}`, method="POST")
                         input.col-4.mr-3.form-control(type="text", name="lastName", placeholder="Nom")
                         input.col-4.form-control(type="text", name="firstName", placeholder="Prénom")
                 
+
+                .form-group.form-inline
+                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Téléphone :
+
+                    if order && order.phoneNumber
+                        span.col-6 #{order.phoneNumber}
+                    else
+                        input.col-4.mr-3.form-control(type="text", name="phoneNumber", placeholder="Téléphone")
+
                 .form-group.form-inline
                     label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Type de livraison :
                     

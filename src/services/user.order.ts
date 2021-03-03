@@ -61,7 +61,7 @@ export default class UserOrderService {
             
             // Beginning from products : handle the case when user has no defined stocks for specific products
             let   ordersIds = [];
-            let   queryParams = {where: { deleted: false }, include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],};
+            let   queryParams = {where: [{ deleted: false }], include: ['availability_zone', 'shippingMode', 'shippingAddress', 'profile', 'pickup', 'box'],};
             
             if( onlyOwnOrders )
             {
@@ -106,6 +106,7 @@ export default class UserOrderService {
                     profileName:  item.profile ? item.profile.name : '',
                     profileSurname:  item.profile ? item.profile.surname : '',
                     profileFullName: item.profile ? `${item.profile.name} ${item.profile.surname}` : '',
+                    phoneNumber: item.shippingAddress ? item.shippingAddress.phoneNumber : '',
                     shippingAddressConcatenation: item.shippingAddress ? item.shippingAddress.concatenation : null,
                     shippingModeText: item.shippingMode ? item.shippingMode.title : null,
                     hasPersonalInformations: false,
@@ -123,7 +124,11 @@ export default class UserOrderService {
 						orders.map(order => {  
 							if( item.orderId == order.id )
 							{
-								order.hasPersonalInformations = true;
+								if( this.isPersonalInformationsFilled(item) )
+								{
+									order.hasPersonalInformations = true;	
+								}
+								
 							}
 							
 							return order;
@@ -139,6 +144,21 @@ export default class UserOrderService {
             this.logger.error(e);
             throw e;
         }
+    }
+    
+    public isPersonalInformationsFilled(personalInformations)
+    {
+		let _filled = 0;
+		let _toCheck = ["age", "sexe", "city", "house", "scolarity", "custom", "comments", "lastBox", "firstBox", "localBox"];
+		
+		_toCheck.forEach(item => {
+			if( personalInformations[item] !== "" )
+			{
+				_filled++;
+			}
+		})
+		
+		return _filled >= 6;
     }
                          
     public async decreaseStock(id: number, numberToDecrease: number) {

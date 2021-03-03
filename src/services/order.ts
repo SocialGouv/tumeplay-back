@@ -95,6 +95,7 @@ export default class OrderService {
                 profileFirstName: orderFound.profile ? `${orderFound.profile.surname}` : '',
                 profileName: orderFound.profile ? `${orderFound.profile.name}` : '',
                 profileEmail: orderFound.profile ? orderFound.profile.email : '',
+                phoneNumber: orderFound.shippingAddress ? orderFound.shippingAddress.phoneNumber : '',
                 shippingAddressConcatenation: orderFound.shippingAddress
                     ? orderFound.shippingAddress.concatenation
                     : null,

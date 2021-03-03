@@ -54,9 +54,13 @@ block specific-js
             if( _selectedBox )
             {
                 $.get('/boxs/ajax/products/' + _selectedBox, function(data){
+                    $('.product-table tbody tr').each(function() {
+                       if( !$(this).hasClass('new-product-row') )
+                       {
+                           $(this).remove();
+                       }
+                    });
                     $(data.currentProducts).each(function(index, item) {
-                       console.log(item);
-                       
                        addProductRow(item.productId, item.qty);
                     });
                     console.log(data);
