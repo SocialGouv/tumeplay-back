@@ -7,6 +7,8 @@ import BoxService from '../services/box';
 import ContentService from '../services/content';
 import OrderService from '../services/order';
 import ProductService from '../services/product';
+import AclService from '../services/acl';
+import UserOrderService from '../services/user.order';
 
 import { celebrate, Joi } from 'celebrate';
 import path from 'path';
@@ -127,30 +129,97 @@ export default () => {
                     },
                 });
                 
-                const trimProducts  = [];
+                const contentService = Container.get(ContentService);
+               	const boxService     = Container.get(BoxService);
+               	const trimProducts   = [];
+               	
+                let boxOrders		 = false;
+                let totalOrders 	 = false;
+                let orderStats		 = false;
+                let needActionsContents = false;
+                let contentStatistics	= false;
+                let box = false;
                 
-                products.forEach( product => {
-                    const title = product.title.split('"').join('').split("'").join('');
-					trimProducts.push({
-						'id' 	: product.id,
-						'stock' : product.stock,
-						'title' : (title.length > 25 ? (title.substring( 0, 25) + "...") : title),
-					});
-                });
-                 
-                const boxService  = Container.get(BoxService);
+               	const contentStates  = await contentService.getContentStatesAsArray();                 
                 
-                const boxs 		  = await boxService.computeCapacities();
-                const { boxOrders, totalOrders } = await boxService.computeOrdersStatistics();
                 
-                const contentService    = Container.get(ContentService);
-                const contentStates 	= await contentService.getContentStatesAsArray();                
-                const contentStatistics = await contentService.getContentsStatistics(req);
-                                                             
-                const orderStats 	= await Container.get(OrderService).getOrdersStatistics();
-                
-                const needActionsContents = await contentService.getNeedingActionContents(req);
-                                                             
+                if( AclService.hasRole(req.session.roles, config.roles.orders_support) )
+                {
+					const userProducts 		  = await Container.get(UserOrderService).getUserProducts(req, req.session.user.id);
+					
+					
+					userProducts.forEach( product => {
+	                    const title = product.title.split('"').join('').split("'").join('');
+						trimProducts.push({
+							'id' 	: product.id,
+							'stock' : product.stock,
+							'title' : (title.length > 25 ? (title.substring( 0, 25) + "...") : title),
+						});
+	                });
+					
+					console.log(trimProducts);
+					
+					const userOrders = await Container.get(UserOrderService).getUserOrders(req, false);
+					
+					boxOrders   = { "waiting": [], "done" : [], 'whole' : {}};
+					totalOrders = 0;
+					
+					if( userOrders.length > 0 )
+					{
+						userOrders.forEach( order => {
+							if( order.delivered )
+							{
+								boxOrders.done.push( order );
+							}
+							else
+							{
+								boxOrders.waiting.push( order );
+							}
+							
+							if( typeof boxOrders.whole[order.box.id] == "undefined" )
+							{
+								boxOrders.whole[order.box.id] = {
+									id: order.box.id,
+									title: order.box.title,
+									orders: 0,
+								};
+							}
+							
+							boxOrders.whole[order.box.id].orders++; 
+							
+						});
+						// Commande en attente
+						// Stocks
+						// Camembert box remises / en attente
+					}
+					
+					totalOrders = boxOrders.waiting.length + boxOrders.done.length;
+                }
+                else
+                {
+	                
+	                
+	                products.forEach( product => {
+	                    const title = product.title.split('"').join('').split("'").join('');
+						trimProducts.push({
+							'id' 	: product.id,
+							'stock' : product.stock,
+							'title' : (title.length > 25 ? (title.substring( 0, 25) + "...") : title),
+						});
+	                });
+	                 
+	                
+	                
+	                boxs 		  = await boxService.computeCapacities();
+	                let { boxOrders, totalOrders } = await boxService.computeOrdersStatistics();
+	                
+	                contentStatistics = await contentService.getContentsStatistics(req);
+	                                                             
+	                orderStats 	= await Container.get(OrderService).getOrdersStatistics();
+	                
+	                needActionsContents = await contentService.getNeedingActionContents(req);
+				}
+				
                 return res.render('index', {
                     username: req.session.name,
                     products: trimProducts,                    

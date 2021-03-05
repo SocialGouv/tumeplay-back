@@ -63,4 +63,9 @@ block specific-js
 		include ./includes/dashboards/js/_needingActionsContents.pug
 	
 	else if isAllowed(req, "global", "dashboard", "order_support")
-		include ./includes/dashboards/js/_stock.pug
+		if supportStock
+			include ./includes/dashboards/js/_supportStock.pug
+		if supportBoxDispatch
+			include ./includes/dashboards/js/_supportBoxDispatch.pug
+		if supportBoxDelivered
+			include ./includes/dashboards/js/_supportBoxDelivered.pug
