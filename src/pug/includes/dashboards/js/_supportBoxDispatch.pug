@@ -1,0 +1,42 @@
+script(type='text/javascript').
+	
+	Pace.on('done', function() {
+		var boxs 	 = {
+			"waiting" : !{boxsOrders.waiting.length},
+			"done" : !{boxsOrders.done.length},
+		};
+		
+		console.log(boxs);
+		
+		generateBoxDispatchGraph(boxs);
+	});
+	
+	function generateBoxDispatchGraph(boxData)
+	{
+		var _values = [
+			boxData.waiting,
+			boxData.done
+		];
+		var _labels = [
+			"En attente",
+			"Livrées",
+		];
+		
+		var colors 	  = [
+			//{ color : '#46BFBD', highlight: '#5AD3D1' },
+			//{ color : '#F7464A', highlight: '#FF5A5E' },
+			{ color : '#2196F3', highlight: '#64baff' },
+			{ color : '#ffc107', highlight: '#ffd452' },
+			
+		];
+		var ctxp = $("#support_dispatch_chart").get(0).getContext("2d");
+
+		new Chart(ctxp).Bar({
+			labels: _labels,
+			datasets:  [{                  
+			    fillColor: colors[0].color,
+			    data: _values
+			}],
+			
+		});
+	}   
