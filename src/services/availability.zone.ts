@@ -64,9 +64,25 @@ export default class AvailabilityZoneService {
             if (!availabilityZone) {
                 throw new Error('AvailabilityZone cannot be found');
             }
-            console.log('availabilityZone find byId');
-            console.log(availabilityZone);
+         
+            return { availabilityZone };
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    public async findByName(name) {
+		try {
+            this.logger.silly('Searching AvailabilityZone by name');
+            const availabilityZone: IAvailabilityZone = await this.availabilityZoneModel.findOne({
+                where: { name: name.charAt(0).toUpperCase() + name.slice(1) },
+            });
 
+            if (!availabilityZone) {
+                throw new Error('AvailabilityZone cannot be found');
+            }
+            
             return { availabilityZone };
         } catch (e) {
             this.logger.error(e);

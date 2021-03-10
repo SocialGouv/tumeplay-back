@@ -228,6 +228,11 @@ export default class BoxService {
 					boxs[item.box.id].capacity = capacity;
                 }
                 
+                if( isNaN(boxs[item.box.id].capacity) )
+                {
+					boxs[item.box.id].capacity = 0;
+                }
+                
                 boxs[item.box.id].localProducts.push({ 
 					'product' : item.product.id,
 					'qty' 	  : item.qty,
@@ -249,17 +254,15 @@ export default class BoxService {
     public async disableEmptyBoxes(): Promise<[]> {
 		try
 		{
-            const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
+			const allBoxsProducts = await this.boxProductModel.findAll({include: ['product', 'box']});
 			const boxs 		  = [];
-            
+			
             for(const item of allBoxsProducts)
             {
                 if( item.product.stock <= 0 && item.box.available ) 
 				{
-                    this.logger.silly('Product #' + item.product.id + ' is not available anymore. Disabling boxes.');
-
-                    await this.update(null, item.box.id, { available : false });    
-                    
+					this.logger.silly('Product #' + item.product.id + ' is not available anymore. Disabling boxes.');
+					
                     try
                     {
                         this.logger.silly('Updating box #'+ item.box.id +'.');
@@ -269,7 +272,7 @@ export default class BoxService {
                     {
                         this.logger.silly(e);
                     }
-                        
+					
                     if( boxs.indexOf(item.box.id) < 0 )
                     {
                         boxs.push(item.box.id);

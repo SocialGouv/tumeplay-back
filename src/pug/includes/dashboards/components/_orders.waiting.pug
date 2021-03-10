@@ -1,0 +1,20 @@
+if boxsOrders['waiting'].length
+    table.table.table-hover.table-bordered#ordersWaitingDataTable
+        thead
+            tr
+                th Destinataire
+                th Box
+                th Date de mise à jour
+                th(style="max-width: 50px; width: 50px")
+        tbody
+            each order in boxsOrders['waiting']
+                tr
+                    td #{order.profileFullName}
+                    td #{order.box.title}
+                    td(data-sort=order.updatedAt) #{prettyDate(order.updatedAt)}
+                    td
+                        a(class='btn btn-primary' data-toggle="tooltip" title="Voir / Modifier" href="/user/orders/edit/"+ order.id data-id=`${order.id}`)
+                            i.fa.fa-fw.fa-lg.fa-pencil-square-o( style="margin-right:0;")
+                                        
+else
+    Il n'y a pas commande en attente de livraison pour le moment.                

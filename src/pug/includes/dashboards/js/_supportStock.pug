@@ -1,0 +1,49 @@
+script(type='text/javascript').
+	
+	Pace.on('done', function() {
+		var products = JSON.parse('!{JSON.stringify(products).replace(/[\/\(\)\']/g, "\\'")}');
+		
+		generateSupportProductStockGraph(products);
+	});
+	  
+	function generateSupportProductStockGraph(productData)
+	{
+		var _values = [];
+		var _labels = [];
+		
+		$(productData).each(function(key, value) 
+		{
+			_values.push(value.stock);
+			_labels.push(value.title);
+		});                         
+		
+		var ctxp = $("#support_stock_chart").get(0).getContext("2d");
+		
+		var productGraph = new Chart(ctxp).Bar({
+			labels: _labels,
+			datasets:  [{                  
+			    fillColor: '#46BFBD',
+			    data: _values
+			}],
+		});
+		                                                      
+		if (productGraph.datasets !== "undefined" )
+	    {
+	        var dataset = productGraph.datasets[0];
+	        
+	        for (index = 0, length = dataset.bars.length; index < length; ++index) 
+	        {
+	            var value = dataset.bars[index].value;
+	            if (value <= 50) 
+	            {
+	                color = "rgba(255, 0, 0, 0.5)";
+	            }
+	            else
+	            {
+	                color = "#46BFBD";
+	            }
+	            productGraph.datasets[0].bars[index].fillColor = color;
+	        } 
+	        productGraph.update();
+	    }
+	}  

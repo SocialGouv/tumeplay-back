@@ -21,6 +21,22 @@ export default async ({ expressApp }) => {
                 model: models.userZoneModel,
             },
             {
+                name: 'userOrderModel',
+                model: models.userOrderModel,
+            },            
+            {
+                name: 'userPoiModel',
+                model: models.userPoiModel,
+            },
+            {
+                name: 'userStockModel',
+                model: models.userStockModel,
+            },
+            {
+                name: 'userOrderStockModel',
+                model: models.userOrderStockModel,
+            },
+            {
                 name: 'contentModel',
                 model: models.contentModel,
             },
@@ -35,6 +51,10 @@ export default async ({ expressApp }) => {
             {
                 name: 'thematiqueModel',
                 model: models.thematiqueModel,
+            },
+            {
+                name: 'thematiqueSoundModel',
+                model: models.thematiqueSoundModel,
             },
             {
                 name: 'pictureModel',

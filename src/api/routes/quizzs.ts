@@ -78,13 +78,21 @@ export default (app: Router) => {
             }
 
             questions = questionsFound.map(questionItem => {
-            	let localSound = false;
+            	let localQuestionSound = false;
+            	let localAnswerSound   = false;
             	if( req.query.zone && questionItem.sounds )
             	{
 					questionItem.sounds.forEach(item => {
 						if( item.availabilityZoneId == questionItem.availability_zone[0].id )
 						{
-							localSound = item;
+							if ( item.question_sound.soundType == "question" || !item.question_sound.soundType )
+							{
+								localQuestionSound = item;	
+							}
+							else
+							{
+								localAnswerSound = item;
+							}
 						}
 					});	
             	}
@@ -99,7 +107,8 @@ export default (app: Router) => {
                     answers: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['answers'] : [],
                     rightAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['rightAnswer'] : [],
                     neutralAnswer: sortedAnswers[questionItem.id] ? sortedAnswers[questionItem.id]['neutralAnswer'] : [],
-                    sound: localSound ? localSound.destination + '/' + localSound.filename : false,
+                    questionSound: localQuestionSound ? localQuestionSound.destination + '/' + localQuestionSound.filename : false,
+                    answerSound: localAnswerSound ? localAnswerSound.destination + '/' + localAnswerSound.filename : false,
                 };
 
                 return questionItemStructured;

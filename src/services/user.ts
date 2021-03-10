@@ -1,6 +1,7 @@
 import { Service, Inject } from 'typedi';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 import { IUser, IUserInputDTO } from '../interfaces/IUser';
+import { Op } from 'sequelize';
 import config from '../config';
 import AclService from './acl';
 
@@ -9,6 +10,7 @@ export default class UserService {
     public constructor(
         @Inject('userModel') private userModel: Models.UserModel,
         @Inject('userZoneModel') private userZoneModel: Models.UserZone,
+        @Inject('userPoiModel') private userPoiModel: Models.UserPoi,
         @Inject('availabilityZoneModel') private availabilityZoneModel: Models.AvailabilityZoneModel,
         @Inject('logger') private logger,
         @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
@@ -40,6 +42,27 @@ export default class UserService {
             const user = await this.userModel.findOne(criterias);
             
             return user;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    public async findByRole(req, role)
+    {
+		try {
+			let criterias = {
+				where: { 
+					roles: { [Op.like]:  '%'+role+'%' }
+				}
+			};
+            this.logger.silly('Finding user');
+            
+            this.alterQuery(req, criterias);
+            
+            const users = await this.userModel.findAll(criterias);
+            
+            return users;
         } catch (e) {
             this.logger.error(e);
             throw e;
@@ -201,6 +224,25 @@ export default class UserService {
             throw e;
         }
     }
+    
+    
+    public async assignPois(userId, userPois): Promise<> {
+        try {
+            await this.userPoiModel.destroy({ where: { userId: userId}} );
+            
+            if( userPois.length > 0 )                  
+            {
+            	const localPois = [{ userId: userId, poiId: userPois.replace("poi_", "")}];
+	                             
+	            await this.userPoiModel.bulkCreate(localPois);
+			}
+            return;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
     
     public async getAllowedZones(req)
     {

@@ -24,10 +24,10 @@ block content
 					
 					
 					if questionPicture
-						input.col-6.form-control(type="file" name="questionContentPicture")
+						input.col-6.form-control(type="file" name="questionPicture")
 						img.col-3(src=`/${questionPicture.path}`)
 					else
-						input.col-9.form-control(type="file" name="questionContentPicture")
+						input.col-9.form-control(type="file" name="questionPicture")
 				.form-group
 					label.control-label Question :
 
@@ -65,13 +65,13 @@ block content
 					each zone in allZones
 						if zone.enableSound
 							- var _name = "questionSound[zone_"+ zone.id +"]"
-							label.control-label Fichier audio ( #{zone.name} )
+							label.control-label Fichier audio pour la question ( #{zone.name} )
 							input.form-control(type="file" name=`${_name}`)
 							
 							if questionSounds
 								
 								each sound in questionSounds
-									if sound.availabilityZoneId == zone.id
+									if sound.availabilityZoneId == zone.id && ( sound.question_sound.soundType == "question" || !sound.question_sound.soundType )
 										p.mt-3.font-weight-bold Fichier existant :  
 											a(href="/" + sound.path, target="blank") #{sound.filename}
 											span.mr-3.ml-3 -
@@ -96,7 +96,7 @@ block content
 									i.fa.fa-times
 								th Texte
 						tbody#responseList
-							if answers
+							if answers && answers.length > 0
 								each answer, i in answers
 									- var _isWrong = ( answer.isCorrect == false && answer.isNeutral == false )
 									tr.question-row
@@ -112,13 +112,32 @@ block content
 							else
 								tr.question-row
 									td.pl-2.pr-2
-										input(type="radio" name="answerItems["+i+"][questionState]" value="isNeutral")
+										input(type="radio" name="answerItems[0][questionState]" value="isNeutral")
 									td.pl-2.pr-2
-										input(type="radio" name="answerItems["+i+"][questionState]" value="isCorrect")
+										input(type="radio" name="answerItems[0][questionState]" value="isCorrect")
 									td.pl-2.pr-2
-										input(type="radio" name="answerItems["+i+"][questionState]" value="isWrong")
+										input(type="radio" name="answerItems[0][questionState]" value="isWrong")
 									td
-										input(type="text" placeholder="Réponse n°1" class="limited-length" data-maxlength="30"  name="answerItems["+i+"][title]" value=``)
+										input(type="text" placeholder="Réponse n°1" class="limited-length" data-maxlength="30"  name="answerItems[0][title]" value=``)
 										label.limited-counter.offset-1 30 caractères restants.
+				
+				hr
+				
+				if hasSound
+					each zone in allZones
+						if zone.enableSound
+							- var _name = "questionAnswerSound[zone_"+ zone.id +"]"
+							label.control-label Fichier audio pour la réponse ( #{zone.name} )
+							input.form-control(type="file" name=`${_name}`)
+							
+							if questionSounds
+								
+								each sound in questionSounds
+									if sound.availabilityZoneId == zone.id && sound.question_sound.soundType == "answer"
+										p.mt-3.font-weight-bold Fichier existant :  
+											a(href="/" + sound.path, target="blank") #{sound.filename}
+											span.mr-3.ml-3 -
+											a.delete-sound(href="#",data-type="question", data-origin=question.id, data-sound=sound.id, style="color: red;") Supprimer
 
+							hr
 		.clearfix

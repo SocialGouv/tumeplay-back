@@ -145,6 +145,8 @@ export default (app: Router) => {
                   
 	            await handleZones(product, targetZones);
 
+	            req.session.flash = {msg: "Le produit a bien été ajouté.", status: true};
+	            
 	            return res.redirect(products_URL);
 	        } catch (e) {
 	            throw e;
@@ -229,6 +231,8 @@ export default (app: Router) => {
                 }   
                 await handleZones(product, targetZones);
                 
+                req.session.flash = {msg: "Le produit a bien été mis à jour.", status: true};
+                
                 return res.redirect(products_URL);
             } catch (e) {
                 throw e;
@@ -250,6 +254,8 @@ export default (app: Router) => {
             // Updating
             await Container.get(ProductService).update(req, documentId, { deleted: true });
 
+            req.session.flash = {msg: "Le produit a bien été supprimé.", status: true};
+            
             return res.redirect(products_URL);
         } catch (e) {
             throw e;

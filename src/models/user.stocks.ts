@@ -1,26 +1,26 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize, type) => {
-    return sequelize.define('question_sound', {
+    return sequelize.define('user_stock', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        questionId: {
+        userId: {
             type: DataTypes.INTEGER,
             reference: {
-                model: 'question_content',
+                model: 'user',
                 key: 'id',
             },
         },
-        soundId: {
+        productId: {
             type: DataTypes.INTEGER,
             reference: {
-                model: 'sound',
+                model: 'product',
                 key: 'id',
             },
-        },
-        soundType: DataTypes.STRING,
+        },                       
+        stock: DataTypes.INTEGER,
     });
 };

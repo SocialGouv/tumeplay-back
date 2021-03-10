@@ -511,6 +511,8 @@ export default (app: Router) => {
 
                 await categoryServiceInstance.create(questionCategoryItem as IQuestionCategoryDTO);
 
+                req.session.flash = {msg: "La catégorie a bien été ajoutée.", status: true};
+                
                 return res.redirect(QUIZZ_ROOT + QUIZZ_CATEGORY_ROOT);
             } catch (e) {
                 throw e;
@@ -576,6 +578,8 @@ export default (app: Router) => {
                 const categoryServiceInstance = Container.get(QuestionCategoryService);
                 await categoryServiceInstance.update(documentId, questionCategoryItem);
 
+                req.session.flash = {msg: "La catégorie a bien été mise à jour.", status: true};
+                
                 return res.redirect(QUIZZ_ROOT + QUIZZ_CATEGORY_ROOT);
             } catch (e) {
                 throw e;

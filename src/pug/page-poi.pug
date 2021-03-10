@@ -25,6 +25,7 @@ block content
 	.row
 		.col-md-12
 			.tile
+				include ./layouts/_flash.pug
 				.tile-body
 					table.table.table-hover.table-bordered#poiDataTable
 						thead
@@ -33,6 +34,7 @@ block content
 								th Type
 								th Rue
 								th Code Postal
+								th Zone
 								th Date de création
 								th Date de mise à jour
 								th Actions
@@ -43,6 +45,10 @@ block content
 									td #{poi.type}
 									td #{poi.street}
 									td #{poi.zipCode}
+									if poi.availability_zone
+										td #{poi.availability_zone.name}
+									else
+										td 
 									td #{prettyDate(poi.createdAt)}
 									td #{prettyDate(poi.updatedAt)}
 									td

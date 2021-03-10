@@ -2,6 +2,8 @@ import { Service, Inject } from 'typedi';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 import {IPoi, IPoiInputDTO} from '../interfaces/IPoi';
 
+import  config from '../config';
+
 @Service()
 export default class PoiService {
     public constructor(
@@ -102,4 +104,47 @@ export default class PoiService {
             throw e;
         }
     }
+    
+    public async findAllFiltered(req, criterias)
+    {
+		try {
+            this.alterQuery(req, criterias);
+            
+            const pois: IPoi[] = await this.poiModel.findAll(criterias);
+            return pois;
+        } catch (e) {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+    
+    private alterQuery(req, criterias)
+    {
+        if( typeof req.session !== 'undefined' && typeof req.session.zones !== "undefined" && req.session.zones.length > 0 )
+        {
+            if( req.session.roles.indexOf(config.roles.administrator) < 0 )
+            {
+                this.logger.silly("Altering criterias to add zone constraints");
+                
+                if(typeof criterias.include === 'undefined' )
+                {
+                    criterias.include = [];
+                }
+                
+                criterias.include.push({
+                    association: 'availability_zone',
+                    where: { id : req.session.zones}   
+                });
+            }
+            else
+            {
+                this.logger.silly("Skipping due to user role.");
+            }
+        }
+        
+        this.logger.silly("Out of alter.");
+        
+        return criterias;
+    }
+
 }

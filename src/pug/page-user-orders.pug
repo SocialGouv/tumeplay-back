@@ -1,0 +1,509 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-user-order-management'
+	// - var activeGroup = 'tables'
+
+block title
+	title Commandes - Tumeplay
+
+block content
+	style.
+		div.sweet-alert {
+			width: 800px;
+			margin-left: -370px;
+			max-height: 100%;
+			overflow-y: visible;
+		}
+		div.sweet-alert .fulltext 
+		{
+			min-width: 600px;
+		}
+		@media screen and (max-width: 640px) {
+		  div.sweet-alert 
+		  {
+		    width: auto;
+		    max-width: 500px;
+		    margin-left: auto;
+		  }
+		  div.sweet-alert .fulltext 
+		  {
+				min-width: 400px;
+		  }
+		  div.sweet-alert .col-12 label 
+		  {
+		  	display: block;
+		  	max-width: 100%;
+		  	flex: 0 0 100%;
+		  	padding-left: 0;
+		  }
+		  div.sweet-alert .col-12 input,
+		  div.sweet-alert .col-12 textarea,
+		  div.sweet-alert .col-12 select 
+		  {
+		  	display: block;
+		  	max-width: 100%;
+		  	flex: 0 0 100%;
+		  }
+		  .delivery-address
+		  {
+		  	min-width: 100px;
+		  }
+		}
+		
+		.delivery-mode, 
+		.user-email
+		{
+			display: none;
+		}
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Commandes
+			p Liste des commandes
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Commandes
+
+	.row
+		.col-md-12
+			
+			
+			.tile
+				include ./layouts/_flash.pug
+					
+				.tile-body
+					
+					.toolbar.mb-3
+						label.mr-3 Actions : 
+						a.btn.btn-sm.btn-primary.mr-3(href="/user/orders/export/csv") Export CSV 
+						a.btn.btn-sm.btn-primary(href="/user/orders/add") Créer une commande 
+						
+						.animated-checkbox.float-right
+							label(style="margin-top: 7px;")
+								input(type="checkbox", name="my_orders" class="my_orders")&attributes(ownOrders == true ? {'checked' : 'checked'} : {}) 
+								span.label-text Mes commandes
+						hr
+					
+					table.table.table-hover.table-bordered#ordersDataTable
+						thead
+							tr
+								th Réference (ID)
+								th Date de commande
+								th Destinataire
+								th Téléphone
+								th.user-email E-mail
+								th.delivery-address Address de livraison
+								th.delivery-mode Type de livraison
+								th Box
+								th Livrée
+								th Informations<br/>Anonymes
+								th(style="min-width: 135px; max-width: 135px;width: 135px;") Actions
+						tbody
+							each order in orders
+								tr(class="order-"+ order.id)
+									td #{order.id}
+									td(data-sort=order.orderDate) #{order.orderDate ? prettyDate(order.orderDate) : ""}
+									td #{order.profileFullName}
+									td #{order.phoneNumber}
+									td.user-email #{order.profileEmail}
+									if order.shippingModeText == 'pickup'
+										td.delivery-address
+											| #{order.pickup.name}
+											br 
+											| #{order.pickup.street}  
+											br 
+											| #{order.pickup.zipCode} #{order.pickup.city}  
+									else
+										td.delivery-address #{order.shippingAddressConcatenation}
+									td.delivery-mode #{order.shippingModeText}
+									td #{order.box.title}
+									td.is-delivered
+										if order.delivered
+											i.fa.fa-fw.fa-lg.fa-check-circle(style="color: green")
+										else
+											i.fa.fa-fw.fa-lg.fa-times-circle(style="color: red")
+									td.has-informations
+										if order.hasPersonalInformations
+											i.fa.fa-fw.fa-lg.fa-check-circle(style="color: green")
+										else
+											i.fa.fa-fw.fa-lg.fa-times-circle(style="color: red")
+									td
+										a(class='btn btn-primary' style="margin-right: 5px;" data-toggle="tooltip" title="Voir / Modifier" href="/user/orders/edit/"+ order.id +(ownOrders ? "?ownorders" : "") data-id=`${order.id}`)
+											i.fa.fa-fw.fa-lg.fa-pencil-square-o( style="margin-right:0;")
+										
+										if order.hasPersonalInformations
+											a(class='btn btn-success personal-informations'  style="margin-right: 5px;" data-toggle="tooltip" title="Renseigner les informations anonymes" data-id=`${order.id}` href="#")
+												i.fa.fa-fw.fa-lg.fa-user-circle( style="margin-right:0;")
+										else
+											a(class='btn btn-danger personal-informations'  style="margin-right: 5px;" data-toggle="tooltip" title="Renseigner les informations anonymes" data-id=`${order.id}` href="#")
+												i.fa.fa-fw.fa-lg.fa-user-circle( style="margin-right:0;")
+										
+										if order.delivered
+											a(class='btn btn-primary btn-success mark-delivered' data-toggle="tooltip" title="Marquer comme 'Livrée'" href="#" data-id=`${order.id}`)
+												i.fa.fa-fw.fa-lg.fa-paper-plane( style="margin-right:0;")
+										else
+											a(class='btn btn-primary btn-danger mark-delivered' data-toggle="tooltip" title="Marquer comme 'Livrée'" href="#" data-id=`${order.id}`)
+												i.fa.fa-fw.fa-lg.fa-paper-plane( style="margin-right:0;")
+										
+											
+										if isAllowed(req, "orders", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											form(action="/user/orders/delete/" + order.id +(ownOrders ? "?ownorders" : ""), method="POST", onsubmit="deleteConfirmation(this); return false;")
+												button(class='delete-item btn btn-secondary' type="submit") 
+													i.fa.fa-fw.fa-lg.fa-times-circle
+													| Annuler
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('#ordersDataTable').DataTable();
+		$('.my_orders').on('click', function() {
+			if( $(this).is(':checked') )
+			{
+				var search = window.location.search + (window.location.search ? "&" : "?");
+				search += "ownorders";
+				window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname + search;
+			}
+			else
+			{
+				window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname;
+			}
+		});
+		$('body').on('click', '.mark-delivered', function() {
+			var _orderId = $(this).attr('data-id');
+		
+			swal({
+				title				: "Commande livrée",
+				text				: "<br /><p>Marquer la commande comme étant Livrée ?</p><br /><p>Cette action diminuera votre stock personnel automatiquement.</p>",
+				html				: true,
+				showCancelButton	: true,
+				type				: "info",
+				confirmButtonText	: "Valider",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false,
+			},
+			function(isConfirm)
+			{
+				if (isConfirm)
+				{
+					$.get('/user/orders/ajax/set-delivered/'+ _orderId, function(data) {
+						$('.order-' + _orderId + ' td.is-delivered').html($(generateGreenCheck()));
+						$('.order-' + _orderId + ' a.mark-delivered').removeClass('btn-danger').addClass('btn-success');
+						
+						swal({
+							title				: "Confirmé",
+							text				: "L'action a bien été effectuée.",
+							type				: "success",
+							showCancelButton	: false,
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false
+						});
+						return;
+					})
+
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		});
+		
+		$('body').on('click', '.personal-informations', function() {
+			var _orderId = $(this).attr('data-id');
+			
+			$.get('/user/orders/ajax/get-informations/' + _orderId, function(data) {
+				var ageChoices 		= [
+				  { title: "11-13 ans", id: "11-13" },
+				  { title: "14-16 ans", id: "14-16" },
+				  { title: "17-19 ans", id: "17-19" },
+				  { title: "20-22 ans", id: "20-22" },
+				  { title: "23-25 ans", id: "23-25" },
+				];
+				var genderChoices = [
+				  { title: "Homme", id: "h" },
+				  { title: "Femme", id: "f" },
+				  { title: "Autre", id: "o" },
+				];
+				var cityChoices = [
+				  { title: "SLM", id: "slm" },
+				  { title: "Mana", id: "mana" },
+				  { title: "Javouhey", id: "javouhey" },
+				  { title: "Apatou", id: "apatou" },
+				  { title: "Awala-Yalimapo", id: "awala_yalimago" },
+				  { title: "Iracoubo", id: "tracoubo" },
+				  { title: "Sinnamary", id: "sinnamary" },
+				  { title: "Autres", id: "other" },
+				];
+				var scolarityChoices = [
+				  { title: "Collège", id: "college" },
+				  { title: "Lycée", id: "lycee" },
+				  { title: "CAP/BEP", id: "cap_bep" },
+				  { title: "Université", id: "universite" },
+				  { title: "En formation professionnelle", id: "formation_pro" },
+				  { title: "En recherche d'emploi", id: "recherche" },
+				  { title: "En emploi", id: "en_emploi" },
+				  { title: "Autre", id: "other" },
+				];
+				var boxChoices = [
+				  { title: "Découvre ton corps", id: 1},
+				  { title: "Les premières fois", id: 2},
+				  { title: "Explore ta sexualité", id: 3},
+				  { title: "Box sur mesure", id: 4},
+				];
+				var firstBoxChoices = [
+					{ title: "Oui", id: 1 },
+					{ title: "Non", id: 0 },
+				];
+				
+				var _default = {
+					age: 0,
+					sexe: 0,
+					city: 0,
+					scolarity: 0,
+					box: 0,
+					firstBox: 0,
+					lastBox: 0,
+					house: "",
+					custom: "",
+					comment: "",
+				};
+
+				if( data.order )
+				{
+					_default.age 		= data.order.age;
+					_default.sexe 		= data.order.sexe;
+					_default.city 		= data.order.city;
+					_default.scolarity 	= data.order.scolarity;
+					_default.firstBox 	= data.order.firstBox;
+					_default.lastBox 	= data.order.lastBox;
+					_default.box		= data.order.localBox;
+					_default.house 		= data.order.house;
+					_default.custom 	= data.order.custom;
+					_default.comment 	= data.order.comment;
+				}
+				var _age 		= buildSelectInput("age", "Age", "number",ageChoices, _default.age);
+				var _sexe 		= buildSelectInput("sexe", "Sexe", "text",genderChoices, _default.sexe);
+				var _city 		= buildSelectInput("city", "Ville", "text",cityChoices, _default.city);
+				var _scolarity 	= buildSelectInput("scolarity", "Scolarité", "text",scolarityChoices, _default.scolarity);
+				var _box 		= buildSelectInput("localBox", "Box remise", "text",boxChoices,_default.box);
+				var _firstBox 	= buildSelectInput("firstBox", "Première box reçue ?", "text",firstBoxChoices, _default.firstBox);
+				var _lastBox 	= buildSelectInput("lastBox", "Si non, box précédemment reçue ?", "text",boxChoices, _default.lastBox);
+				var _house 		= buildInput("house", "Quartier d'habitation", "text", _default.house);
+				var _custom 	= buildFreetextInput("custom", "Modifications apportées", "text", _default.custom);
+				var _comment	= buildFreetextInput("comment", "Commentaire (si nécessaire)", "text", _default.comment);
+				
+				var _localForm = $('<div />')
+					.append( $(_sexe ) )
+					.append( $(_age ) ) 
+					.append( $(_house ) )
+					.append( $(_city ) )
+					.append( $(_scolarity ) )
+					.append( $(_box ) )
+					.append( $(_custom ) )
+					.append( $(_firstBox ) )
+					.append( $(_lastBox ) )
+					.append( $(_comment) )
+					;
+				
+				var _fullText  = '<div class="fulltext" style="position: relative;"><p style="margin-top: 20px; margin-bottom: 12px;">Veuillez indiquer les informations anonymes :</p><p>'+ $(_localForm).prop('outerHTML') +'</p></div>';
+				
+			
+				swal({
+					title				: "Informations anonymes",
+					text				: _fullText,
+					html				: true,
+					showCancelButton	: true,
+					confirmButtonText	: "Valider",
+					cancelButtonText	: "Annuler",
+					closeOnConfirm		: false,
+					closeOnCancel		: false,              
+				},
+				function(isConfirm)
+				{
+					if (isConfirm)
+					{
+						var _data = {
+					  		'age' 		: $('.sweet-alert .input-value-age :selected').val(),
+					  		'sexe'		: $('.sweet-alert .input-value-sexe :selected').val(),
+					  		'city'		: $('.sweet-alert .input-value-city :selected').val(),
+					  		'scolarity'	: $('.sweet-alert .input-value-scolarity :selected').val(),
+					  		'localBox'	: $('.sweet-alert .input-value-localBox :selected').val(),
+					  		'firstBox'	: $('.sweet-alert .input-value-firstBox :selected').val(),
+					  		'lastBox'	: $('.sweet-alert .input-value-lastBox :selected').val(),
+					  		'house'		: $('.sweet-alert .input-value-house').val(),
+					  		'custom'	: $('.sweet-alert .input-value-custom').val(),
+					  		'comment'	: $('.sweet-alert .input-value-comment').val(),
+					  		'orderId'	: _orderId,
+						};
+						$.post('/user/orders/ajax/update-informations', { data: _data}, function(data) {
+						
+							if( data.filled )
+							{
+								$('.order-' + _orderId + ' td.has-informations').html($(generateGreenCheck()));
+								$('.order-' + _orderId + ' a.personal-informations').removeClass('btn-danger').addClass('btn-success');
+							}
+							swal({
+								title				: "Confirmé",
+								text				: "L'action a bien été effectuée.",
+								type				: "success",
+								showCancelButton	: false,
+								confirmButtonText	: "Fermer",
+								closeOnConfirm		: false,
+								closeOnCancel		: false
+							});
+							return;
+						})
+
+					} else {
+						swal("Annulé", "Aucune action n'a été réalisée.", "error");
+						return;
+					}
+				});
+				
+				// There's no "open" callback ..
+				setTimeout(function() {
+				    if( $(window).height() < 700 )
+				    {
+						$('.sweet-alert.showSweetAlert.visible').animate({ scrollTop: 0 });	
+					}
+				}, 500);
+			});	
+		});
+		
+		function generateGreenCheck()
+		{
+			return $('<i />')
+				.addClass('fa')
+				.addClass('fa-fw')
+				.addClass('fa-lg')
+				.addClass('fa-check-circle')
+				.css('color', 'green');
+		}
+		
+		function buildFreetextInput(name, label, type, defaultValue)
+		{
+			var _label = $('<label >')
+				.text(label)
+				.attr('for', name)
+				.css('text-align', 'left')
+				.css('vertical-align', 'top')
+				.addClass('col-4')
+				.addClass('control-label');
+			var _input = $('<textarea />')
+				.attr('value', defaultValue)
+				.text(defaultValue)
+				.trigger('change')
+				.attr('type', type)
+				.attr('name', name)
+				.css('display', 'inline-block')
+				.addClass('input-value-' + name)
+				.addClass('col-8')
+				.addClass('form-control');
+			
+			var _wrapper = $('<div>').addClass('col-12').css('marginBottom', '10px').append(_label).append(_input);
+			
+			return _wrapper;
+		}
+		
+		function buildInput(name, label, type, defaultValue)
+		{
+			var _label = $('<label >')
+				.text(label)
+				.attr('for', name)
+				.css('text-align', 'left')
+				.css('vertical-align', 'middle')
+				.addClass('col-4')
+				.addClass('control-label');
+			var _input = $('<input />')
+				.attr('value', defaultValue)
+				.trigger('change')
+				.attr('type', type)
+				.attr('name', name)
+				.css('display', 'inline-block')
+				.css('margin', '0')
+				.addClass('input-value-' + name)
+				.addClass('col-8')
+				.addClass('form-control');
+			
+			var _wrapper = $('<div>').addClass('col-12').css('marginBottom', '10px').append(_label).append(_input);
+			
+			return _wrapper;
+		}
+		
+		function buildSelectInput(name, label, type, options, defaultValue)
+		{
+			var _label = $('<label >')
+				.text(label)
+				.attr('for', name)
+				.css('text-align', 'left')
+				.css('vertical-align', 'middle')
+				.addClass('col-4')
+				.addClass('control-label');
+			var _input = $('<select />')
+				.attr('value', defaultValue)
+				.trigger('change')
+				.attr('type', type)
+				.attr('name', name)
+				.css('display', 'inline-block')
+				.css('padding', '8px 12px 4px')
+				.addClass('input-value-' + name)
+				.addClass('col-8')
+				.addClass('form-control');
+			
+			var _option = $('<option>').text('- Choisir -').attr('value', '');
+
+			$(_input).append( $(_option) );
+			
+			$(options).each(function(key, item) {
+				console.log(item);
+			   	var _option = $('<option>').text(item.title).attr('value', item.id);
+				
+				if( item.id == defaultValue )
+				{
+					$(_option).attr('selected', 'selected');
+				}
+				
+				$(_input).append( $(_option) );
+			});
+			
+			var _wrapper = $('<div>').addClass('col-12').css('marginBottom', '10px').append(_label).append(_input);
+			
+			return _wrapper;
+		}
+		
+		function deleteConfirmation(form){
+			swal({
+				title				: "Annuler la commande ?",
+				text				: "L'annulation d'une commande est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					swal("Commande annulée", "La commande a bien été annulée.", "success");
+					form.submit();
+					return;
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		}

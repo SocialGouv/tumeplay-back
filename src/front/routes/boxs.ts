@@ -175,6 +175,8 @@ export default (app: Router) => {
                 
 	            await handleBoxZones(box, targetZones);
 	            
+	            req.session.flash = {msg: "La box a bien été créée.", status: true};
+	            
 	            return res.redirect(ROOT_URL);
             } catch (e) {
                 throw e;
@@ -234,6 +236,8 @@ export default (app: Router) => {
 	            if (req.body.selectedProduct && Array.isArray(req.body.selectedProduct)) {
 	                await handleProducts(box, req.body.selectedProduct, req.body.qty );
 	            }
+	            
+	            req.session.flash = {msg: "La box a bien été mise à jour.", status: true};
 	                        
 	            return res.redirect(ROOT_URL);
 	        } catch (e) {
@@ -268,6 +272,36 @@ export default (app: Router) => {
             throw e;
         }
     });
+    
+    
+    route.get(
+    	'/ajax/products/:id', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'ajax', 'products'),  
+    	async (req: Request, res: Response) => {
+        	try {
+        		const documentId = req.params.id;
+                const zones 	 = await Container.get(UserService).getAllowedZones(req);
+                const products 	 = await Container.get(ProductService).findAll(req, {
+                    where: {
+                        deleted: false,
+                    },
+                });
+                
+                
+                const currentProducts = await Container.get('boxProductModel').findAll({
+                    where: {
+                        boxId: documentId,
+                    },
+                });
+                
+                return res.json({ currentProducts }).status(200);
+            } catch (e) {
+                throw e;
+            }
+        },
+    );
+
     
     const handleBoxZones = async (currentBox, zoneId) => {
 		zoneId = ( typeof zoneId != 'undefined' &&  Array.isArray(zoneId) ) ? zoneId : [zoneId];

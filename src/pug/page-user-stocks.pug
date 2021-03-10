@@ -1,0 +1,130 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-order-user-stocks'
+	// - var activeGroup = 'tables'
+
+block title
+	title Stock Produits - Tumeplay
+
+block content
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Mes Produits
+			p Liste des produits et stocks associés
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			li.breadcrumb-item.active
+				a(href="#") Produits
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					table.table.table-hover.table-bordered#userProductsDataTable
+						thead
+							tr
+								th Titre
+								th Description
+								th Qté disponible
+								th Photo
+								th Mis à jour
+								th Actions
+						tbody
+							each product in products
+								- currentClass = ''
+								
+								if product.stock && product.stock < 50
+									- currentClass = 'text-danger'
+									
+								tr(class=" " + currentClass)
+									td #{product.title}
+									td #{product.shortDescription}
+									td 
+										if product.stock && product.stock < 50
+											span.h6.text-danger #{product.stock}
+										else
+											span #{product.stock}
+									td
+										if product.picture && product.picture.path
+											img.pic-image-box(src="/"+product.picture.path)
+									td #{prettyDate(product.updatedAt)}
+									td
+									
+										a(class='btn btn-primary edit-stock' href="#" style="color: #fff" data-id=`${product.id}`) 
+											i.fa.fa-fw.fa-lg.fa-check-circle 
+											| Éditer Stock
+			
+				if isAllowed(req, "products", "global", "add")
+					.tile-footer
+						a(class='btn btn-primary' href="/products/add") 
+							i.fa.fa-fw.fa-lg.fa-plus 
+							| Créer un produit
+
+block specific-js
+	// Data table plugin
+	script(type='text/javascript' src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript' src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript' src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$('.edit-stock').on('click', function() {
+			editStock($(this).attr('data-id'));
+		});
+		function editStock(productId) {
+		var _inputZone = $('<input>')
+							.addClass('col-12')
+							.addClass('form-control')
+							.css('display', 'block')
+							.attr('type', 'number')
+							.attr('name', 'newStock');
+
+		swal({
+			title: "Mettre à jour le stock",
+			text: '<div style="position: relative;"><p style="margin-top: 20px; margin-bottom: 12px;">Veuillez indiquer le nouveau stock :</p><p>'+ $(_inputZone).prop('outerHTML') +'</p></div>',
+			html: true,
+			type: "info",
+			showCancelButton: true,
+			confirmButtonText: "Mettre à jour",
+			cancelButtonText: "Annuler",
+			closeOnConfirm: false,
+			closeOnCancel: false
+		},
+		function (isConfirm) {
+			if (isConfirm) {
+				$('input[name="newStock"]').removeClass('is-invalid');
+				var _newStock = $('input[name="newStock"]').val();
+				
+				if( _newStock == '' )
+				{
+					$('input[name="newStock"]').addClass('is-invalid');
+				}
+				else
+				{
+					$.get('/user/orders/ajax/update-stock/' + productId + '/' + _newStock, function () {
+						swal({
+							title: "Confirmé",
+							text: "L'action a bien été effectuée.",
+							type: "success",
+							showCancelButton: false,
+							confirmButtonText: "Fermer",
+							closeOnConfirm: false,
+							closeOnCancel: false
+						},
+						function (isConfirm) {
+							location.reload();
+						});
+					})
+				}
+				
+				return;
+			} else {
+				swal("Annulé", "Aucune action n'a été réalisée.", "error");
+				return;
+			}
+		});
+		}                   
+		$('#userProductsDataTable').DataTable();		

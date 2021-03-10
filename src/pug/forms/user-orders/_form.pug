@@ -1,7 +1,7 @@
 if order
-    - var targetUrl = "/orders/management/edit/"+ order.id
+    - var targetUrl = "/user/orders/edit/"+ order.id +( ownOrders ? "?ownorders" : "" )
 else
-    - var targetUrl = "/orders/management/add"
+    - var targetUrl = "/user/orders/add" +( ownOrders ? "?ownorders" : "" )
 
 form.order-form(action=`${targetUrl}`, method="POST")
     .row
@@ -41,6 +41,15 @@ form.order-form(action=`${targetUrl}`, method="POST")
                         input.col-4.mr-3.form-control(type="text", name="lastName", placeholder="Nom")
                         input.col-4.form-control(type="text", name="firstName", placeholder="Prénom")
                 
+
+                .form-group.form-inline
+                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Téléphone :
+
+                    if order && order.phoneNumber
+                        span.col-6 #{order.phoneNumber}
+                    else
+                        input.col-4.mr-3.form-control(type="text", name="phoneNumber", placeholder="Téléphone")
+
                 .form-group.form-inline
                     label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Type de livraison :
                     
@@ -66,7 +75,7 @@ form.order-form(action=`${targetUrl}`, method="POST")
                                 | #{order.shippingAddressConcatenation}
                     else
                         if pois && pois.length > 0
-                            select.col-4.form-control(type="text", name="shippingAddress", placeholder="Adresse de livraison")
+                            select.col-4.form-control(type="text", name="selectedPickup", placeholder="Adresse de livraison")
                                 option(value="") - Point de livraison -
                                 each poi in pois
                                     option(value=poi.id) #{poi.name}
@@ -106,7 +115,7 @@ form.order-form(action=`${targetUrl}`, method="POST")
                         i.fa.fa-fw.fa-lg.fa-check-circle
                         | Valider
                     | &nbsp;&nbsp;&nbsp;
-                    a.btn.btn-secondary(href="/orders/management")
+                    a.btn.btn-secondary(href="/user/orders" + (ownOrders ? "?ownorders" : "") )
                         i.fa.fa-fw.fa-lg.fa-times-circle
                         | Annuler
         .col-md-6
@@ -180,3 +189,4 @@ form.order-form(action=`${targetUrl}`, method="POST")
 
 
 block specific-js
+           

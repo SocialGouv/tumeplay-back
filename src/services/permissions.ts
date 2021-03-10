@@ -14,6 +14,26 @@ const permissions = {
 			'delete': [ 
 				config.roles.administrator_local,
 			],
+		},
+		status: {
+			'0'	 : [
+				config.roles.moderator,
+			],
+			'1'	 : [
+				config.roles.moderator,
+			],
+			'2'	 : [
+				config.roles.moderator,
+			],
+			'3'	 : [
+				config.roles.redactor,
+			],
+			'4'	 : [
+				config.roles.moderator,
+			],
+			'5'	 : [
+				config.roles.redactor,
+			],
 		}
 	},
 	questions : {
@@ -87,38 +107,46 @@ const permissions = {
 	products: {
 		global: {
 			'view': [
-				config.roles.moderator,       
+				config.roles.administrator_local,       
 			],
 			'add': [
-			    config.roles.moderator,       
+			    config.roles.administrator_local,       
 			],
 			'edit': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'delete': [config.roles.administrator],
 		},
 	},
 	boxs: {
 		global: {
+			'add' : [
+				config.roles.administrator_local,
+			],
 			'view': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'edit': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'delete': [config.roles.administrator],
 		},
+		ajax: {
+			'products': [
+				config.roles.orders_support
+			]
+		}
 	},
 	poi: {
 		global: {
 			'view': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'add' : [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'edit': [
-				config.roles.moderator,
+				config.roles.administrator_local,
 			],
 			'delete': [config.roles.administrator],
 		},
@@ -127,8 +155,13 @@ const permissions = {
 		global: {
 			'view': [config.roles.orders_support],
 			'edit': [config.roles.orders_support],
-			'delete': [config.roles.administrator],
+			'delete': [config.roles.administrator_local],
 		},
+		shipping: {
+			'view': [config.roles.administrator],
+			'edit': [config.roles.administrator],
+			'delete': [config.roles.administrator],
+		}
 	},
 	global: {
 		reset: {
@@ -146,8 +179,8 @@ const permissions = {
 				config.roles.administrator_local
 			],
 			'edit': [config.roles.administrator_local],
-			'delete': [config.roles.administrator],
-			'add_zone': [config.roles.administrator],
+			'delete': [config.roles.administrator_local],
+			'add_zone': [config.roles.administrator_local],
 		},
 		dashboard: {
 			'superadministrator': [ 

@@ -51,7 +51,7 @@
                                             else
                                                 input(type="checkbox" name=`${_name}` checked=false) 
                                                 
-                                            span.label-text #{role}
+                                            span.label-text #{rolesLabels[role]}
                                 if role != "ROLE_ADMINISTATOR"
                                     .col-md-3.animated-checkbox
                                         label
@@ -61,7 +61,7 @@
                                             else
                                                 input(type="checkbox" name=`${_name}` checked=false) 
                                                 
-                                            span.label-text #{role}
+                                            span.label-text #{rolesLabels[role]}
                 if isAllowed(req, "global", "users", "add_zone")
                     .form-group
                         label.control-label Zone(s)
@@ -77,7 +77,19 @@
                                             input(type="checkbox" name=`${_name}` checked=false) 
                                             
                                         span.label-text #{zone.name}
+                    .form-group
+                        label.control-label Si référent, POI associé
 
+                        .row.col-md-12
+                            .col-md-3
+                                select.form-control-sm.mr-3(name="user_poi")
+                                    option(value="") - Tous -
+                                    each poi in pois
+                                        - var _name = "poi_"+ poi.id +""
+                                        if user && user.poiIds.includes(poi.id)
+                                            option(value=`${_name}`, selected="selected") #{poi.name}
+                                        else
+                                            option(value=`${_name}`) #{poi.name}
                 hr
                 
                 .form-group

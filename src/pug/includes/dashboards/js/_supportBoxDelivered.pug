@@ -1,0 +1,36 @@
+script(type='text/javascript').
+	Pace.on('done', function() {
+		var boxs 	 = JSON.parse('!{JSON.stringify(boxsOrders.whole).replace(/[\/\(\)\']/g, "\\'")}');
+		
+		console.log(boxs);
+		
+		generateBoxDeliveredGraph(boxs);
+	});
+	
+	function generateBoxDeliveredGraph(boxData)
+	{
+		var _values = [];
+		var _labels = [];
+		var colors 	  = [
+			{ color : '#46BFBD', highlight: '#5AD3D1' },
+			{ color : '#F7464A', highlight: '#FF5A5E' },
+			{ color : '#2196F3', highlight: '#64baff' },
+			{ color : '#ffc107', highlight: '#ffd452' },
+			
+		];
+		Object.keys(boxData).forEach(function(boxId) {
+			_values.push(boxData[boxId]['orders']);
+			_labels.push(boxData[boxId]['title']);
+		});
+		
+		var ctxp = $("#support_box_delivered").get(0).getContext("2d");
+		
+		new Chart(ctxp).Bar({
+			labels: _labels,
+			datasets:  [{                  
+			    fillColor: colors[0].color,
+			    data: _values
+			}],
+			
+		});
+	}

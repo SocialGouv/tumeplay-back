@@ -12,21 +12,30 @@ export default (app: Router) => {
         try {
             const criterias = {
                 where: { active: true },
-                include: ['picture'],
+                include: ['picture', 'sounds'],
                 order: [['id', 'ASC']],
-            };
+            };  
             
+            let localZone = false;
             if( req.query.zone )
             {
-                /*criterias.include.push({
-                    association: 'availability_zone',
-                    where: { name : req.query.zone.charAt(0).toUpperCase() + req.query.zone.slice(1) }   
-                });*/   
+            	localZone = await Container.get('availabilityZoneModel').findOne({where: {name : req.query.zone.charAt(0).toUpperCase() + req.query.zone.slice(1) }});
             }
-            
             const thematiques: IThematique[] = await Container.get('thematiqueModel').findAll(criterias);
             
             let parsedThematiques = thematiques.map(thematique => {
+            	let localSound = false;
+            	
+            	if( localZone && thematique.sounds )
+            	{
+					thematique.sounds.forEach(item => {
+						if( item.availabilityZoneId == localZone.id )
+						{
+							localSound = item;
+						}
+					});	
+            	}
+            	
                 return {
                     key: thematique.id,
                     id: thematique.id,
@@ -34,6 +43,7 @@ export default (app: Router) => {
                     picture: thematique.picture
                         ? thematique.picture.destination + '/' + thematique.picture.filename
                         : false,
+                    sound: localSound ? localSound.destination + '/' + localSound.filename : false,
                     value: thematique.title,
                 };
             });

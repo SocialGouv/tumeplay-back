@@ -2,6 +2,8 @@ import { Container } from 'typedi';
 import { Router, Request, Response, NextFunction } from 'express';
 import { IPoi } from '../../interfaces/IPoi';
 import { Op } from 'sequelize';
+
+import PoiService from '../../services/poi';
 import MondialRelayService from '../../services/mondial.relay';
 import AddressValidatorService from '../../services/addressValidator';
 
@@ -29,14 +31,31 @@ export default (app: Router) => {
         if (row != null) {
             let splitted = row.split('-');
 
-            _return =
-                splitted[0].substr(0, 2) +
-                'h' +
-                splitted[0].substr(2) +
-                ' - ' +
-                splitted[1].substr(0, 2) +
-                'h' +
-                splitted[1].substr(2);
+            if( typeof splitted[0] !== 'undefined' && splitted[0] != '' )
+            {
+            	if( isNaN(splitted[0]) )
+            	{
+					_return = splitted[0];
+            	}
+            	else
+            	{
+					_return = splitted[0].substr(0, 2) + 'h' +splitted[0].substr(2);	
+            	}
+				
+            }
+            
+            if( typeof splitted[1] !== 'undefined' && splitted[1] != '' )
+            {
+            	if( isNaN(splitted[1]) )
+            	{
+					_return = _return + "-" + splitted[1];
+            	}
+            	else
+            	{
+				
+					_return = _return + "-" + splitted[1].substr(0, 2) + 'h' +splitted[1].substr(2);
+				}
+            }
         }
         return _return;
     }
@@ -74,12 +93,10 @@ export default (app: Router) => {
         try {
             const mondialRelay: any = Container.get(MondialRelayService);
 			const addressValidator = Container.get(AddressValidatorService);
-            const myPoints = await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
-
-            const poiService: any = Container.get('poiModel');
-            const bounds = computeRoughCoordinates(req.params.latitude, req.params.longitude);
+            const myPoints 	= await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
+            const bounds 	= computeRoughCoordinates(req.params.latitude, req.params.longitude);
             
-            const points: [] = await poiService.findAll({
+            const criterias = {
                 where: {
                     active: true,
                     type: 'pickup',
@@ -92,24 +109,52 @@ export default (app: Router) => {
                         [Op.lte]: bounds.lonMax,
                     },
                 },
-            });
+                include: [],
+            };
+            
+            if( req.query.zone )
+            {
+                criterias.include.push({
+                    association: 'availability_zone',
+                    where: { name : req.query.zone.charAt(0).toUpperCase() + req.query.zone.slice(1) }   
+                });
+            }
+            
+            
+            const points: [] = await Container.get(PoiService).findAllFiltered(req, criterias);
 
+            if( !points || points.length == 0 )
+            {
+				return res.json({}).status(200);
+            }
+            
 			let parsedPoints = points.filter(item => {
 				return addressValidator.isZipCodeAllowed(item.zipCode) ? item : false;
 			})
+			
+			
 			
             parsedPoints = parsedPoints.map(point => {
             	
                 const localTimetable = ( typeof point.horaires == "string") ? JSON.parse(point.horaires) : point.horaires;
                 const parsedTimetable = {};
 
-                Object.keys(localTimetable).forEach(function(key) {
-                    parsedTimetable[key] = {
-                        am: formatTimetableRow(localTimetable[key]['am']),
-                        pm: formatTimetableRow(localTimetable[key]['pm']),
-                    };
-                });
-
+                if( localTimetable )
+                {
+	                Object.keys(localTimetable).forEach(function(key) {
+	                	if( 
+	                		( localTimetable[key]['am'] == '' && localTimetable[key]['pm'] == '' ) ||  
+	                	    ( !localTimetable[key]['am'] && !localTimetable[key]['pm'] )
+	                	)
+	                	{
+							return;
+	                	}
+	                    parsedTimetable[key] = {
+	                        am: formatTimetableRow(localTimetable[key]['am']),
+	                        pm: formatTimetableRow(localTimetable[key]['pm']),
+	                    };
+	                });
+				}
                 return {
                     key: point.id,
                     id: point.id,
@@ -118,6 +163,7 @@ export default (app: Router) => {
                     zipCode: point.zipCode,
                     street: point.street,
                     city: point.city,
+                    phoneNumber: point.phoneNumber ? point.phoneNumber : '',
                     coordinates: {
                         latitude: point.latitude,
                         longitude: point.longitude,

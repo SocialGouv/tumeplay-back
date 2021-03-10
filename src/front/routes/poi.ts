@@ -4,6 +4,7 @@ import middlewares from '../middlewares';
 import { IPoiInputDTO } from '../../interfaces/IPoi';
 
 import PoiService from '../../services/poi';
+import UserService from '../../services/user';
 
 const route = Router();
 
@@ -20,10 +21,10 @@ export default (app: Router) => {
         try {
             const PoiModel: any = Container.get('poiModel');
 
-            const pois = await PoiModel.findAll();
-
+            const pois 	= await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ]});
+            
             return res.render('page-poi', {   
-                pois,
+                pois, 
             });
         } catch (e) {
             throw e;
@@ -36,9 +37,12 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'global', 'edit'),  
     	async (req: Request, res: Response) => {
         try {
+        	const zones = await Container.get(UserService).getAllowedZones(req);
             const types = ['cegidd', 'pickup'];
+            
             return res.render('page-poi-edit', {
-                types: types,
+                types,
+                zones
             });
         } catch (e) {
             throw e;
@@ -52,15 +56,26 @@ export default (app: Router) => {
     	async (req: Request, res: Response) => {
         try {
             const documentId = +req.params.id;
-            const poiServiceInstance: PoiService = Container.get(PoiService);
+
+            const zones 	 = await Container.get(UserService).getAllowedZones(req);
 
             const types = ['cegidd', 'pickup'];
 
-            const { poi } = await poiServiceInstance.findById(documentId, true);
+            const { poi } = await  Container.get(PoiService).findById(documentId, true);
 
+            poi.horaires = prepareTimetable(poi.horaires);
+            
+            console.log(poi.horaires);
+            
+            if( !poi.phoneNumber )
+            {
+				poi.phoneNumber = '';
+            }
+            
             return res.render('page-poi-edit', {
                 poi,
-                types: types,
+                types,
+                zones,
             });
         } catch (e) {
             throw e;
@@ -83,14 +98,19 @@ export default (app: Router) => {
                 zipCode: req.body.zipCode,
                 street: req.body.street,
                 city: req.body.city,
+                phoneNumber: req.body.phoneNumber,
                 latitude: req.body.latitude,
                 longitude: req.body.longitude,
                 active: req.body.active == 'on',
+                availabilityZoneId: req.body.poiZone,
+                horaires: handleTimetable(req.body.horaires),
             };
 
             const poiServiceInstance = Container.get(PoiService);
             const { poi } = await poiServiceInstance.create(poiItem);
 
+            req.session.flash = {msg: "Le POI a bien été créé.", status: true};
+            
             return res.redirect(ROOT_URL);
         } catch (e) {
             throw e;
@@ -108,27 +128,26 @@ export default (app: Router) => {
         try {
             const documentId = req.params.id;
 
-            let productItem: IBoxInputDTO = {
-                title: req.body.title,
-                description: req.body.description,
-                shortDescription: req.body.shortDescription,
-                price: req.body.price,
+            let poiItem = {
+                name: req.body.name,
+                description: req.body.text,
+                type: req.body.type,
+                zipCode: req.body.zipCode,
+                street: req.body.street,
+                city: req.body.city,
+                phoneNumber: req.body.phoneNumber,
+                latitude: req.body.latitude,
+                longitude: req.body.longitude,
                 active: req.body.active == 'on',
-                deleted: false,
-                pictureId: undefined,
+                availabilityZoneId: req.body.poiZone,
+                horaires: handleTimetable(req.body.horaires),
             };
 
-            const boxServiceInstance: BoxService = Container.get(BoxService);
+            const poiServiceInstance = Container.get(PoiService);
+            const { poi } = await poiServiceInstance.update(documentId, poiItem);
 
-            const { box } = await boxServiceInstance.findById(documentId);
-
-            if (req.body.selectedProduct && Array.isArray(req.body.selectedProduct)) {
-                handleProducts(box, req.body.selectedProduct, req.body.qty);
-            }
-            // Updating
-
-            await boxServiceInstance.update(documentId, productItem);
-
+            req.session.flash = {msg: "Le POI a bien été mis à jour.", status: true};
+            
             return res.redirect(ROOT_URL);
         } catch (e) {
             throw e;
@@ -151,4 +170,73 @@ export default (app: Router) => {
             throw e;
         }
     });
+    
+    function prepareTimetable(itemTimeTable)
+    {
+    	if( itemTimeTable )
+    	{
+			let localTable = JSON.parse(itemTimeTable);
+			console.log(localTable);
+			itemTimeTable = {
+				lundi: prepareExistingTimeTable(localTable.lundi),
+				mardi: prepareExistingTimeTable(localTable.mardi),
+				mercredi: prepareExistingTimeTable(localTable.mercredi),
+				jeudi: prepareExistingTimeTable(localTable.jeudi),
+				vendredi: prepareExistingTimeTable(localTable.vendredi),
+				samedi: prepareExistingTimeTable(localTable.samedi),
+				dimanche: prepareExistingTimeTable(localTable.dimanche),
+			};
+			
+			console.log(itemTimeTable);
+    	}
+		
+		return itemTimeTable;
+    }
+    
+    function prepareExistingTimeTable(dayTable)
+    {
+		var _return = {
+            am: '',
+            pm: '',
+        };
+        if (dayTable.am != '' && dayTable.am != "null" && typeof dayTable.am != 'undefined') {
+            _return.am = dayTable.am;
+        }
+
+        if (dayTable.pm != '' && dayTable.pm != "null"&& typeof dayTable.pm != 'undefined') {
+            _return.pm = dayTable.pm;
+        }
+
+        return _return;
+    }
+    
+    function handleTimetable(bodyParams)
+    {
+		return JSON.stringify({
+			lundi: handleTimetableDay(bodyParams.lundi),
+			mardi: handleTimetableDay(bodyParams.mardi),
+			mercredi: handleTimetableDay(bodyParams.mercredi),
+			jeudi: handleTimetableDay(bodyParams.jeudi),
+			vendredi: handleTimetableDay(bodyParams.vendredi),
+			samedi: handleTimetableDay(bodyParams.samedi),
+			dimanche: handleTimetableDay(bodyParams.dimanche),
+		});
+    }
+    
+    function handleTimetableDay(timetable)
+    {
+        var _return = {
+            am: '',
+            pm: '',
+        };
+        if (timetable[0] != '' && timetable[0] != "null" && typeof timetable[0] != 'undefined') {
+            _return.am = timetable[0];
+        }
+
+        if (timetable[1] != '' && timetable[1] != "null"&& typeof timetable[1] != 'undefined') {
+            _return.pm = timetable[1];
+        }
+
+        return _return;
+    }
 };

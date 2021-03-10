@@ -3,9 +3,12 @@ import { Router, Request, Response, NextFunction } from 'express';
 import OrderService from '../../services/order';
 import { IOrder, IOrderInputDTO } from '../../interfaces/IOrder';
 import { celebrate, Joi, errors } from 'celebrate';
+import { Op } from 'sequelize';
+
 import middlewares from '../middlewares';
 import UserService from '../../services/user';
 import BoxService from '../../services/box';
+import AvailabilityZoneService from '../../services/availability.zone';
 import ProductService from '../../services/product';
 import MailerService from '../../services/mail';
 import MondialRelayService from '../../services/mondial.relay';
@@ -117,6 +120,20 @@ export default (app: Router) => {
             const ShippingAddressModelService = Container.get('shippingAddressModel');
             const UserProfileModelService = Container.get('profileModel');
 
+            // Step -1 : Load zone if present
+            let localZone = null;
+            
+            if( req.query && req.query.zone )
+            {
+				const { availabilityZone } = await Container.get(AvailabilityZoneService).findByName(req.query.zone);	
+				
+				if( availabilityZone )
+				{
+					localZone = availabilityZone.id;	
+				}                                   
+            }
+            
+            
             // Step 0 : Load User
             const localUser = await Container.get(UserService).findById(userId);
 
@@ -205,7 +222,7 @@ export default (app: Router) => {
                 logger.debug('Zipcode is not allowed. Aborting. ( testing ' + selectedZipCode + ' )' );
                 return res.json({success: false}).status(200);
             }
-            
+			
 			// Step 6 : Get shipping adress for user
             const localAdress = {
                 num: '',
@@ -239,6 +256,11 @@ export default (app: Router) => {
 
             const order = await Container.get('orderModel').create(orderData);
 
+            if( localZone )
+            {
+				await Container.get(OrderService).bulkCreateZone([{ orderId: order.id, availabilityZoneId: localZone}]);	
+            }
+            
             // Step 8 : Create order products
             const _orderProducts = [];
 
@@ -346,6 +368,29 @@ export default (app: Router) => {
 					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
 	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
 				}
+				
+				if( localZone && order.shippingModeText == 'pickup' )
+				{
+					const criterias = {
+						where: { 
+							roles: { [Op.like]:  '%'+Config.roles.orders_support+'%' }
+						},
+						include: [{
+		                    association: 'poi',
+		                    where: { id : selectedPickup.id }   
+		                }]
+					};
+					
+		            const supports = await Container.get(UserService).findAll(req, criterias);
+		            const targetTemplate = Container.get(MailerService).getLocalTemplate('new_order_supplier_' + req.query.zone, 'new_order_supplier');
+		            
+		            if( supports && supports.length > 0 )
+    				{
+    					supports.forEach( async (support) => {
+    						await Container.get(MailerService).send(support.email, 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, targetTemplate, variables);
+						}); 
+    				}
+			    }
             } catch (err) {
                 console.error(err); // TODO-low: should we notify in case of error here ?
             }

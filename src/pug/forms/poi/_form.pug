@@ -6,7 +6,7 @@
 			else
 				h3.tile-title Créer un nouveau POI
 			
-			if content
+			if poi
 				- var targetUrl = "/poi/edit/" + poi.id
 			else
 				- var targetUrl = "/poi/add"
@@ -56,6 +56,8 @@
 									input.form-control(type="text", name="zipCode", placeholder="Code Postal" value=`${poi.zipCode}`)
 								.form-group
 									input.form-control(type="text", name="city", placeholder="Ville" value=`${poi.city}`)
+								.form-group
+									input.form-control(type="text", name="phoneNumber", placeholder="Téléphone ( avec indicatif )" value=`${poi.phoneNumber}`)
 								
 							else
 								.form-group
@@ -63,7 +65,9 @@
 								.form-group
 									input.form-control(type="text", name="zipCode", placeholder="Code Postal")
 								.form-group
-									input.form-control(type="text", name="city", placeholder="Ville")          
+									input.form-control(type="text", name="city", placeholder="Ville")
+								.form-group
+									input.form-control(type="text", name="phoneNumber", placeholder="Téléphone ( avec indicatif )")
 							
 					.col-md-6
 						.tile
@@ -85,76 +89,76 @@
 						.tile
 							label.control-label Horaires
 
-							if poi
+							if poi && poi.horaires
 								.form-group
 									.row
 										.col-md-3
 											label.control-label.pt-2 Lundi
 										.col-md-4
-											input.form-control(type="text", name="horaires[lundi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.lundi}`)
+											input.form-control(type="text", name="horaires[lundi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.lundi.am}`)
 										.col-md-1
 										.col-md-4
-											input.form-control(type="text", name="horaires[lundi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.lundi}`)
+											input.form-control(type="text", name="horaires[lundi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.lundi.pm}`)
 								hr
 								.form-group
 									.row
 										.col-md-3
 											label.control-label.pt-2 Mardi
 										.col-md-4
-											input.form-control(type="text", name="horaires[mardi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.mardi}`)
+											input.form-control(type="text", name="horaires[mardi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.mardi.am}`)
 										.col-md-1
 										.col-md-4
-											input.form-control(type="text", name="horaires[mardi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.mardi}`)
+											input.form-control(type="text", name="horaires[mardi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.mardi.pm}`)
 								hr
 								.form-group
 									.row
 										.col-md-3
 											label.control-label.pt-2 Mercredi
 										.col-md-4
-											input.form-control(type="text", name="horaires[mercredi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.mercredi}`)
+											input.form-control(type="text", name="horaires[mercredi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.mercredi.am}`)
 										.col-md-1
 										.col-md-4
-											input.form-control(type="text", name="horaires[mercredi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.mercredi}`)
+											input.form-control(type="text", name="horaires[mercredi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.mercredi.pm}`)
 								hr
 								.form-group
 									.row
 										.col-md-3
 											label.control-label.pt-2 Jeudi
 										.col-md-4
-											input.form-control(type="text", name="horaires[jeudi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.jeudi}`)
+											input.form-control(type="text", name="horaires[jeudi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.jeudi.am}`)
 										.col-md-1
 										.col-md-4
-											input.form-control(type="text", name="horaires[jeudi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.jeudi}`)
+											input.form-control(type="text", name="horaires[jeudi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.jeudi.pm}`)
 								hr
 								.form-group
 									.row
 										.col-md-3
 											label.control-label.pt-2 Vendredi
 										.col-md-4
-											input.form-control(type="text", name="horaires[vendredi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.vendredi}`)
+											input.form-control(type="text", name="horaires[vendredi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.vendredi.am}`)
 										.col-md-1
 										.col-md-4
-											input.form-control(type="text", name="horaires[vendredi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.vendredi}`)
+											input.form-control(type="text", name="horaires[vendredi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.vendredi.pm}`)
 								hr
 								.form-group
 									.row
 										.col-md-3
 											label.control-label.pt-2 Samedi
 										.col-md-4
-											input.form-control(type="text", name="horaires[samedi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.samedi}`)
+											input.form-control(type="text", name="horaires[samedi][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.samedi.am}`)
 										.col-md-1
 										.col-md-4
-											input.form-control(type="text", name="horaires[samedi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.samedi}`)
+											input.form-control(type="text", name="horaires[samedi][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.samedi.pm}`)
 								hr
 								.form-group
 									.row
 										.col-md-3
 											label.control-label.pt-2 Dimanche
 										.col-md-4
-											input.form-control(type="text", name="horaires[dimanche][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.dimanche}`)
+											input.form-control(type="text", name="horaires[dimanche][]", placeholder="Matin ( HHMM-HHMM )" value=`${poi.horaires.dimanche.am}`)
 										.col-md-1
 										.col-md-4
-											input.form-control(type="text", name="horaires[dimanche][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.dimanche}`)
+											input.form-control(type="text", name="horaires[dimanche][]", placeholder="Après-midi ( HHMM-HHMM )" value=`${poi.horaires.dimanche.pm}`)
 							else
 								.form-group
 									.row
@@ -225,6 +229,24 @@
 										.col-md-1
 										.col-md-4
 											input.form-control(type="text", name="horaires[dimanche][]", placeholder="Après-midi ( HHMM-HHMM )")
+				
+				if zones && zones.length > 0
+					hr
+					.form-group
+					label.control-label Zone
+
+					.row.col-md-12
+						for zone in zones
+							.col-md-3.animated-checkbox
+								label
+									- var _name = "zones[zone_"+ zone.id +"]"
+									if poi && poi.availabilityZoneId == zone.id
+										input(type="radio" name="poiZone" value=`${zone.id}` checked=true style="vertical-align: middle") 
+									else
+										input(type="radio" name="poiZone" value=`${zone.id}` checked=false style="vertical-align: middle") 
+
+									span.label-text(style="margin-left: 5px;","vertical-align: middle") #{zone.name}
+				hr
 				.animated-checkbox
 					label
 						if poi

@@ -1,16 +1,16 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize, type) => {
-    return sequelize.define('question_sound', {
+    return sequelize.define('thematique_sound', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        questionId: {
+        thematiqueId: {
             type: DataTypes.INTEGER,
             reference: {
-                model: 'question_content',
+                model: 'thematique',
                 key: 'id',
             },
         },
@@ -21,6 +21,5 @@ export default (sequelize, type) => {
                 key: 'id',
             },
         },
-        soundType: DataTypes.STRING,
     });
 };

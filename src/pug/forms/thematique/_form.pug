@@ -27,13 +27,32 @@
 					else
 						input.form-control(type="text", name="title", placeholder="Titre de la thematique ( usage interne uniquement )")
 				
-				label.control-label Image associée
-				if thematique
-					if thematique.picture && thematique.picture.path
-						img.pic-image-box-normal(src="../../"+thematique.picture.path)
-				input.form-control(type="file" name="themePicture")
-			
+				.form-group.form-inline
+					label.col-12.pl-0.control-label(style="justify-content: left;") Image associée
+					if thematique && thematique.picture && thematique.picture.path
+						img.col-1.pic-image-box-normal(src="../../"+thematique.picture.path, style="justify-content: left;margin: 0; padding-left: 0;")
+						input.col-10.form-control(type="file" name="themePicture")
+					else
+						input.form-control(type="file" name="themePicture")
+				
 				hr
+				
+				if hasSound
+					each zone in allZones
+						if zone.enableSound
+							- var _name = "thematicSound[zone_"+ zone.id +"]"
+							label.control-label Fichier audio ( #{zone.name} )
+							input.form-control(type="file" name=`${_name}`)
+                            
+							if thematique && thematique.sounds
+								each sound in thematique.sounds
+									if sound.availabilityZoneId == zone.id
+										p.mt-3.font-weight-bold Fichier existant :  
+											a(href="/" + sound.path, target="blank") #{sound.filename}
+											span.mr-3.ml-3 -
+											a.delete-sound(href="#",data-type="thematique", data-origin=thematique.id, data-sound=sound.id, style="color: red;") Supprimer
+
+							hr
 			
 				.animated-checkbox
 					label

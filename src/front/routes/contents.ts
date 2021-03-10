@@ -33,7 +33,7 @@ var contentMulterStorage = multer.diskStorage({
       {
           cb(null, 'uploads/sounds/content')
       }
-      else if ( file.fieldname.includes('questionSound') )
+      else if ( file.fieldname.includes('questionSound') || file.fieldname.includes('questionAnswerSound') )
       {
           cb(null, 'uploads/sounds/question')
       }
@@ -61,9 +61,7 @@ export default (app: Router) => {
     	middlewares.isAllowed(aclSection, 'global', 'view'),  
     	async (req: Request, res: Response) => {
         try {
-            let likes = '';
-            let dislikes = '';
-            
+
             const logger: any = Container.get('logger');
 
             const contentServiceInstance = Container.get(ContentService);
@@ -71,7 +69,6 @@ export default (app: Router) => {
             const contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
             
             const questionFeedbackService = Container.get(QuestionFeedbackService);
-            
             for( let i = 0; i < contents.length; i++ )
             {
                 let content = contents[i];
@@ -95,7 +92,6 @@ export default (app: Router) => {
                 thematiques: themes,
                 categories: categories,
                 contentStatesArray: contentStatesArray,
-                contentLikes: likes,
                 zones: zones
             });
         } catch (e) {
@@ -192,6 +188,8 @@ export default (app: Router) => {
                 
                 await handleSounds(req, content.id, content.questionId, targetZones, req.files);
                 
+                req.session.flash = {msg: "Le contenu a bien été créé.", status: true};
+                
             	return res.redirect('/contents');
         } catch (e) {
             throw e;
@@ -230,6 +228,7 @@ export default (app: Router) => {
                 	'sounds'
                 ]
             });
+            
             
             if( !content )
             {
@@ -386,6 +385,8 @@ export default (app: Router) => {
                 }
                 
                 await handleSounds(req, documentId, contentItem.questionId, targetZones, req.files);
+                
+                req.session.flash = {msg: "Le contenu a bien été mis à jour.", status: true};
                                                                 
                 return res.redirect('/contents');
             } catch (e) {
@@ -403,7 +404,9 @@ export default (app: Router) => {
 
         try {
             await Container.get(ContentService).delete(req, req.params.id);
-                                               
+            
+            req.session.flash = {msg: "Le contenu a bien été supprimé.", status: true};
+            
             return res.redirect('/contents');
         } catch (e) {
             throw e;
@@ -564,7 +567,20 @@ export default (app: Router) => {
 					
 					if( sound )
 					{
-						await Container.get(SoundService).handleQuestionSound(questionId, sound.id);
+						await Container.get(SoundService).handleQuestionSound(questionId, sound.id, "question");
+					}
+				}
+				
+				if( currentFile.fieldname.includes('questionAnswerSound') )	
+				{
+					const targetZone = currentFile.fieldname.replace('questionAnswerSound[zone_', '').replace(']', '');
+					
+					currentFile.availabilityZoneId = parseInt(targetZone);                                 
+					const {sound} = await Container.get(SoundService).create(currentFile);
+					
+					if( sound )
+					{
+						await Container.get(SoundService).handleQuestionSound(questionId, sound.id, "answer");
 					}
 				}
 			}
@@ -650,6 +666,7 @@ export default (app: Router) => {
                     };
                 }
             });
+        
             if (answerItems.length > 0) {
                 // Creating answers
                 await Container.get('questionAnswerModel').destroy({ where: { questionContentId: questionId } });

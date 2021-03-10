@@ -3,8 +3,11 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { IUser, IUserInputDTO } from '../../interfaces/IUser';
 import { celebrate, Joi } from 'celebrate';
 import middlewares from '../middlewares';
+
 import UserService from '../../services/user';
 import AuthService from '../../services/auth';
+import PoiService from '../../services/poi';
+
 import config from '../../config';
 
 const route = Router();
@@ -45,6 +48,7 @@ export default (app: Router) => {
             
             return res.render(pageNames.profile.viewList, {
                 users,
+                rolesLabels: config.roles_readable,
             });
         } catch (e) {
             throw e;
@@ -63,16 +67,25 @@ export default (app: Router) => {
                 },
                 include: [
                 	'availability_zone',
+                	'poi',
                 ]
             });
             user.roles   = JSON.parse(user.roles);
             user.zoneIds = user.availability_zone.map(item => {
 				return item.id;
             });
+            
+            user.poiIds  = user.poi.map(item => {
+				return item.id;
+            });
+            
             const zones  = await Container.get('availabilityZoneModel').findAll();
-                    
+            const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ], order: ['name']});
+            
             return res.render(pageNames.profile.addEdit, {
                 roles: config.roles,
+                rolesLabels: config.roles_readable,
+                pois,
                 user,
                 zones
             });
@@ -99,7 +112,7 @@ export default (app: Router) => {
             await Container.get(UserService).update(req, userId, userItem);
                 
 			await handleUserZones(userId, req.body);	
-                                                 
+            await handleUserPois(userId, req.body);
             
             return res.redirect('/profiles');
         } catch (e) {
@@ -113,9 +126,12 @@ export default (app: Router) => {
         async (req: Request, res: Response) => {
         try {
             const zones  = await Container.get('availabilityZoneModel').findAll();
+            const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ]});
             
             return res.render(pageNames.profile.addEdit, {
                 roles: config.roles,
+                rolesLabels: config.roles_readable,
+                pois,
                 zones: zones,
             });
         } catch (e) {
@@ -141,6 +157,7 @@ export default (app: Router) => {
             if( user )
             {
 				await handleUserZones(user.id, req.body);	
+				await handleUserPois(user.id, req.body);
             }                                            
             
             return res.redirect('/profiles');
@@ -161,6 +178,13 @@ export default (app: Router) => {
             throw e;
         }
 	});
+    
+    const handleUserPois = async(userId, bodyRequest) => {
+    	if( bodyRequest.user_poi )
+    	{
+    		await Container.get(UserService).assignPois(userId, bodyRequest.user_poi);	
+    	}                                                                                        
+    }
     
     const handleUserZones = async(userId, bodyRequest) => {
     	if( bodyRequest.zones )
