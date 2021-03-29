@@ -101,7 +101,7 @@ export default (app: Router) => {
                 const localPoi 		= await Container.get('poiModel').findOne({where: {id: req.body.selectedPickup}})
                 
                 let localProfile = {
-	                name: req.body.lastName,
+	                name: "",
 	                surname: req.body.firstName,
 	                email: "",
 	                userId: req.session.user.id,

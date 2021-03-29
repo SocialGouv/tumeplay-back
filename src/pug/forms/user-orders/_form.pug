@@ -33,12 +33,11 @@ form.order-form(action=`${targetUrl}`, method="POST")
                          span.col-6 #{prettyDate(order.updatedAt)}
                     hr
                 .form-group.form-inline
-                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Nom / Prénom :
+                    label.col-3.control-label.pl-0.font-weight-bold(style="justify-content: left;") Prénom :
                         
                     if order
                         span.col-6 #{order.profileFullName}
                     else
-                        input.col-4.mr-3.form-control(type="text", name="lastName", placeholder="Nom")
                         input.col-4.form-control(type="text", name="firstName", placeholder="Prénom")
                 
 
