@@ -20,7 +20,7 @@ export default (app: Router) => {
                     active: true, 
                 },
                 include: ['picture'],
-                order: [['id', 'ASC']]
+                order: [['weight', 'ASC']]
             };
             
             if( req.query.zone )
@@ -33,6 +33,8 @@ export default (app: Router) => {
             
             const boxs = await Container.get('boxModel').findAll(criterias);
 
+            criterias.order = [['id', 'ASC']];
+            
             const fullProducts = await Container.get('productModel').findAll(criterias);
 
             const products = fullProducts.map(item => {

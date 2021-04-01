@@ -12,6 +12,11 @@ export default (sequelize, type) => {
         shortDescription: DataTypes.STRING,
         price: DataTypes.DECIMAL,
         active: DataTypes.BOOLEAN,
+        weight: {
+			type: DataTypes.INTEGER,
+	        allowNull: false,
+	        defaultValue: 0,
+        },
         available: {
 	        type: DataTypes.BOOLEAN,
 	        allowNull: false,
