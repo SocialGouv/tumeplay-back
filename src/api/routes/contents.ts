@@ -13,6 +13,7 @@ export default (app: Router) => {
                     published: 1,
                 },
                 include: ['picture', 'sounds', 'itsTheme'],
+                order: [['createdAt', 'DESC']]
             };
             
             if( req.query.zone )

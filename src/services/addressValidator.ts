@@ -28,6 +28,7 @@ export default class AddressValidatorService {
 		    '93',
 		    '94',
 		    '95',
+            '97',
 		];
 		const firstPart = zipCode.substring(0, 2);
 		return ( allowedZipCodes.indexOf(firstPart) >= 0 );
