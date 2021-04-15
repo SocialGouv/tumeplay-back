@@ -5,14 +5,15 @@ table.table.table-hover.table-bordered#contentsDataTable
             th Famille            
             th Date de mise à jour
     tbody
-        each content in contentStatistics['lastPublished']
-            tr
-                td
-                    a(href="/contents/edit/" + content.id data-id=`${content.id}`)
-                        | #{content.title}
-                td
-                    if content.itsTheme
-                        | #{content.itsTheme}
+        if contentStatistics && contentsStatistics['lastPublished'].length > 0
+            each content in contentStatistics['lastPublished']
+                tr
+                    td
+                        a(href="/contents/edit/" + content.id data-id=`${content.id}`)
+                            | #{content.title}
+                    td
+                        if content.itsTheme
+                            | #{content.itsTheme}
                         
-                td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
+                    td(data-sort=content.updatedAt) #{prettyDate(content.updatedAt)}
                 
