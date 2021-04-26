@@ -1,0 +1,62 @@
+.row
+	- var currentStep = 2
+	include ./_form.steps.pug
+	
+	.col-md-12.shipping-form
+		.tile
+			.row
+				.col-6
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") Nom : 
+						input.col-8.form-control(type="text", name="name", placeholder="Nom")
+					
+				.col-6
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") Prénom : 
+						input.col-8.form-control(type="text", name="firstName", placeholder="Prénom")
+					
+			.row
+				.col-6
+			
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") Téléphone : 
+						input.col-8.form-control(type="text", name="phoneNumber", placeholder="Téléphone")
+			
+				.col-6
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") E-Mail : 
+						input.col-8.form-control(type="text", name="mailAddress", placeholder="E-Mail")
+			
+			.row
+				.col-12
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") Adresse de livraison : 
+						input.col-8.form-control(type="text", name="street", placeholder="Adresse de livraison")
+			
+			.row
+				.col-12
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") Complément d'adresse : 
+						input.col-8.form-control(type="text", name="streetMore", placeholder="Complément d'adresse")
+			
+			.row
+				.col-6
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") Ville : 
+						input.col-8.form-control(type="text", name="city", placeholder="Ville")
+				
+				.col-6
+					.form-group.form-inline
+						label.col-4.control-label.pl-0.font-weight-bold(style="justify-content: left;") Code postal : 
+						input.col-8.form-control(type="text", name="zipCode", placeholder="Code Postal")
+						
+			hr
+			
+			input(type="hidden", name="products", value=products64)
+			
+			p La livraison de matériel se fait sous 5 jours ouvrés.
+			
+	.clearfix
+
+
+block specific-js

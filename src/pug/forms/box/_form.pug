@@ -41,36 +41,46 @@
                             else
                                 input.form-control(type="text", name="shortDescription", placeholder="Description courte")
 
-                        if product
-                            if box.picture && box.picture.path
-                                img.pic-image-box-normal(src="../../" + box.picture.path)
-                        input.form-control(type="file" name="boxPicture")
+                        .form-group.form-inline
+                            label.col-12.pl-0.control-label(style="justify-content: left;") Photo associée
 
-                        .animated-checkbox
-                            label
-                                if box
-                                    input(type="checkbox" name="active" checked=box.active)
-                                else
-                                    input(type="checkbox" name="active")
+                            if box && box.picture && box.picture.path
+                                img.col-1.pic-image-box-normal(src="../../" + box.picture.path, style="justify-content: left;margin: 0; padding-left: 0;")
+                                input.col-11.form-control(type="file" name="boxPicture")
+                                
+                            else
+                                input.form-control(type="file" name="boxPicture")
+                                
+                        hr
+                        
+                        .form-group.form-inline                  
+                            label.col-3.pl-0.control-label(style="justify-content: left;") Paramètres
+                            
+                            .animated-checkbox.col-3.pl-0
+                                label(style="justify-content: left;")
+                                    if box
+                                        input(type="checkbox" name="active" checked=box.active)
+                                    else
+                                        input(type="checkbox" name="active")
 
-                                span.label-text Publié
+                                    span.label-text Publié
 
-                        .animated-checkbox
-                            label
-                                if box
-                                    input(type="checkbox" name="available" checked=box.available)
-                                else
-                                    input(type="checkbox" name="available")
+                            .animated-checkbox.col-3.pl-0
+                                label(style="justify-content: left;")
+                                    if box
+                                        input(type="checkbox" name="available" checked=box.available)
+                                    else
+                                        input(type="checkbox" name="available")
 
-                                span.label-text Disponible à la commande
+                                    span.label-text Disponible à la commande
                         br
                         if zones && zones.length > 1
                             .form-group.form-inline
                                 label.col-3.pl-0.control-label(style="justify-content: left;") Zones disponibles
                                 
                                 each zone in zones
-                                    .animated-checkbox.mr-3
-                                        label
+                                    .animated-checkbox.col-3.pl-0
+                                        label(style="justify-content: left;")
                                             if box && box.zoneIds.includes(zone.id)
                                                 input(type="checkbox" name="zoneId" checked=true value=zone.id)
                                             else
@@ -79,7 +89,24 @@
                                             span.label-text #{zone.name}
 
 
-
+                        hr
+                        
+                        .form-group.form-inline                  
+                            label.col-3.pl-0.control-label(style="justify-content: left;") Ordre d'apparition
+                            
+                            .col-4.pl-0
+                                select.form-control(name="weight")
+                                        option(value=0) - Sélectionner -
+                                        while loopCounter < 10
+                                            if box && box.weight === loopCounter
+                                                option(value=loopCounter, selected="selected")  #{loopCounter}
+                                            else
+                                                option(value=loopCounter) #{loopCounter}
+                                    
+                                            - loopCounter = loopCounter + 1
+                                        
+                    - var loopCounter = 0
+                    
                     .col-md-4
                         .tile
                             h4 Produits associés

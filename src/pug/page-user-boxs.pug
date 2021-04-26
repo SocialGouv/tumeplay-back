@@ -1,0 +1,1045 @@
+extends layouts/_layout.pug
+
+block variables
+	- var activePage = 'page-user-boxs'
+	// - var activeGroup = 'tables'
+
+block title
+	title Commandes - Tumeplay
+
+block content
+	style.
+		div.sweet-alert {
+			width: 800px;
+			margin-left: -370px;
+			max-height: 100%;
+			overflow-y: visible;
+		}
+		div.sweet-alert .fulltext 
+		{
+			min-width: 600px;
+		}
+		@media screen and (max-width: 640px) {
+		  div.sweet-alert 
+		  {
+		    width: auto;
+		    max-width: 500px;
+		    margin-left: auto;
+		  }
+		  div.sweet-alert .fulltext 
+		  {
+				min-width: 400px;
+		  }
+		  div.sweet-alert .col-12 label 
+		  {
+		  	display: block;
+		  	max-width: 100%;
+		  	flex: 0 0 100%;
+		  	padding-left: 0;
+		  }
+		  div.sweet-alert .col-12 input,
+		  div.sweet-alert .col-12 textarea,
+		  div.sweet-alert .col-12 select 
+		  {
+		  	display: block;
+		  	max-width: 100%;
+		  	flex: 0 0 100%;
+		  }
+		  .delivery-address
+		  {
+		  	min-width: 100px;
+		  }
+		}
+		
+		div.sweet-alert  .rounded-number 
+		{
+			margin-top: 7px;
+			margin-bottom: 7px;
+		}
+		
+		div.sweet-alert  span.inside-number
+		{
+			display: inline-block;
+			border: 1px solid;
+			border-radius: 20px;
+			padding: 10px 15px;
+			padding-left: 14px;
+			padding-top: 8px;
+		}
+		
+		div.sweet-alert .qty-field 
+		{
+			line-height: 1em;
+		    height: 32px;
+		    padding-top: 4px;
+		    margin-bottom: 10px;
+		}
+		
+		div.sweet-alert .product-table td
+		{
+			padding-bottom: 7px;
+			padding-top: 7px;
+		}
+		
+		div.sweet-alert .steps .active .inside-number
+		{
+			background-color: blue;
+			font-weight: bold;
+			color: #FFFFFF;
+		}
+		
+		div.sweet-alert .steps .active .subtitle
+		{
+			font-weight: bold;
+			color: blue;
+		}
+		
+		.delivery-mode, 
+		.user-email
+		{
+			display: none;
+		}
+		
+		.left-boxes
+		{
+			border: 1px solid #CECECE;
+			border-radius: 7px;
+			box-shadow: 1px 1px #DEDEDE;
+			padding: 7px;
+			text-align: center;
+			padding-top: 20px;
+			background-color: rgba(33, 150, 243, 0.21)
+		}
+		
+		.left-boxes.alert 
+		{
+			background-color: rgba(220, 53, 69, 0.21);
+		}
+		
+		.left-boxes .left-amount
+		{
+			font-size: 52px;
+			margin-bottom: 0;
+		}
+	.app-title
+		div
+			h1
+				i.fa.fa-book
+				|  Commandes
+			p Liste des commandes
+
+		ul.app-breadcrumb.breadcrumb.side
+			li.breadcrumb-item
+				i.fa.fa-home.fa-lg
+			//li.breadcrumb-item
+			//	| Tables
+			li.breadcrumb-item.active
+				a(href="#") Commandes
+
+	.row
+		.col-md-12
+			.tile
+				include ./layouts/_flash.pug
+				
+				.tile-body
+					h3 Box restantes non distribuées
+					
+					hr
+					
+					if userStocks 
+						.row
+							for userStock in userStocks
+								.col-3
+									.left-boxes(class=userStock.qty && userStock.qty <= 5 ? "alert" : "")
+										h4 #{userStock.title}
+										p.left-amount #{userStock.qty}
+						
+					
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					
+					h3.float-left Liste des boxs à distribuer
+					a.float-right.btn.btn-sm.btn-primary(href="/user/boxs/add") Créer une commande 
+					// Keeping it for later.
+					//a.float-right.btn.btn-sm.btn-primary.mr-3(href="/user/orders/export/csv") Export CSV 
+					
+					
+					.clearfix
+					hr
+					
+					.toolbar.mb-3
+						label.mr-3 Actions : 
+						.btn.btn-sm.btn-primary.filter Filtrer
+						
+						// Keeping it for later, maybe. Just in case.
+						//.animated-checkbox.float-right
+						//	label(style="margin-top: 7px;")
+						//		input(type="checkbox", id="my_orders", name="my_orders" class="my_orders")&attributes(ownOrders == true ? {'checked' : 'checked'} : {}) 
+						//		span.label-text Commandes archivées
+								
+						.toolbar-filter.mt-3.form-inline(style="display:none;")
+							label.mr-3 Statut :
+							select.col-2.form-control-sm.mr-3(name="filter_state")
+								option(value="") - Tous -
+								option(value="has-delivery") Commande livrée
+								option(value="no-delivery") Commande en attente
+								
+							span.mr-3 |
+
+							label.mr-3 Box :
+							select.col-2.form-control-sm.mr-3(name="filter_box")
+								option(value="") - Toutes -
+								each box in boxs
+									option(value=box.title) #{box.title}
+							
+							span.mr-3 |
+
+							label.mr-3 Date du 
+							input.filter-date.datepicker(name="date_from")
+							label.ml-3.mr-3 au
+							input.filter-date.datepicker(name="date_to")
+
+						hr
+					
+					table.table.table-hover.table-bordered#ordersDataTable
+						thead
+							tr
+								th Réference (ID)
+								th Date de commande
+								th Destinataire
+								th Téléphone
+								th.user-email E-mail
+								th.box-column Box
+								th.state-column Livrée
+								//th Informations<br/>Anonymes
+								th(style="min-width: 135px; max-width: 135px;width: 135px;") Actions
+						tbody
+							each order in orders
+								tr(class="order-"+ order.id)
+									td #{order.id}
+									td.order-date(data-sort=order.orderDate) #{order.orderDate ? prettyDate(order.orderDate) : ""}
+									td #{order.profileFullName}
+									td #{order.phoneNumber}
+									td.user-email #{order.profileEmail}       
+									td #{order.box.title}
+									td.is-delivered(class=( order.delivered == true ? 'has-delivery' : 'no-delivery')) 
+										if order.delivered
+											i.fa.fa-fw.fa-lg.fa-check-circle(style="color: green")
+										else
+											i.fa.fa-fw.fa-lg.fa-times-circle(style="color: red")
+									//td.has-informations
+									//	if order.hasPersonalInformations
+									//		i.fa.fa-fw.fa-lg.fa-check-circle(style="color: green")
+									//	else
+									//		i.fa.fa-fw.fa-lg.fa-times-circle(style="color: red")
+									td
+										a(class='btn btn-primary' style="margin-right: 9px;" data-toggle="tooltip" title="Voir / Modifier" href="/user/boxs/edit/"+ order.id +(ownOrders ? "?ownorders" : "") data-id=`${order.id}`)
+											i.fa.fa-fw.fa-lg.fa-pencil-square-o( style="margin-right:0;")
+										
+										//if order.hasPersonalInformations
+										//	a(class='btn btn-success personal-informations'  style="margin-right: 5px;" data-toggle="tooltip" title="Renseigner les informations anonymes" data-id=`${order.id}` href="#")
+										//		i.fa.fa-fw.fa-lg.fa-user-circle( style="margin-right:0;")
+										//else
+										//	a(class='btn btn-danger personal-informations'  style="margin-right: 5px;" data-toggle="tooltip" title="Renseigner les informations anonymes" data-id=`${order.id}` href="#")
+										//		i.fa.fa-fw.fa-lg.fa-user-circle( style="margin-right:0;")
+										
+										if order.delivered
+											a(class='btn btn-primary btn-success mark-delivered' data-toggle="tooltip" title="Marquer comme 'Livrée'" href="#" data-id=`${order.id}`)
+												i.fa.fa-fw.fa-lg.fa-paper-plane( style="margin-right:0;")
+										else
+											a(class='btn btn-primary btn-danger mark-order-delivered' data-toggle="tooltip" title="Marquer comme 'Livrée'" href="#" data-id=`${order.id}`)
+												i.fa.fa-fw.fa-lg.fa-paper-plane( style="margin-right:0;")
+										
+											
+										if isAllowed(req, "orders", "global", "delete")
+											| &nbsp;&nbsp;&nbsp;
+											form(action="/user/orders/delete/" + order.id +(ownOrders ? "?ownorders" : ""), method="POST", onsubmit="deleteConfirmation(this); return false;", style="margin-top: 9px;")
+												button(class='delete-item btn btn-secondary' type="submit") 
+													i.fa.fa-fw.fa-lg.fa-times-circle
+													| Annuler
+
+	.row
+		.col-md-12
+			.tile
+				.tile-body
+					
+					h3 Mes commandes
+					
+					hr
+					
+					.toolbar.mb-3
+						a.btn.btn-sm.btn-primary.mr-3.ask-resupply(href="#") Me réapprovisionner 
+						
+						.animated-checkbox.float-right
+							label(style="margin-top: 7px;")
+								input(type="checkbox", id="archived_orders", name="archived_orders" class="my_orders")&attributes(archivedOrders == true ? {'checked' : 'checked'} : {}) 
+								span.label-text Commandes réceptionnées
+						hr
+					
+					if userResupplies && userResupplies.length == 0
+						p Vous n'avez pas de demande de livraison effectuée.
+					else
+						table.table.table-hover.table-bordered#ordersDataTable
+							thead
+								tr
+									th Produits commandés
+									th.delivery-address Address de livraison
+									th Statut
+									th(style="min-width: 90px; max-width: 90px;width: 90px;") Actions
+							tbody
+								each userResupply in userResupplies
+									tr
+										td 
+											|
+											if userResupply
+												if userResupply.boxs && userResupply.boxs.length > 0
+													ul
+													for box in userResupply.boxs
+														li #{box.title} (#{box.qty})
+														
+												if userResupply.products && userResupply.products.length > 0
+													if userResupply.boxs && userResupply.boxs.length > 0
+														hr 
+													ul
+													for product in userResupply.products
+														li #{product.title} (#{product.qty})
+										td
+											|
+											p #{userResupply.street}
+											
+											if  userResupply.streetMore 
+												p #{userResupply.streetMore}
+											
+											p #{userResupply.zipCode} #{userResupply.city}
+										td 
+											|
+											if  userResupply.delivered 
+												p.delivered-at.font-weight-bold.text-primary Livrée le #{prettyDate(userResupply.updatedAt)}
+											else
+												p.waiting-delivery.font-weight-bold En cours d'acheminement
+											p.ordered-at Commandée le  #{prettyDate(userResupply.createdAt)}
+											
+										td.text-center 
+											|
+											if userResupply.delivered
+												a(class='btn btn-primary new-order' data-toggle="tooltip" title="Commander à nouveau" href="#" data-id=`${userResupply.id}`)
+													i.fa.fa-fw.fa-lg.fa-undo.mr-0
+											else
+												a(class='btn btn-secondary mark-delivered' data-toggle="tooltip" title="J'ai récupéré cette commande" href="#" data-id=`${userResupply.id}`)
+													i.fa.fa-fw.fa-lg.fa-pencil-square-o.mr-0
+	
+block specific-js
+	// Data table plugin
+	script(type='text/javascript', src="/js/plugins/jquery.dataTables.min.js")
+	script(type='text/javascript', src="/js/plugins/dataTables.bootstrap.min.js")
+	script(type='text/javascript', src="/js/plugins/bootstrap-datepicker.min.js")
+	script(type='text/javascript', src="/js/plugins/sweetalert.min.js")
+	script(type='text/javascript').
+		$.fn.datepicker.dates['fr'] = {
+			days: ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
+			daysShort: ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+			daysMin: ["d", "l", "ma", "me", "j", "v", "s"],
+			months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+			monthsShort: ["Janv.", "Févr.", "Mars", "Avril", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."],
+			today: "Aujourd'hui",
+			monthsTitle: "Mois",
+			clear: "Effacer",
+			weekStart: 1,
+			format: "dd/mm/yyyy"
+		};
+		
+		var _mainDataTable = $('#ordersDataTable').DataTable();
+		var _minDate 	   = false;
+		var _maxDate 	   = false;
+		$.fn.dataTable.ext.search.push(
+			function( settings, data, dataIndex ) {
+				if( !_maxDate && !_minDate )
+				{
+					//console.log("NOT FILTER");
+					return true;
+				}
+				
+				var currentDate =  new Date($(_mainDataTable.row(dataIndex).node()).find('td.order-date').attr('data-sort'));
+				
+				if (
+				    ( _minDate <= currentDate   && _maxDate === false ) ||
+				    ( _minDate === false 		&& currentDate <= _maxDate ) ||
+				    ( _minDate <= currentDate   && currentDate <= _maxDate )
+				) {
+					//console.log("ROW INCLUDED.");
+				    return true;
+				}
+				return false; 
+			}
+		);
+		
+		$('.filter-date').datepicker({
+			format: 'dd/mm/yyyy',
+			language: 'fr',
+		});
+		
+		$('.filter-date').on('change', function() {
+			var _value = $(this).val();
+			
+			if( $(this).attr('name') == 'date_from' )
+			{
+				if( _value == '' )
+				{
+					_minDate = false;
+				}
+				else
+				{
+					_minDate = new Date($(this).data().datepicker.getFormattedDate('yyyy-mm-dd'));
+				}
+				
+			}
+			else
+			{
+				if( _value == '' )
+				{
+					_maxDate = false;
+				}
+				else
+				{
+				    _maxDate = new Date($(this).data().datepicker.getFormattedDate('yyyy-mm-dd'));
+				}
+			}
+			console.log("OUT");
+			_mainDataTable.draw();
+		})
+		
+		$('.my_orders, .archived_orders').on('click', function() {
+			reloadPage();
+		});
+		
+		function reloadPage()
+		{
+			var _search = [];
+			
+			if( $('#my_orders').is(':checked') )
+			{
+				_search.push("ownorders");
+			}
+			
+			if( $('#archived_orders').is(':checked') )
+			{
+				_search.push("archivedorders");
+			}
+			
+			if( _search.length > 0 )
+			{
+				_search = _search.join("&");
+				var search 	= "?" + _search;
+				window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname + search;
+			}
+			else
+			{
+				window.location.href = window.location.protocol + "//" + window.location.host + window.location.pathname;
+			}
+		}
+		
+		function productsFormData()
+		{
+			var _return = {};
+			$('.product-table input').each(function() {
+				
+				_return[$(this).attr('name')] = $(this).val();
+			});
+			
+			return _return;
+		}
+		
+		function shippingFormData()
+		{
+			var _return = {};
+			$('.shipping-form input').each(function() {
+				_return[$(this).attr('name')] = $(this).val();
+			});
+			
+			return _return;
+		}
+		
+		function summaryFormData()
+		{
+		    var _return = {};
+			$('.summary-form input').each(function() {
+				_return[$(this).attr('name')] = $(this).val();
+			});
+			
+			return _return;
+		}
+		
+		function productsForm()
+		{
+			$.post('/user/boxs/order-supply/products', function(data) {
+				swal({
+					title				: "Ré-approvisionnement de box",
+					text				: data.form,
+					html				: true,
+					showCancelButton	: true,  
+					confirmButtonText	: "Suivant",
+					cancelButtonText	: "Annuler",
+					closeOnConfirm		: false,
+					closeOnCancel		: false,
+				},
+				function(isConfirm)
+				{
+					if (isConfirm)
+					{
+						shippingForm(productsFormData());
+					}
+					else 
+					{
+						swal("Annulé", "Aucune action n'a été réalisée.", "error");
+						return;
+					}
+				});
+			});
+		}
+		
+		function shippingForm(productsData)
+		{
+			$.post('/user/boxs/order-supply/shipping', productsData, function(data) {
+				swal({
+					title				: "Ré-approvisionnement de box",
+					text				: data.form,
+					html				: true,
+					showCancelButton	: true,
+					confirmButtonText	: "Suivant",
+					cancelButtonText	: "Annuler",
+					closeOnConfirm		: false,
+					closeOnCancel		: false
+				},
+				function(isConfirm)
+				{
+					if(isConfirm)
+					{
+						summaryForm(shippingFormData());
+					}
+					else
+					{
+						swal("Annulé", "Aucune action n'a été réalisée.", "error");
+						return;
+					}
+				}
+			);
+			return;
+		})
+		}
+		
+		function summaryForm(shippingData)
+		{
+			$.post('/user/boxs/order-supply/summary', shippingData, function(data) {
+				swal({
+					title				: "Ré-approvisionnement de box",
+					text				: data.form,
+					html				: true,
+					showCancelButton	: true,
+					confirmButtonText	: "Confirmer",
+					cancelButtonText	: "Annuler",
+					closeOnConfirm		: false,
+					closeOnCancel		: false
+				},
+				function(isConfirm)
+				{
+					if(isConfirm)
+					{
+						confirmForm(summaryFormData());
+					}
+					else
+					{
+						swal("Annulé", "Aucune action n'a été réalisée.", "error");
+						return;
+					}
+				});
+			});
+		}
+		
+		function confirmForm(wholeData)
+		{
+			$.post('/user/boxs/order-supply/confirm', wholeData, function(data) {
+				swal({
+					title				: "Commande confirmée",
+					html				: true,
+					text				: "<p>La livraison de votre matériel se fera sous 5 jours ouvrés.</p>",
+					type				: "success",
+					showCancelButton	: false,
+					confirmButtonText	: "Fermer",
+					closeOnCancel		: false
+				},
+				function(isConfirm)
+				{
+					if(isConfirm)
+					{
+						reloadPage();
+					}
+					else
+					{
+						swal("Annulé", "Aucune action n'a été réalisée.", "error");
+						return;
+					}
+				});
+			});
+		}
+		
+		$('body').on('click', '.ask-resupply', function() {
+			productsForm();
+			return false;
+		});
+		
+		$('body').on('click', '.mark-delivered', function() {
+			var _orderId = $(this).attr('data-id');
+		
+			swal({
+				title				: "Commande réceptionnée",
+				text				: "<br /><p>Marquer la commande comme étant Réceptionnée ?</p>",
+				html				: true,
+				showCancelButton	: true,
+				type				: "info",
+				confirmButtonText	: "Valider",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false,
+			},
+			function(isConfirm)
+			{
+				if (isConfirm)
+				{
+					$.get('/user/boxs/order-supply/ajax/set-delivered/'+ _orderId, function(data) {
+						$('.order-' + _orderId + ' td.is-delivered').html($(generateGreenCheck()));
+						$('.order-' + _orderId + ' a.mark-delivered').removeClass('btn-danger').addClass('btn-success');
+						
+						swal({
+							title				: "Confirmé",
+							text				: "L'action a bien été effectuée.",
+							type				: "success",
+							showCancelButton	: false,
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false
+						});
+						return;
+					})
+
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		}); 
+		
+		$('body').on('click', '.mark-order-delivered', function() {
+			var _orderId = $(this).attr('data-id');
+			
+			$.get('/user/orders/ajax/get-informations/' + _orderId, function(data) {
+				var ageChoices 		= [
+				  { title: "11-13 ans", id: "11-13" },
+				  { title: "14-16 ans", id: "14-16" },
+				  { title: "17-19 ans", id: "17-19" },
+				  { title: "20-22 ans", id: "20-22" },
+				  { title: "23-25 ans", id: "23-25" },
+				];
+				var genderChoices = [
+				  { title: "Homme", id: "h" },
+				  { title: "Femme", id: "f" },
+				  { title: "NB", 	id: "n" },
+				  { title: "Ne souhaite pas préciser", id: "o" },
+				];
+				var cityChoices = [
+				  { title: "Centre ville", id: "centre" },
+				  { title: "Banlieue ou périphérie", id: "banlieue" },
+				  { title: "Zone rurale", id: "rural" },
+				];
+				var scolarityChoices = [
+				  { title: "Collège", id: "college" },
+				  { title: "Lycée", id: "lycee" },
+				  { title: "CAP/BEP", id: "cap_bep" },
+				  { title: "Université", id: "universite" },
+				  { title: "En formation professionnelle", id: "formation_pro" },
+				  { title: "En recherche d'emploi", id: "recherche" },
+				  { title: "En emploi", id: "en_emploi" },
+				  { title: "Autre", id: "other" },
+				];
+				var boxChoices = [
+				  { title: "Découvre ton corps", id: 1},
+				  { title: "Les premières fois", id: 2},
+				  { title: "Explore ta sexualité", id: 3},
+				  { title: "Box sur mesure", id: 4},
+				];
+				var firstBoxChoices = [
+					{ title: "Oui", id: 1 },
+					{ title: "Non", id: 0 },
+				];
+				
+				var _default = {
+					age: 0,
+					sexe: 0,
+					city: 0,
+					scolarity: 0,
+					box: 0,
+					firstBox: 0,
+					lastBox: 0,
+					house: "",
+					custom: "",
+					comment: "",
+				};
+
+				if( data.order )
+				{
+					_default.age 		= data.order.age;
+					_default.sexe 		= data.order.sexe;
+					_default.city 		= data.order.city;
+					_default.scolarity 	= data.order.scolarity;
+					_default.firstBox 	= data.order.firstBox;
+					_default.lastBox 	= data.order.lastBox;
+					_default.box		= data.order.localBox;
+					_default.house 		= data.order.house;
+					_default.custom 	= data.order.custom;
+					_default.comment 	= data.order.comment;
+				}
+				var _age 		= buildSelectInput("age", "Age", "number",ageChoices, _default.age);
+				var _sexe 		= buildSelectInput("sexe", "Sexe", "text",genderChoices, _default.sexe);
+				//var _city 		= buildSelectInput("city", "Ville", "text",cityChoices, _default.city);
+				var _city 		= buildSelectInput("house", "Quartier d'habitation", "text",cityChoices, _default.city);
+				var _scolarity 	= buildSelectInput("scolarity", "Scolarité", "text",scolarityChoices, _default.scolarity);
+				//var _box 		= buildSelectInput("localBox", "Box remise", "text",boxChoices,_default.box);
+				var _firstBox 	= buildSelectInput("firstBox", "Première box reçue ?", "text",firstBoxChoices, _default.firstBox);
+				var _lastBox 	= buildSelectInput("lastBox", "Si non, box précédemment reçue ?", "text",boxChoices, _default.lastBox);
+				//var _house 		= buildInput("house", "Quartier d'habitation", "text", _default.house);
+				//var _custom 	= buildFreetextInput("custom", "Modifications apportées", "text", _default.custom);
+				var _comment	= buildFreetextInput("comment", "Commentaire (si nécessaire)", "text", _default.comment);
+				
+				var _localForm = $('<div />')
+					.append( $(_sexe ) )
+					.append( $(_age ) ) 
+					//.append( $(_house ) )
+					.append( $(_city ) )
+					.append( $(_scolarity ) )
+					//.append( $(_box ) )
+					//.append( $(_custom ) )
+					.append( $(_firstBox ) )
+					.append( $(_lastBox ) )
+					.append( $(_comment) )
+					;
+				
+				var _fullText  = '<div class="fulltext" style="position: relative;"><p style="margin-top: 20px; margin-bottom: 12px;">Veuillez indiquer les informations anonymes :</p><p>'+ $(_localForm).prop('outerHTML') +'</p></div>';
+				
+			
+				swal({
+					title				: "Informations anonymes",
+					text				: _fullText,
+					html				: true,
+					showCancelButton	: true,
+					confirmButtonText	: "Valider",
+					cancelButtonText	: "Annuler",
+					closeOnConfirm		: false,
+					closeOnCancel		: false,              
+				},
+				function(isConfirm)
+				{
+					if (isConfirm)
+					{
+						var _data = {
+					  		'age' 		: $('.sweet-alert .input-value-age :selected').val(),
+					  		'sexe'		: $('.sweet-alert .input-value-sexe :selected').val(),
+					  		'city'		: $('.sweet-alert .input-value-city :selected').val(),
+					  		'scolarity'	: $('.sweet-alert .input-value-scolarity :selected').val(),
+					  		//'localBox'	: $('.sweet-alert .input-value-localBox :selected').val(),
+					  		'firstBox'	: $('.sweet-alert .input-value-firstBox :selected').val(),
+					  		'lastBox'	: $('.sweet-alert .input-value-lastBox :selected').val(),
+					  		'house'		: $('.sweet-alert .input-value-house').val(),
+					  		//'custom'	: '',
+					  		'comment'	: $('.sweet-alert .input-value-comment').val(),
+					  		'orderId'	: _orderId,
+						};
+						$.post('/user/orders/ajax/update-informations', { data: _data}, function(data) {
+						
+							if( data.filled )
+							{
+								$('.order-' + _orderId + ' td.has-informations').html($(generateGreenCheck()));
+								$('.order-' + _orderId + ' a.personal-informations').removeClass('btn-danger').addClass('btn-success');
+							}
+							
+							$.get('/user/orders/ajax/set-delivered/'+ _orderId, function(data) {
+								$('.order-' + _orderId + ' td.is-delivered').html($(generateGreenCheck()));
+								$('.order-' + _orderId + ' a.mark-delivered').removeClass('btn-danger').addClass('btn-success');
+								
+								swal({
+									title				: "Confirmé",
+									text				: "L'action a bien été effectuée.",
+									type				: "success",
+									showCancelButton	: false,
+									confirmButtonText	: "Fermer",
+									closeOnConfirm		: false,
+									closeOnCancel		: false
+								});
+								return;
+							})
+							return;
+						})
+
+					} else {
+						swal("Annulé", "Aucune action n'a été réalisée.", "error");
+						return;
+					}
+				});
+				
+				// There's no "open" callback ..
+				setTimeout(function() {
+				    if( $(window).height() < 700 )
+				    {
+						$('.sweet-alert.showSweetAlert.visible').animate({ scrollTop: 0 });	
+					}
+				}, 500);
+			});	
+		});
+		
+		function generateGreenCheck()
+		{
+			return $('<i />')
+				.addClass('fa')
+				.addClass('fa-fw')
+				.addClass('fa-lg')
+				.addClass('fa-check-circle')
+				.css('color', 'green');
+		}
+		
+		function buildFreetextInput(name, label, type, defaultValue)
+		{
+			var _label = $('<label >')
+				.text(label)
+				.attr('for', name)
+				.css('text-align', 'left')
+				.css('vertical-align', 'top')
+				.addClass('col-4')
+				.addClass('control-label');
+			var _input = $('<textarea />')
+				.attr('value', defaultValue)
+				.text(defaultValue)
+				.trigger('change')
+				.attr('type', type)
+				.attr('name', name)
+				.css('display', 'inline-block')
+				.addClass('input-value-' + name)
+				.addClass('col-8')
+				.addClass('form-control');
+			
+			var _wrapper = $('<div>').addClass('col-12').css('marginBottom', '10px').append(_label).append(_input);
+			
+			return _wrapper;
+		}
+		
+		function buildInput(name, label, type, defaultValue)
+		{
+			var _label = $('<label >')
+				.text(label)
+				.attr('for', name)
+				.css('text-align', 'left')
+				.css('vertical-align', 'middle')
+				.addClass('col-4')
+				.addClass('control-label');
+			var _input = $('<input />')
+				.attr('value', defaultValue)
+				.trigger('change')
+				.attr('type', type)
+				.attr('name', name)
+				.css('display', 'inline-block')
+				.css('margin', '0')
+				.addClass('input-value-' + name)
+				.addClass('col-8')
+				.addClass('form-control');
+			
+			var _wrapper = $('<div>').addClass('col-12').css('marginBottom', '10px').append(_label).append(_input);
+			
+			return _wrapper;
+		}
+		
+		function buildSelectInput(name, label, type, options, defaultValue)
+		{
+			var _label = $('<label >')
+				.text(label)
+				.attr('for', name)
+				.css('text-align', 'left')
+				.css('vertical-align', 'middle')
+				.addClass('col-4')
+				.addClass('control-label');
+			var _input = $('<select />')
+				.attr('value', defaultValue)
+				.trigger('change')
+				.attr('type', type)
+				.attr('name', name)
+				.css('display', 'inline-block')
+				.css('padding', '8px 12px 4px')
+				.addClass('input-value-' + name)
+				.addClass('col-8')
+				.addClass('form-control');
+			
+			var _option = $('<option>').text('- Choisir -').attr('value', '');
+
+			$(_input).append( $(_option) );
+			
+			$(options).each(function(key, item) {
+				console.log(item);
+			   	var _option = $('<option>').text(item.title).attr('value', item.id);
+				
+				if( item.id == defaultValue )
+				{
+					$(_option).attr('selected', 'selected');
+				}
+				
+				$(_input).append( $(_option) );
+			});
+			
+			var _wrapper = $('<div>').addClass('col-12').css('marginBottom', '10px').append(_label).append(_input);
+			
+			return _wrapper;
+		}
+		
+		function deleteConfirmation(form){
+			var _targetUrl = $(form).attr('action');
+			swal({
+				title				: "Annuler la commande ?",
+				text				: "L'annulation d'une commande est définitive.",
+				type				: "warning",
+				showCancelButton	: true,
+				confirmButtonText	: "Supprimer",
+				cancelButtonText	: "Annuler",
+				closeOnConfirm		: false,
+				closeOnCancel		: false
+			}, 
+			function(isConfirm) 
+			{
+				if (isConfirm) 
+				{
+					$.post(_targetUrl, function(data) {
+						swal({
+							title				: "Commande annulée",
+							text				: "La commande a bien été annulée.",
+							type				: "success",
+							confirmButtonText	: "Fermer",
+							closeOnConfirm		: false,
+							closeOnCancel		: false,
+						},
+						function(isConfirm)
+						{
+							reloadPage();
+						});
+					});
+					return;
+				} else {
+					swal("Annulé", "Aucune action n'a été réalisée.", "error");
+					return;
+				}
+			});
+		}
+		
+		$(document).on('click', '.plus-one,.minus-one', function(){
+			var _targetQte = $(this).parent().find('input').first();
+
+			var _currQte   = $(_targetQte).val();
+
+			if( ( !_currQte || isNaN(_currQte) ) )
+			{
+				if( $(this).hasClass('plus-one') )
+				{
+			    	$(_targetQte).val("1");
+			    }
+			    else
+			    {
+			    	$(_targetQte).val("0");
+			    }
+			    return false;
+			}
+
+			if( $(this).hasClass('plus-one') )
+			{
+			    $(_targetQte).val( parseInt(_currQte) + 1 );
+			    
+			    return false;
+			}
+
+			if( $(this).hasClass('minus-one') && _currQte > 0 )
+			{
+			    $(_targetQte).val( parseInt(_currQte) - 1 );
+			    
+			    return false;
+			}
+		});
+
+		$('.toolbar-filter select').on('change', function () {
+			var _source = $(this).attr('name');
+
+			var _target = false;
+
+			if (_source == 'filter_box') {
+				_target = 4;
+				_target = $('th').filter(
+					function(){
+						return $(this).hasClass('box-column');
+				}).index(); 
+			}
+
+			if (_source == 'filter_category') {
+				_target = 4;
+			}
+			
+			if( _source == 'filter_date' )
+			{
+				
+			}
+            
+			var _value = $(this).find('option:selected').val();
+			
+			
+			if ( _source == 'filter_state') {
+				$.fn.dataTable.ext.search.pop();
+				
+				if (_value != '') {
+					$.fn.dataTable.ext.search.push(
+					    function(settings, data, dataIndex) {
+					      return $(_mainDataTable.row(dataIndex).node()).find('td.'+_value).length > 0;
+					    }
+					);
+					
+				}
+				_mainDataTable.draw();
+				
+				return;
+			}
+			else
+			{
+				if (_value == '') {
+					_mainDataTable
+						.columns(_target)
+						.search('')
+						.draw();
+
+					return;
+				}
+
+				var _filter = $(this).find('option:selected').text();
+
+				_mainDataTable
+					.columns(_target)
+					.search(_filter)
+					.draw();
+			}
+		});
+
+		$('.btn-primary.filter').on('click', function () {
+			var _toolbar = $('.toolbar-filter');
+
+			if ($(this).hasClass('active')) {
+				$(this).removeClass('active');
+
+				$(_toolbar).slideUp();
+			} 
+			else 
+			{
+				$(this).addClass('active');
+				$(_toolbar).slideDown();
+			}
+
+		}); 

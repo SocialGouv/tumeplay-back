@@ -142,6 +142,7 @@ export default (app: Router) => {
 	                active: req.body.active == 'on',
 	                available: req.body.available == 'on',
 	                deleted: false,
+                    weight: req.body.weight,
 	                pictureId: null,
 	            };
 
@@ -204,6 +205,7 @@ export default (app: Router) => {
 	                active: req.body.active == 'on',
 	                available: req.body.available == 'on',
 	                deleted: false,
+                    weight: req.body.weight,
 	                pictureId: undefined,
 	            };
 

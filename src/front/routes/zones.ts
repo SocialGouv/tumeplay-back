@@ -97,7 +97,7 @@ export default (app: Router) => {
 
             let zoneItem: IAvailabilityZoneDTO = {
                 name: req.body.name,
-                enabled: req.body.enabled == req.body.enabled,
+                enabled: req.body.enabled == 'on',
                 enableSound: req.body.enableSound == 'on',
             };
 

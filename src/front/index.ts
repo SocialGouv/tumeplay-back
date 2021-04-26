@@ -28,6 +28,7 @@ import feedback from './routes/feedback';
 import zones from './routes/zones';
 import user from './routes/user';
 import userOrders from './routes/user.orders';
+import userBoxs from './routes/user.boxs';
 
 import config from '../config';
 
@@ -52,6 +53,7 @@ export default () => {
     zones(app);
     user(app);
     userOrders(app);
+    userBoxs(app);
 
     app.use('/', route);
 

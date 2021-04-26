@@ -509,10 +509,12 @@ export default (app: Router) => {
                     ]
                 });
                 
+                let rawZones = [];
                 let targetZones = [];
                 if( targetType == 'add' )
                 {
                     targetZones.push({ contentId: documentId, availabilityZoneId: parseInt(targetZone)});
+                    rawZones.push(parseInt(targetZone));
                 }
                 
                 content.availability_zone.forEach( item => {
@@ -521,6 +523,7 @@ export default (app: Router) => {
                         return;
                     }    
                     targetZones.push({ contentId: documentId, availabilityZoneId: item.id});
+                    rawZones.push(item.id);
                 })
                 
                 await contentService.bulkDelete(documentId);
@@ -528,6 +531,8 @@ export default (app: Router) => {
                 if( targetZones.length > 0 )
                 {
                     await contentService.bulkCreateZone(targetZones);    
+                    
+                    await handleQuestionZones(content.itsQuestionContent.id, rawZones);
                 }
                 
             });                                                                                   
@@ -609,7 +614,25 @@ export default (app: Router) => {
         }
     };
     
-    const handleQuestionData = async (req, requestQuestion, selectedCategory, selectedTheme, picObject, requestAnswerItems, targetZones) => {
+    const handleQuestionZones = async(questionId, targetZones) => {
+    	const questionServiceInstance = Container.get(QuestionContentService);
+		targetZones = ( typeof targetZones != 'undefined' &&  Array.isArray(targetZones) ) ? targetZones : [targetZones];
+ 	     var filteredZones = targetZones.filter(function (el) {
+	        return el != 0;
+	     });
+	     
+	     let localZones = filteredZones.map((zoneItem) => {
+	        return {
+	            questionContentId: questionId,
+	            availabilityZoneId: zoneItem,
+	        };
+	     });
+
+		 await questionServiceInstance.bulkDeleteZone(questionId);
+		 await questionServiceInstance.bulkCreateZone(localZones);
+    }
+    
+    const handleQuestionData = async (req, requestQuestion, selectedTheme, selectedCategory, picObject, requestAnswerItems, targetZones) => {
         const logger: any = Container.get('logger');
         
         let questionId = null;
@@ -677,20 +700,7 @@ export default (app: Router) => {
         
         if( targetZones && targetZones.length > 0 )
         {
-        	 targetZones = ( typeof targetZones != 'undefined' &&  Array.isArray(targetZones) ) ? targetZones : [targetZones];
- 	         var filteredZones = targetZones.filter(function (el) {
-	            return el != 0;
-	         });
-	         
-	         let localZones = filteredZones.map((zoneItem) => {
-	            return {
-	                questionContentId: questionId,
-	                availabilityZoneId: zoneItem,
-	            };
-	         });
-
-			 await questionServiceInstance.bulkDeleteZone(questionId);
-			 await questionServiceInstance.bulkCreateZone(localZones);
+        	await handleQuestionZones(questionId, targetZones);        	
         }
         
         logger.silly('Updated a question');

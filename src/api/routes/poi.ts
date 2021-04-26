@@ -92,14 +92,16 @@ export default (app: Router) => {
         const logger: any = Container.get('logger');
         try {
             const mondialRelay: any = Container.get(MondialRelayService);
-			const addressValidator = Container.get(AddressValidatorService);
-            const myPoints 	= await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
-            const bounds 	= computeRoughCoordinates(req.params.latitude, req.params.longitude);
+			const addressValidator 	= Container.get(AddressValidatorService);
+            const myPoints 			= await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
+            const bounds 			= computeRoughCoordinates(req.params.latitude, req.params.longitude);
+            const targetType 		= req.query.pickup ? req.query.pickup : 'pickup';
+            
             
             const criterias = {
                 where: {
                     active: true,
-                    type: 'pickup',
+                    type: targetType,
                     latitude: {
                         [Op.gte]: bounds.latMin,
                         [Op.lte]: bounds.latMax,

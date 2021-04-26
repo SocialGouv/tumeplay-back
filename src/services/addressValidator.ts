@@ -10,7 +10,6 @@ export default class AddressValidatorService {
 
     public isZipCodeAllowed(zipCode){
 	    const allowedZipCodes = [
-		  	'77',
 		  	'16',
 		  	'17',
 		  	'19',
@@ -20,10 +19,16 @@ export default class AddressValidatorService {
 		  	'40',
 		  	'47',
 		  	'64',
+		  	'75',
+		    '77',
 		  	'79',
 		  	'86',
-		  	'87',
-		  	'97'
+		  	'87', 
+		  	'91',
+		    '93',
+		    '94',
+		    '95',
+		    '97'
 		];
 		const firstPart = zipCode.substring(0, 2);
 		return ( allowedZipCodes.indexOf(firstPart) >= 0 );

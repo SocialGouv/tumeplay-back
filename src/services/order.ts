@@ -2,6 +2,7 @@ import Container, { Service, Inject } from 'typedi';
 import { IOrder, IOrderInputDTO, IOrderMainView } from '../interfaces/IOrder';
 import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 import ProductOrderService from './product.order';
+import ProductService from './product';
 import { IProductOrderInputDTO } from '../interfaces/IProductOrder';
 import { Op } from 'sequelize';
 import { IOrderZone, IOrderZoneDTO } from '../interfaces/IOrderZone';
@@ -441,4 +442,58 @@ export default class OrderService {
         
         return criterias;
     }
+    
+    public async handleOrderProducts(bodyRequest, orderId)
+    {
+        const boxProducts    = [];
+        const _orderProducts = [];
+        if( 
+            bodyRequest.products && bodyRequest.products.length > 0 &&
+            bodyRequest.qty && bodyRequest.qty.length > 0 && 
+            bodyRequest.products.length == bodyRequest.qty.length
+        )
+        {
+            const productService = Container.get(ProductService);
+            bodyRequest.products.forEach(async (item, index) => {
+                if( item != "" && typeof item !== "undefined" )
+                {
+                    _orderProducts.push({
+                        productId: item,
+                        orderId: orderId,
+                        qty: ( bodyRequest.qty[index] != "" ? bodyRequest.qty[index] : null ) 
+                    });
+                    
+                    if( bodyRequest.qty[index] != "" )
+                    {
+						await productService.decreaseStock(item, bodyRequest.qty[index]);    	
+                    }
+                    
+
+                }                                                                
+            });
+            
+            await  Container.get('productOrderModel').bulkCreate(_orderProducts);
+        }
+    }
+    
+    public async handleZones(currentOrder, zoneId)
+    {
+        await this.bulkDeleteZone(currentOrder);
+
+        zoneId = typeof zoneId != 'undefined' && Array.isArray(zoneId) ? zoneId : [zoneId];
+        var filteredZones = zoneId.filter(function(el) {
+            return el != 0;
+        });
+        let zonesItems: IOrderZoneDTO[] = filteredZones.map(zoneItem => {
+            return {
+                orderId: currentOrder,
+                availabilityZoneId: zoneItem,
+            };
+        });
+
+        if (zonesItems.length > 0) {
+            // Creating zones
+            await this.bulkCreateZone(zonesItems);
+        }
+    };
 }

@@ -101,7 +101,7 @@ export default (app: Router) => {
                 const localPoi 		= await Container.get('poiModel').findOne({where: {id: req.body.selectedPickup}})
                 
                 let localProfile = {
-	                name: req.body.lastName,
+	                name: "",
 	                surname: req.body.firstName,
 	                email: "",
 	                userId: req.session.user.id,
@@ -150,9 +150,9 @@ export default (app: Router) => {
                 {
 					targetZones = req.body.zoneId;
                 } 
-                await handleZones(order.id, targetZones);
-                    
-                await handleOrderProducts(req.body, order.id);
+                await Container.get(OrderService).handleZones(order.id, targetZones);
+                
+                await Container.get(OrderService).handleOrderProducts(req.body, order.id);    
                 
                 
                 req.session.flash = {msg: "La commande a bien été mise à jour.", status: true};
@@ -228,7 +228,8 @@ export default (app: Router) => {
                         orderId: id,
                     },
                 });                
-                await handleOrderProducts(req.body, id);
+                
+                await Container.get(OrderService).handleOrderProducts(req.body, id);
                 
                 const zones 	= await Container.get(UserService).getAllowedZones(req);
                 let targetZones = [];
@@ -243,7 +244,7 @@ export default (app: Router) => {
                 
                 if( targetZones )
                 {
-					await handleZones(id, targetZones);	
+					await Container.get(OrderService).handleZones(id, targetZones);	
                 }                                      
                 
                 req.session.flash = {msg: "La commande a bien été mise à jour.", status: true};
@@ -269,64 +270,6 @@ export default (app: Router) => {
             }
         }
     }
-    
-    const handleOrderProducts = async(bodyRequest, orderId) => 
-    {
-        const boxProducts    = [];
-        const _orderProducts = [];
-        if( 
-            bodyRequest.products && bodyRequest.products.length > 0 &&
-            bodyRequest.qty && bodyRequest.qty.length > 0 && 
-            bodyRequest.products.length == bodyRequest.qty.length
-        )
-        {
-            const productService = Container.get(ProductService);
-            bodyRequest.products.forEach(async (item, index) => {
-                if( item != "" && typeof item !== "undefined" )
-                {
-                    _orderProducts.push({
-                        productId: item,
-                        orderId: orderId,
-                        qty: ( bodyRequest.qty[index] != "" ? bodyRequest.qty[index] : null ) 
-                    });
-                    
-                    if( bodyRequest.qty[index] != "" )
-                    {
-						await productService.decreaseStock(item, bodyRequest.qty[index]);    	
-                    }
-                    
-
-                }                                                                
-            });
-            
-            await  Container.get('productOrderModel').bulkCreate(_orderProducts);
-        }
-    }
-    
-    
-    const handleZones = async (currentOrder, zoneId) => {
-        const OrderServiceInstance = Container.get(OrderService);
-
-        await OrderServiceInstance.bulkDeleteZone(currentOrder);
-
-        zoneId = typeof zoneId != 'undefined' && Array.isArray(zoneId) ? zoneId : [zoneId];
-        var filteredZones = zoneId.filter(function(el) {
-            return el != 0;
-        });
-        let zonesItems: IOrderZoneDTO[] = filteredZones.map(zoneItem => {
-            return {
-                orderId: currentOrder,
-                availabilityZoneId: zoneItem,
-            };
-        });
-
-        if (zonesItems.length > 0) {
-            // Creating zones
-            await OrderServiceInstance.bulkCreateZone(zonesItems);
-        }
-    };
-    
-    
                     
     route.get('/stocks', 
     	middlewares.isAuth,

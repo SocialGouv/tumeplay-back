@@ -1,0 +1,59 @@
+.row
+	- var currentStep = 3
+	
+	include ./_form.steps.pug
+	
+	.col-md-12.summary-form
+		.row
+			.col-6
+				.tile
+					h4 Boxs
+					
+					if loadProducts && loadProducts.boxs && loadProducts.boxs.length > 0 
+						table.col-12.table-hover.table-bordered.product-table#productDataTable
+							thead
+								tr
+									th Box
+									th Quantité
+							tbody
+								for box in loadProducts.boxs
+									tr
+										td #{box.title}
+										td #{box.qty}
+							
+			
+			.col-6
+				.tile
+					h4 Supports de communication
+					
+					if loadProducts && loadProducts.products && loadProducts.products.length > 0 
+						table.col-12.table-hover.table-bordered.product-table#productDataTable
+							thead
+								tr
+									th Box
+									th Quantité
+							tbody
+								for product in loadProducts.products
+									tr
+										td #{product.title}
+										td #{product.qty}
+							
+		.row
+			.col-12
+				.tile
+					.col-12
+						h4 Adresse de livraison
+				
+						p.text-left #{shipping.firstName} #{shipping.lastName}
+						p.text-left #{shipping.street}
+						
+						if shipping.streetMore
+							p.text-left #{shipping.streetMore}
+						
+						p.text-left #{shipping.zipCode} #{shipping.city}
+						
+		input(type="hidden", name="data", value=shipping64)
+	.clearfix
+
+
+block specific-js

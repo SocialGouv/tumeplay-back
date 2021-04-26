@@ -252,7 +252,7 @@ export default (app: Router) => {
                 profileId: userProfile.id,
                 userId: userId,
                 boxId: box.id,
-                pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,                                 
+                pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,
             };
 
             const order = await Container.get('orderModel').create(orderData);
@@ -327,6 +327,7 @@ export default (app: Router) => {
 					products: order.products,
 					hostname: req.protocol + '://' + req.get('host'), // I'm a bit nervous using this one.
 					email: order.profileEmail,
+					phoneNumber: order.phoneNumber,
 		        };
 		        
 				await mailService.send(localProfile.email, 'Commande effectuée ✔', 'new_order_user', variables);
