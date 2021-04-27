@@ -195,6 +195,9 @@ const permissions = {
 			'moderator': [
 				config.roles.moderator
 			],
+			'order_support_metropole': [
+				config.roles.orders_support_metropole
+			],
 			'order_support': [
 				config.roles.orders_support
 			]

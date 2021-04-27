@@ -1,0 +1,11 @@
+if userStocks 
+	.row
+		for userStock in userStocks
+			.col-3
+				.left-boxes(class=userStock.qty && userStock.qty <= 5 ? "alert" : "")
+					h4 #{userStock.title}
+					p.left-amount #{userStock.qty}
+else
+	.row
+		.col-12
+			p Vous n'avez pas encore effectué de commande.

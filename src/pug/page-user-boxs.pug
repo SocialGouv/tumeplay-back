@@ -81,6 +81,11 @@ block content
 			padding-top: 7px;
 		}
 		
+		div.sweet-alert .steps
+		{
+			margin-bottom: 12px;
+		}
+		
 		div.sweet-alert .steps .active .inside-number
 		{
 			background-color: blue;
@@ -296,15 +301,15 @@ block content
 											if userResupply
 												if userResupply.boxs && userResupply.boxs.length > 0
 													ul
-													for box in userResupply.boxs
-														li #{box.title} (#{box.qty})
+														for box in userResupply.boxs
+															li #{box.title} (#{box.qty})
 														
 												if userResupply.products && userResupply.products.length > 0
 													if userResupply.boxs && userResupply.boxs.length > 0
 														hr 
 													ul
-													for product in userResupply.products
-														li #{product.title} (#{product.qty})
+														for product in userResupply.products
+															li #{product.title} (#{product.qty})
 										td
 											|
 											p #{userResupply.street}
@@ -323,10 +328,13 @@ block content
 											
 										td.text-center 
 											|
-											if userResupply.delivered
-												a(class='btn btn-primary new-order' data-toggle="tooltip" title="Commander à nouveau" href="#" data-id=`${userResupply.id}`)
-													i.fa.fa-fw.fa-lg.fa-undo.mr-0
-											else
+											//if userResupply.delivered
+											//	a(class='btn btn-primary new-order' data-toggle="tooltip" title="Commander à nouveau" href="#" data-id=`${userResupply.id}`)
+											//		i.fa.fa-fw.fa-lg.fa-undo.mr-0
+											//else
+											//	a(class='btn btn-secondary mark-delivered' data-toggle="tooltip" title="J'ai récupéré cette commande" href="#" data-id=`${userResupply.id}`)
+											//		i.fa.fa-fw.fa-lg.fa-pencil-square-o.mr-0
+											if !userResupply.delivered
 												a(class='btn btn-secondary mark-delivered' data-toggle="tooltip" title="J'ai récupéré cette commande" href="#" data-id=`${userResupply.id}`)
 													i.fa.fa-fw.fa-lg.fa-pencil-square-o.mr-0
 	

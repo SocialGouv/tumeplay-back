@@ -29,6 +29,9 @@ block content
 		
 	else if isAllowed(req, "global", "dashboard", "redactor")
 		include ./includes/dashboards/_redactor.pug
+	
+	else if isAllowed(req, "global", "dashboard", "order_support_metropole")
+		include ./includes/dashboards/_order_support_metropole.pug
 		
 	else if isAllowed(req, "global", "dashboard", "order_support")
 		include ./includes/dashboards/_order_support.pug
@@ -61,7 +64,14 @@ block specific-js
 	else if isAllowed(req, "global", "dashboard", "moderator")
 		include ./includes/dashboards/js/_contents.pug
 		include ./includes/dashboards/js/_needingActionsContents.pug
-	
+		
+	else if isAllowed(req, "global", "dashboard", "order_support_metropole")
+		if supportStock
+			include ./includes/dashboards/js/_supportStock.pug
+		if supportBoxDispatch
+			include ./includes/dashboards/js/_supportBoxDispatch.pug
+		if supportBoxDelivered
+			include ./includes/dashboards/js/_supportBoxDelivered.pug
 	else if isAllowed(req, "global", "dashboard", "order_support")
 		if supportStock
 			include ./includes/dashboards/js/_supportStock.pug

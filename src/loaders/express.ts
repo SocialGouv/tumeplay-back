@@ -87,6 +87,10 @@ export default ({ app }: { app: express.Application }) => {
     app.locals.isAllowed = (req, section, subSection, operation) => {
     	return AclService.checkAllRoles(req.session.roles, section, subSection, operation);	    	
     }
+    
+    app.locals.hasRole = (req, role) => {
+    	return AclService.hasRole(req.session.roles, role);	    	
+    }
 
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());

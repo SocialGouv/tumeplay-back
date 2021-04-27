@@ -367,8 +367,11 @@ export default (app: Router) => {
 						variables.labelFilename = variables.orderId + '-' + variables.boxId + ".csv";
 					}
 					
-					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
-	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
+                    /*await mailService.send('ghyslaine.ballet@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+                    await mailService.send('anne-marie.vidal@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+                    await mailService.send('gilles.lion@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);*/
+
+
 				}
 				
 				if( localZone && order.shippingModeText == 'pickup' )
