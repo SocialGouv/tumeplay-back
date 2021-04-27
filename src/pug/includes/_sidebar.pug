@@ -61,7 +61,7 @@ aside.app-sidebar
 					i.app-menu__icon.fa.fa-book
 					span.app-menu__label POI
 		
-		if isAllowed(req, "orders", "global", "view") && hasRole(req, "orders_support")
+		if isAllowed(req, "orders", "global", "view") && !hasRole(req, "ROLE_ORDERS_SUPPORT_METROPOLE")
 			li.treeview(class={'is-expanded': ( activePage.indexOf('page-order') !== -1 || activePage.indexOf('page-user-order') !== -1 ) })
 				a.app-menu__item(href='#', data-toggle='treeview' class={'active': activePage.indexOf('page-order') !== -1})
 					i.app-menu__icon.fa.fa-table
