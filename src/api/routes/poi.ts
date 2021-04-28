@@ -88,14 +88,14 @@ export default (app: Router) => {
 
     app.use('/poi', route);
 
-    route.get('/pickup/:latitude/:longitude', async (req: Request, res: Response, next: NextFunction) => {
+    route.get('/pickup/:latitude/:longitude/:targetType?', async (req: Request, res: Response, next: NextFunction) => {
         const logger: any = Container.get('logger');
         try {
             const mondialRelay: any = Container.get(MondialRelayService);
 			const addressValidator 	= Container.get(AddressValidatorService);
             const myPoints 			= await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
             const bounds 			= computeRoughCoordinates(req.params.latitude, req.params.longitude);
-            const targetType 		= req.query.pickup ? req.query.pickup : 'pickup';
+            const targetType 		= req.params.pickup ? req.params.pickup : 'pickup';
             
             
             const criterias = {
