@@ -95,7 +95,7 @@ export default (app: Router) => {
 			const addressValidator 	= Container.get(AddressValidatorService);
             const myPoints 			= await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
             const bounds 			= computeRoughCoordinates(req.params.latitude, req.params.longitude);
-            const targetType 		= req.params.pickup ? req.params.pickup : 'pickup';
+            const targetType 		= req.params.targetType ? req.params.targetType : 'pickup';
             
             
             const criterias = {
