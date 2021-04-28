@@ -216,13 +216,12 @@ export default (app: Router) => {
                 localShipping = await ShippingModeModelService.create(shippingData);
             } 
             
-		    let selectedZipCode = ( deliveryMode == 'pickup' ? selectedPickup.zipCode : userAdress.zipCode );
+		    let selectedZipCode = ( ( deliveryMode == 'pickup' || deliveryMode == 'referent' ) ? selectedPickup.zipCode : userAdress.zipCode );
             if( !Container.get(AddressValidatorService).isZipCodeAllowed(selectedZipCode) )
             {
                 logger.debug('Zipcode is not allowed. Aborting. ( testing ' + selectedZipCode + ' )' );
                 return res.json({success: false}).status(200);
             }
-			
 			
 			// Step 6 : Get shipping adress for user
             const localAdress = {
@@ -252,7 +251,7 @@ export default (app: Router) => {
                 profileId: userProfile.id,
                 userId: userId,
                 boxId: box.id,
-                pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,
+                pickupId: ( deliveryMode == 'pickup' || deliveryMode == 'referent' ) ? selectedPickup.id : null,
             };
 
             const order = await Container.get('orderModel').create(orderData);
@@ -374,7 +373,7 @@ export default (app: Router) => {
 
 				}
 				
-				if( localZone && order.shippingModeText == 'pickup' )
+				if( localZone && ( order.shippingModeText == 'pickup' || order.shippingModeText == 'referent' )  )
 				{
 					const criterias = {
 						where: { 
