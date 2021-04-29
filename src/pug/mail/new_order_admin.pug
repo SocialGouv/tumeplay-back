@@ -10,7 +10,7 @@ block content
 		br
 		.text Voici le détail de la nouvelle commande à préparer :
 		br
-		.text Box « #{boxName} » 
+		.text Box #{boxWeight} - « #{boxName} » 
 		br
 		.text Contenu
 			each product in products
@@ -18,6 +18,10 @@ block content
 									
 		br
 		.text Mode de livraison : #{shippingMethodReadable}
+		br
+		.text Adresse e-mail : #{email}
+		br
+		.text Numéro de téléphone : #{phoneNumber}
 		br
 		.text Adresse de livraison :
 		.text

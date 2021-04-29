@@ -21,6 +21,7 @@ export default class AddressValidatorService {
 		  	'64',
 		  	'75',
 		    '77',
+		    '78',
 		  	'79',
 		  	'86',
 		  	'87', 

@@ -319,6 +319,7 @@ export default (app: Router) => {
                     orderId: String(order.id).padStart(3, '0'),
                     boxId: order.box.id,
 					boxName: order.box.title,
+					boxWeight: order.box.weight,
 					shippingMethodReadable: (order.shippingModeText == 'home') ? 'À domicile' : 'Point Relais',
 					shippingMethod: order.shippingModeText,
 					pickup: order.pickup,
