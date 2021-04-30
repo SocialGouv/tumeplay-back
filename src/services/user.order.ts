@@ -57,7 +57,7 @@ export default class UserOrderService {
     public async getUserOrders(req, onlyOwnOrders)
     {
 		try {
-            this.logger.silly('Finding user products');
+            this.logger.silly('Finding user orders');
             
             // Beginning from products : handle the case when user has no defined stocks for specific products
             let   ordersIds = [];
@@ -127,6 +127,7 @@ export default class UserOrderService {
 								if( this.isPersonalInformationsFilled(item) )
 								{
 									order.hasPersonalInformations = true;	
+									order.personalInformations    = item;
 								}
 								
 							}
