@@ -1,0 +1,27 @@
+extends _layout.pug
+
+block title
+	| Votre compte utilisateur
+	
+block content
+
+	.col-12
+		.subtitle Bonjour #{userName},
+		br
+		.text Un compte utilisateur a été créé pour vous sur l'interface d'administration Tumeplay.
+		br
+		.text Votre identifiant : #{userMail}
+		br
+		.text Votre mot de passe est à obtenir auprès de l'administrateur ayant créé votre compte.
+		br
+		.text Vous pouvez désormais consulter votre interface à l'adresse : 
+			|
+			a(href=hostname) #{hostname}
+		br
+		br
+	.clearfix
+	
+	.col-12
+		.text Cordialement,
+		.text L'équipe Tumeplay
+		br

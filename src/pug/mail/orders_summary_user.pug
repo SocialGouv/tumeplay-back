@@ -1,0 +1,36 @@
+extends _layout.pug
+
+block title
+	| Résumé hebdomadaire des commandes Tumeplay
+	
+block content
+
+	.col-12
+		.text Bonjour, 
+		.text Voici le résumé des commandes effectuées durant les 7 derniers jours :
+		
+		br
+		hr
+		br
+
+		.text Commandes :
+		for order in orders.orders
+			.text Commande n°#{order.id} : #{order.name} - #{order.box} 
+		
+		br
+		.text Total des boxs :
+			for localBox in orders.boxs
+				.text - #{localBox.qty} #{localBox.name} ( Box n° #{localBox.id} )
+		
+		br
+		br
+		
+		.text Ces commandes vous seront envoyées dès que possible, et sont visibles sur votre interface : 
+			|
+			a(href=hostname) Tumeplay
+	.clearfix
+	
+	.col-12
+		.text Cordialement,
+		.text L'équipe Tumeplay
+		br

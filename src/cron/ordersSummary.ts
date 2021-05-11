@@ -11,6 +11,9 @@ import { Op } from 'sequelize';
 
 async function ordersSummary() {
 	const orderServiceInstance = Container.get(OrderService);
+    const defaultMailAddress   = 'romain.petiteville@celaneo.com';
+    const defaultName 		   = 'Non renseigné';
+    const defaultHostname 	   = 'https://tumeplay-api.fabrique.social.gouv.fr';
     
     console.log("Searching orders ...");
     
@@ -42,7 +45,7 @@ async function ordersSummary() {
 		
 		if( typeof parsedOrders[localKey] === "undefined" )
 		{
-			parsedOrders[localKey] = { boxs : {}, name : ( contact ? contact.name : 'Non renseigné' ), address : order.pickup, orders : [] };
+			parsedOrders[localKey] = { boxs : {}, name : ( contact ? contact.name : defaultName ), mail: ( contact ? contact.email : defaultMailAddress ), address : order.pickup, orders : [] };
 		}
 		
 		if( typeof parsedOrders[localKey].boxs[boxKey] === "undefined" )
@@ -67,13 +70,12 @@ async function ordersSummary() {
 	let   labelFiles 	= [];
 	for( const orderKey in parsedOrders )
 	{
-		// @TODO : Preprod mode : change recipient mail address 
 		const parsedOrder = parsedOrders[orderKey];
 		const labelFile   = await colissimo.createLabel(
 			parsedOrder.address.id + "-" + parsedOrder.name,
 			parsedOrder.address.firstName,
 			parsedOrder.address.name,
-			"romain.petiteville@celaneo.com",
+			defaultMailAddress,
 			parsedOrder.address 
 		);
 		
@@ -83,18 +85,24 @@ async function ordersSummary() {
 			filename: labelFilename,
             path: labelFile,
 		});
-    		
+    	
+    	if( parsedOrder.mail )
+    	{
+    		const variables = { 
+    				orders : parsedOrder, 
+    				hostname: defaultHostname,
+			};
+			await Container.get(MailerService).send(parsedOrder.mail, 'Récapitulatif de commandes', 'orders_summary_user', variables);	
+    	}
 	}
 	
     const variables = { 
     		orders : parsedOrders, 
-    		hostname: 'https://tumeplay-api.fabrique.social.gouv.fr',//req.protocol + '://' + req.get('host'), // I'm a bit nervous using this one. 
+    		hostname: defaultHostname,//req.protocol + '://' + req.get('host'), // I'm a bit nervous using this one. 
     		labelFiles: labelFiles,
 	};
-	
-	// @TODO : Preprod mode : change recipient mail address 
-    await Container.get(MailerService).send('romain.petiteville@celaneo.com', 'Récapitulatif de commandes', 'orders_summary', variables);
-                     
+    await Container.get(MailerService).send(defaultMailAddress, 'Récapitulatif de commandes', 'orders_summary', variables);
+    
     return;    
 }
 
