@@ -260,6 +260,49 @@ export default class OrderService {
         return orders;
     }
     
+    public async findSummaryOrders()
+    {
+    	const dayModifier 	= 7;
+    	
+		let minTime = new Date(new Date().setDate(new Date().getDate() - dayModifier));
+		let maxTime = new Date();
+		
+		minTime.setHours(0,0,0);
+		maxTime.setHours(23,59,59);
+		
+		var a = new Date().getTimezoneOffset();
+		
+		minTime.setTime(minTime.getTime() - (a * 60 * 1000 ));
+		maxTime.setTime(maxTime.getTime() - (a * 60 * 1000 ));
+		
+		this.logger.silly('Searching orders summary between ' + minTime + ' and '+ maxTime +'.');
+
+
+		const orders: any = await this.orderModel.findAll({
+            where: { 
+				orderDate: {
+					[Op.gte]: minTime,
+					[Op.lte]: maxTime,
+				},				
+            },
+            include: ['profile', 'box', 'pickup', 'shippingMode', 'shippingAddress'],
+        });
+        
+        let _return = [];
+        
+        for( const orderIndex in orders )
+        {
+        	const order = orders[orderIndex];
+
+			if ( order.shippingMode.title == 'referent' ) 
+			{
+				_return.push(order);
+			}
+        }
+        
+        return _return;
+    }
+    
     public async getOrdersStatistics()
     {
     	const _return 		= {

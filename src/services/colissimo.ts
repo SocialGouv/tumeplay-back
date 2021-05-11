@@ -25,7 +25,7 @@ export default class ColissimoService {
 		    firstName: firstName,
 		    lastName: lastName,
 		    floor: '',
-		    building: shippingAddress.streetMore.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
+		    building: shippingAddress.streetMore ? shippingAddress.streetMore.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase() : '',
 		    streetName: shippingAddress.street.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace('-', ' ').toUpperCase(),
 		    citySurname: '',
 		    zipCode: shippingAddress.zipCode,
@@ -54,7 +54,7 @@ export default class ColissimoService {
             fs.mkdirSync(targetFolder);
         }
                 
-    	const targetPath =  targetFolder + '/' + targetFilename + '.csv';
+    	let targetPath =  targetFolder + '/' + targetFilename + '.csv';
 
         try
         {

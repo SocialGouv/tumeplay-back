@@ -4,6 +4,7 @@ import { IUser, IUserInputDTO } from '../../interfaces/IUser';
 import { celebrate, Joi } from 'celebrate';
 import middlewares from '../middlewares';
 
+import MailerService from '../../services/mail';
 import UserService from '../../services/user';
 import AuthService from '../../services/auth';
 import PoiService from '../../services/poi';
@@ -80,8 +81,8 @@ export default (app: Router) => {
             });
             
             const zones  = await Container.get('availabilityZoneModel').findAll();
-            const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ], order: ['name']});
-            
+            //const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ], order: ['name']});
+            const pois   = await Container.get(PoiService).findAllFiltered(req, {where: {'active' : true}, include: [ 'availability_zone' ], order: [['name', 'ASC']]});
             return res.render(pageNames.profile.addEdit, {
                 roles: config.roles,
                 rolesLabels: config.roles_readable,
@@ -126,7 +127,7 @@ export default (app: Router) => {
         async (req: Request, res: Response) => {
         try {
             const zones  = await Container.get('availabilityZoneModel').findAll();
-            const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ]});
+            const pois   = await Container.get(PoiService).findAllFiltered(req, {where: {'active' : true}, include: [ 'availability_zone' ], order: [['name', 'ASC']]});
             
             return res.render(pageNames.profile.addEdit, {
                 roles: config.roles,
@@ -158,6 +159,16 @@ export default (app: Router) => {
             {
 				await handleUserZones(user.id, req.body);	
 				await handleUserPois(user.id, req.body);
+				     
+				if( typeof req.body.roles["ROLE_ORDERS_SUPPORT"] !== 'undefined' || typeof req.body.roles["ROLE_ORDERS_SUPPORT_METROPOLE"] !== 'undefined' )
+				{
+					const variables = {
+						userMail : req.body.email,
+						userName : req.body.name, 
+						hostname : req.protocol + '://' + req.get('host')
+					};
+					await Container.get(MailerService).send(req.body.email, 'Votre compte utilisateur', 'new_account', variables);
+				}                                
             }                                            
             
             return res.redirect('/profiles');

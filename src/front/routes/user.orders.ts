@@ -52,7 +52,7 @@ export default (app: Router) => {
         	const _ownOrders = ( typeof req.query.ownorders !== "undefined" );
         	
         	const zones  = await Container.get(UserService).getAllowedZones(req);
-            const pois   = await Container.get(PoiService).findAllFiltered(req, {include: [ 'availability_zone' ], order: ['name']});
+            const pois   = await Container.get(PoiService).findAllFiltered(req, {where: {'active' : true}, include: [ 'availability_zone' ], order: [['name', 'ASC']]});
             const boxs   = await Container.get(BoxService).findAll(req, {
                 where: {
                     deleted: false,
@@ -62,6 +62,7 @@ export default (app: Router) => {
             const products = await Container.get(ProductService).findAll(req, {
                 where: {
                     deleted: false,
+                    active: true,
                 },
             });
         	      
@@ -184,6 +185,7 @@ export default (app: Router) => {
                 const products = await Container.get(ProductService).findAll(req, {
                     where: {
                         deleted: false,
+                        active: true,
                     },
                 });
                 
@@ -464,6 +466,16 @@ export default (app: Router) => {
 					item.profileName,
 					item.profileSurname,
 					item.profileEmail,
+					item.phoneNumber,
+					item.shippingModeText == "home" ? item.shippingAddressConcatenation : item.pickup.name + " - " + item.pickup.street + ", " + item.pickup.zipCode + " "  + item.pickup.city,
+					item.hasPersonalInformations ? item.personalInformations.age 		: "",
+					item.hasPersonalInformations ? item.personalInformations.sexe 		: "",
+					item.hasPersonalInformations ? item.personalInformations.city 		: "",
+					item.hasPersonalInformations ? item.personalInformations.house 	: "",
+					item.hasPersonalInformations ? item.personalInformations.scolarity : "",
+					item.hasPersonalInformations ? item.personalInformations.custom 	: "",
+					item.hasPersonalInformations ? item.personalInformations.comment 	: "",
+					item.delivered ? "Livrée" : "",
 				]
 			});
 			
@@ -473,7 +485,17 @@ export default (app: Router) => {
 				"Box commandée",
 				"Prénom",
 				"Nom",
-				"E-Mail"
+				"E-Mail",
+				"Téléphone",
+				"Adresse de livraison",
+				"Age",
+				"Sexe",
+				"Ville",
+				"Habitation",
+				"Scolarité",
+				"Custom",
+				"Commentaire",
+				"Livrée"
 			]; 
 			
 			orders.unshift(headers);
