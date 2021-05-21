@@ -12,8 +12,13 @@ RUN npm install
 COPY src ./src
 COPY public ./public
 
+RUN mkdir /etc/periodic/wednesday
+
 COPY crons/daily_stock.sh /etc/periodic/daily/daily_stock
 RUN chmod +x /etc/periodic/daily/daily_stock
+
+COPY crons/weekly_summary.sh /etc/periodic/wednesday/weekly_summary
+RUN chmod +x /etc/periodic/wednesday/weekly_summary
 
 RUN echo "#!/bin/sh" > /entrypoint.sh
 RUN echo "crond" >> /entrypoint.sh
