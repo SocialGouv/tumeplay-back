@@ -216,7 +216,7 @@ export default (app: Router) => {
                 localShipping = await ShippingModeModelService.create(shippingData);
             } 
             
-		    let selectedZipCode = ( deliveryMode == 'pickup' ? selectedPickup.zipCode : userAdress.zipCode );
+		    let selectedZipCode = ( ( deliveryMode == 'pickup' || deliveryMode == 'referent' ) ? selectedPickup.zipCode : userAdress.zipCode );
             if( !Container.get(AddressValidatorService).isZipCodeAllowed(selectedZipCode) )
             {
                 logger.debug('Zipcode is not allowed. Aborting. ( testing ' + selectedZipCode + ' )' );
@@ -251,7 +251,7 @@ export default (app: Router) => {
                 profileId: userProfile.id,
                 userId: userId,
                 boxId: box.id,
-                pickupId: deliveryMode == 'pickup' ? selectedPickup.id : null,
+                pickupId: ( deliveryMode == 'pickup' || deliveryMode == 'referent' ) ? selectedPickup.id : null,
             };
 
             const order = await Container.get('orderModel').create(orderData);
@@ -327,9 +327,12 @@ export default (app: Router) => {
 					products: order.products,
 					hostname: req.protocol + '://' + req.get('host'), // I'm a bit nervous using this one.
 					email: order.profileEmail,
+					phoneNumber: order.phoneNumber,
 		        };
 		        
 				await mailService.send(localProfile.email, 'Commande effectuée ✔', 'new_order_user', variables);
+                await mailService.send(contact.tumeplay@fabrique.social.gouv.fr, 'Commande effectuée ✔', 'new_order_user', variables);
+
 				
 				const datetime  = new Date(order.createdAt);
 				const orderReference = datetime.getTime().toString() + '-' + order.id;
@@ -366,11 +369,17 @@ export default (app: Router) => {
 						variables.labelFilename = variables.orderId + '-' + variables.boxId + ".csv";
 					}
 					
-					await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
-	                await mailService.send('contact@leroidelacapote.com', 'Nouvelle commande Tumeplay N°' + variables.orderId + '-' + variables.boxId, 'new_order_supplier', variables); 				
+                    if( !localZone || ( localZone && req.query.zone == "metropole" ) )
+                    {
+                            await mailService.send('ghyslaine.ballet@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+                            await mailService.send('anne-marie.vidal@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+                            await mailService.send('gilles.lion@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+                    }
+
+                    await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
 				}
 				
-				if( localZone && order.shippingModeText == 'pickup' )
+				if( localZone && ( order.shippingModeText == 'pickup' || order.shippingModeText == 'referent' )  )
 				{
 					const criterias = {
 						where: { 

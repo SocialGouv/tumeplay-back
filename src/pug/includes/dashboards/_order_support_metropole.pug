@@ -1,0 +1,33 @@
+style.
+	.left-boxes
+	{
+		border: 1px solid #CECECE;
+		border-radius: 7px;
+		box-shadow: 1px 1px #DEDEDE;
+		padding: 7px;
+		text-align: center;
+		padding-top: 20px;
+		background-color: rgba(33, 150, 243, 0.21)
+	}
+	
+	.left-boxes.alert 
+	{
+		background-color: rgba(220, 53, 69, 0.21);
+	}
+	
+	.left-boxes .left-amount
+	{
+		font-size: 52px;
+		margin-bottom: 0;
+	}
+.row
+	.col-md-12
+		.tile 
+			h3.tile-title Stocks
+			hr
+			include ./components/_support.stockView.metropole.pug
+	.col-md-12
+		.tile
+			h3.tile-title Commandes en attente
+			hr
+			include ./components/_orders.waiting.metropole.pug

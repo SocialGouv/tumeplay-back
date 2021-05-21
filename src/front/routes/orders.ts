@@ -286,7 +286,7 @@ export default (app: Router) => {
 					targetZones = req.body.zoneId;
                 }                                                                                                                                                             
                 
-                await handleZones(id, targetZones);
+                await Container.get(OrderService).handleZones(id, targetZones);
                 
                 const { orderProducts } = await Container.get(ProductOrderService).findByOrder(id);
 
@@ -299,7 +299,7 @@ export default (app: Router) => {
                     },
                 });                
                 
-                await handleOrderProducts(req.body, id);
+                await Container.get(OrderService).handleOrderProducts(req.body, id);
                 
                 return res.redirect(`${routes.ORDERS_ROOT}${routes.ORDER_MANAGEMENT_ROOT}`);
             } catch (e) {
@@ -387,28 +387,6 @@ export default (app: Router) => {
         }
     }
     
-    const handleZones = async (currentOrder, zoneId) => {
-        const OrderServiceInstance = Container.get(OrderService);
-
-        await OrderServiceInstance.bulkDeleteZone(currentOrder);
-
-        zoneId = typeof zoneId != 'undefined' && Array.isArray(zoneId) ? zoneId : [zoneId];
-        var filteredZones = zoneId.filter(function(el) {
-            return el != 0;
-        });
-        let zonesItems: IOrderZoneDTO[] = filteredZones.map(zoneItem => {
-            return {
-                orderId: currentOrder,
-                availabilityZoneId: zoneItem,
-            };
-        });
-
-        if (zonesItems.length > 0) {
-            // Creating zones
-            await OrderServiceInstance.bulkCreateZone(zonesItems);
-        }
-    };
-
     /**
      * @description Shipping mode routes
      */

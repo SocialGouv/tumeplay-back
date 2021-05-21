@@ -632,7 +632,7 @@ export default (app: Router) => {
 		 await questionServiceInstance.bulkCreateZone(localZones);
     }
     
-    const handleQuestionData = async (req, requestQuestion, selectedCategory, selectedTheme, picObject, requestAnswerItems, targetZones) => {
+    const handleQuestionData = async (req, requestQuestion, selectedTheme, selectedCategory, picObject, requestAnswerItems, targetZones) => {
         const logger: any = Container.get('logger');
         
         let questionId = null;

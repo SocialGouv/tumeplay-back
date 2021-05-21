@@ -1,0 +1,41 @@
+extends _layout.pug
+
+block title
+	| Résumé hebdomadaire des commandes Tumeplay
+	
+block content
+
+	.col-12
+		.text Bonjour, 
+		.text Voici le résumé des commandes effectuées durant les 7 derniers jours :
+		
+		br
+		hr
+		br
+		
+		for referentOrders in orders
+			
+			.text Référent : #{referentOrders.address.id} - #{referentOrders.name}
+			br
+			
+			.text Commandes :
+			for referentLocalOrder in referentOrders.orders
+				.text Commande n°#{referentLocalOrder.id} : #{referentLocalOrder.name} - #{referentLocalOrder.box} 
+			
+			br
+			.text Total des boxs à envoyer à ce référent :
+				for localBox in referentOrders.boxs
+					.text - #{localBox.qty} #{localBox.name} ( Box n° #{localBox.id} )
+			
+			br
+			.text Adresse de destination : #{referentOrders.address.name} - #{referentOrders.address.street} - #{referentOrders.address.zipCode} #{referentOrders.address.city} 
+			br
+			hr
+			br
+		
+	.clearfix
+	
+	.col-12
+		.text Cordialement,
+		.text L'équipe Tumeplay
+		br

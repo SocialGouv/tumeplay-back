@@ -16,16 +16,17 @@ block content
 		br
 		.text Détail de ta commande : 
 		.text #{firstName} #{name}
+		.text Numéro de commande : #{orderId}
 		.text Box « #{boxName} » 
 		.text Mode de livraison : #{shippingMethodReadable}
 		.text Adresse de livraison :
 		.text 
-			if shippingMethod == 'pickup'
+			if shippingMethod == 'pickup' || shippingMethod == 'referent'
 				| #{pickup.name}
 				br 
 				| #{pickup.street}  
 				br 
-				| #{pickup.zipCode} #{pickup.city}  
+				| #{pickup.zipCode} #{pickup.city}
 			else
 				| #{firstName} #{name}
 				br 

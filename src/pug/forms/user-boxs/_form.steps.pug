@@ -1,0 +1,16 @@
+.col-12.steps
+	.row
+		.col-4(class=currentStep && currentStep == 1 ? "active" : "")
+			.rounded-number 
+				span.inside-number 1
+			.subtitle Choix des boxs
+		.col-4(class=currentStep && currentStep == 2 ? "active" : "")
+			.rounded-number
+				span.inside-number 2
+			.subtitle Adresse de livraison
+		.col-4(class=currentStep && currentStep == 3 ? "active" : "")
+			.rounded-number
+				span.inside-number 3
+			.subtitle Récapitulatif et validation
+				
+.clearfix

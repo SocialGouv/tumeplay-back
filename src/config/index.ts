@@ -42,6 +42,7 @@ export default {
         redactor: 'ROLE_REDACTOR',
         moderator: 'ROLE_MODERATOR',
         orders_support: 'ROLE_ORDERS_SUPPORT',
+        orders_support_metropole: 'ROLE_ORDERS_SUPPORT_METROPOLE',
         user: 'ROLE_USER',
     },
     roles_hierarchy: {
@@ -52,7 +53,10 @@ export default {
 			'ROLE_REDACTOR',
 			'ROLE_MODERATOR',
 			'ROLE_ORDERS_SUPPORT'
-		],		
+		],
+		ROLE_ORDERS_SUPPORT_METROPOLE: [
+			'ROLE_ORDERS_SUPPORT'	
+		]
     },
     roles_readable: {
         ROLE_ADMINISTATOR: 'Super-Admin.',
@@ -61,6 +65,7 @@ export default {
         ROLE_MODERATOR: 'Modérateur',
         ROLE_ORDERS_SUPPORT: 'Référent / Support',
         ROLE_USER: 'Utilisateur',
+        ROLE_ORDERS_SUPPORT_METROPOLE: 'Référent - Métropole'
     },
 
     logs: {

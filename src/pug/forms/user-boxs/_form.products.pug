@@ -1,0 +1,51 @@
+.row
+	- var currentStep = 1
+	
+	include ./_form.steps.pug
+
+	.col-md-12
+		.tile
+			table.table.table-hover.table-bordered.product-table#productDataTable
+				thead
+					tr
+						th Box
+						th(style="width: 174px;") Quantité
+				tbody
+					if boxs && boxs.length > 0
+						for box in boxs
+							- var _name = "box_" + box.id
+							tr
+								td.text-left
+									p Box "#{box.title}"
+								td
+									.form-group.form-inline.animated-checkbox.mb-0
+										a.btn.mr-2.btn-sm.btn-danger.minus-one(href="#")
+											i.fa.fa-fw.mr-0.fa-lg.fa-minus
+										input.mr-2.form-control.qty-field(type="text", size=2, name=_name, placeholder="Qté", inputmode="numeric", value=0)
+										a.btn.btn-sm.btn-success.plus-one(href="#")
+											i.fa.fa-fw.mr-0.fa-lg.fa-plus
+	.col-md-12
+		.tile
+			table.table.table-hover.table-bordered.product-table#comProductsDataTable
+				thead
+					tr
+						th Support de communication
+						th(style="width: 174px;") Quantité
+				tbody
+					if boxs && boxs.length > 0
+						for product in products
+							- var _name = "product_" + product.id 
+							tr
+								td.text-left
+									p #{product.title}
+								td
+									.form-group.form-inline.animated-checkbox.mb-0
+										a.btn.mr-2.btn-sm.btn-danger.minus-one(href="#")
+											i.fa.fa-fw.mr-0.fa-lg.fa-minus
+										input.mr-2.form-control.qty-field(type="text", size=2, name=_name, placeholder="Qté", inputmode="numeric", value=0)
+										a.btn.btn-sm.btn-success.plus-one(href="#")
+											i.fa.fa-fw.mr-0.fa-lg.fa-plus
+	.clearfix
+
+
+block specific-js

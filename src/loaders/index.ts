@@ -152,6 +152,14 @@ export default async ({ expressApp }) => {
                 name: 'orderZoneModel',
                 model: models.orderZoneModel,
             },
+            {
+                name: 'userBoxResupplyModel',
+                model: models.userBoxResupplyModel,
+            },
+            {
+                name: 'userBoxResupplyProductModel',
+                model: models.userBoxResupplyProductModel,
+            },
         ],
     });
     Logger.info('✌️ Dependency Injector loaded');

@@ -88,18 +88,25 @@ export default (app: Router) => {
 
     app.use('/poi', route);
 
+    // Swap lines to unlock POI type handling ( depends on PWA app )
+    //route.get('/pickup/:latitude/:longitude/:targetType?', async (req: Request, res: Response, next: NextFunction) => {
     route.get('/pickup/:latitude/:longitude', async (req: Request, res: Response, next: NextFunction) => {
         const logger: any = Container.get('logger');
         try {
             const mondialRelay: any = Container.get(MondialRelayService);
-			const addressValidator = Container.get(AddressValidatorService);
-            const myPoints 	= await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
-            const bounds 	= computeRoughCoordinates(req.params.latitude, req.params.longitude);
+			const addressValidator 	= Container.get(AddressValidatorService);
+            const myPoints 			= await mondialRelay.fetchRemotePoints(req.params.latitude, req.params.longitude);
+            const bounds 			= computeRoughCoordinates(req.params.latitude, req.params.longitude);
+            
+            // Swap lines to unlock POI type handling ( depends on PWA app )
+            //const targetType 		= req.params.targetType ? req.params.targetType : 'pickup';
+            const targetType 		= 'pickup';
+            
             
             const criterias = {
                 where: {
                     active: true,
-                    type: 'pickup',
+                    type: targetType,
                     latitude: {
                         [Op.gte]: bounds.latMin,
                         [Op.lte]: bounds.latMax,
@@ -112,7 +119,7 @@ export default (app: Router) => {
                 include: [],
             };
             
-            if( req.query.zone )
+            if( req.query.zone && req.query.zone != "metropole" )
             {
                 criterias.include.push({
                     association: 'availability_zone',

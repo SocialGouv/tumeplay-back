@@ -49,8 +49,8 @@ block content
 										td #{poi.availability_zone.name}
 									else
 										td 
-									td #{prettyDate(poi.createdAt)}
-									td #{prettyDate(poi.updatedAt)}
+									td(data-sort=poi.createdAt) #{prettyDate(poi.createdAt)}
+									td(data-sort=poi.updatedAt) #{prettyDate(poi.updatedAt)}
 									td
 										if isAllowed(req, "poi", "global", "edit")
 											a(class='btn btn-primary' href="/poi/edit/" + poi.id data-id=`${poi.id}`) 

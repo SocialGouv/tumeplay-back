@@ -38,7 +38,7 @@ export default (app: Router) => {
     	async (req: Request, res: Response) => {
         try {
         	const zones = await Container.get(UserService).getAllowedZones(req);
-            const types = ['cegidd', 'pickup'];
+            const types = ['cegidd', 'pickup', 'referent'];
             
             return res.render('page-poi-edit', {
                 types,
@@ -59,7 +59,7 @@ export default (app: Router) => {
 
             const zones 	 = await Container.get(UserService).getAllowedZones(req);
 
-            const types = ['cegidd', 'pickup'];
+            const types = ['cegidd', 'pickup', 'referent'];
 
             const { poi } = await  Container.get(PoiService).findById(documentId, true);
 

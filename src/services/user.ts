@@ -100,6 +100,11 @@ export default class UserService {
                    
     private alterQuery(req, criterias)
     {
+    	if( req == null )
+    	{
+    		this.logger.silly("Request is empty - skipping alter.");
+			return criterias;
+    	}
         if( typeof req.session !== 'undefined' && typeof req.session.zones !== "undefined" && req.session.zones.length > 0 )
         {
             if( req.session.roles.indexOf(config.roles.administrator) < 0 )

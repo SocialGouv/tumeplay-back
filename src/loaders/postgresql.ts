@@ -36,6 +36,9 @@ import BoxProductModel from '../models/box.products';
 
 import PoiModel from '../models/poi';
 
+import UserBoxResupplyModel from '../models/user.boxs.resupply';
+import UserBoxResupplyProductModel from '../models/user.boxs.resupply.products';
+
 import SoundModel from '../models/sound';
 import QuestionSoundModel from '../models/question.sound';
 import ContentSoundModel from '../models/content.sound';
@@ -96,6 +99,16 @@ export default async () => {
     const UserOrder = UserOrderModel(sequelize, Sequelize);
     const UserOrderStock = UserOrderStockModel(sequelize, Sequelize);
     const UserPoi = UserPoiModel(sequelize, Sequelize);
+    
+    const UserBoxResupply = UserBoxResupplyModel(sequelize, Sequelize);
+    const UserBoxResupplyProduct = UserBoxResupplyProductModel(sequelize, Sequelize);
+    
+    UserBoxResupply.belongsTo(User, { foreignKey: 'userId', as: 'userSupplies' });
+    UserBoxResupply.hasMany(UserBoxResupplyProduct,  { foreignKey: 'userBoxsResupplyId', as: 'userBoxResupplyProduct' } );
+    
+    
+    UserBoxResupplyProduct.belongsTo(Box, { foreignKey: 'boxId', as: 'box' });
+    UserBoxResupplyProduct.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 
     // Setup of relationships
     Content.belongsTo(Picture, { foreignKey: 'pictureId', as: 'picture' });
@@ -330,5 +343,7 @@ export default async () => {
         orderZoneModel: OrderZone,
         productZoneModel: ProductZone,
         questionZoneModel: QuestionZone,
+        userBoxResupplyModel: UserBoxResupply,
+        userBoxResupplyProductModel:UserBoxResupplyProduct, 
     };
 };

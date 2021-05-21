@@ -57,6 +57,11 @@ export default class MailService {
             		path: variables.labelFile,
 				}];
 			}
+			
+			if( typeof variables.labelFiles !== "undefined" )
+			{
+				mailOptions.attachments = variables.labelFiles;	
+			}
             
 
             await transporter.sendMail(mailOptions);

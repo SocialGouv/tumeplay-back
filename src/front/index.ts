@@ -9,6 +9,7 @@ import OrderService from '../services/order';
 import ProductService from '../services/product';
 import AclService from '../services/acl';
 import UserOrderService from '../services/user.order';
+import UserBoxsService 	from '../services/user.boxs';
 
 import { celebrate, Joi } from 'celebrate';
 import path from 'path';
@@ -28,6 +29,7 @@ import feedback from './routes/feedback';
 import zones from './routes/zones';
 import user from './routes/user';
 import userOrders from './routes/user.orders';
+import userBoxs from './routes/user.boxs';
 
 import config from '../config';
 
@@ -52,7 +54,8 @@ export default () => {
     zones(app);
     user(app);
     userOrders(app);
-
+	userBoxs(app);
+	
     app.use('/', route);
 
     route.get('', (req: any, res: Response) => {
@@ -139,11 +142,50 @@ export default () => {
                 let needActionsContents = false;
                 let contentStatistics	= false;
                 let box = false;
-                
+				let userStocks 			= false;
                	const contentStates  = await contentService.getContentStatesAsArray();                 
                 
+				if( AclService.hasRole(req.session.roles, config.roles.orders_support_metropole) )
+				{
+					const userOrders = await Container.get(UserOrderService).getUserOrders(req, true);
+					
+					userStocks = await Container.get(UserBoxsService).getUserStocks(req, req.session.user.id, userOrders);
+					
+					boxOrders   = { "waiting": [], "done" : [], 'whole' : {}};
+					totalOrders = 0;
+					console.log(userStocks);
+					if( userOrders.length > 0 )
+					{
+						userOrders.forEach( order => {
+							if( order.delivered )
+							{
+								boxOrders.done.push( order );
+							}
+							else
+							{
+								boxOrders.waiting.push( order );
+							}
+							
+							if( typeof boxOrders.whole[order.box.id] == "undefined" )
+							{
+								boxOrders.whole[order.box.id] = {
+									id: order.box.id,
+									title: order.box.title,
+									orders: 0,
+								};
+							}
                 
-                if( AclService.hasRole(req.session.roles, config.roles.orders_support) )
+							boxOrders.whole[order.box.id].orders++; 
+							
+						});
+						// Commande en attente
+						// Stocks
+						// Camembert box remises / en attente
+					}
+					console.log(boxOrders);
+					totalOrders = boxOrders.waiting.length + boxOrders.done.length;
+				}
+				else if( AclService.hasRole(req.session.roles, config.roles.orders_support) )
                 {
 					const userProducts 		  = await Container.get(UserOrderService).getUserProducts(req, req.session.user.id);
 					
@@ -230,6 +272,7 @@ export default () => {
                     contentStatistics: contentStatistics,
                     orderStats: orderStats,
                     needActionsContents: needActionsContents, 
+					userStocks 
                 });
                 //return res.sendFile(path.join(__dirname + '../../../public/index.html'));
             } else {
