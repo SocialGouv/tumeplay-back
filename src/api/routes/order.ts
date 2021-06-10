@@ -331,7 +331,7 @@ export default (app: Router) => {
 		        };
 		        
 				await mailService.send(localProfile.email, 'Commande effectuée ✔', 'new_order_user', variables);
-                await mailService.send(contact.tumeplay@fabrique.social.gouv.fr, 'Commande effectuée ✔', 'new_order_user', variables);
+                await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Commande effectuée ✔', 'new_order_user', variables);
 
 				
 				const datetime  = new Date(order.createdAt);
@@ -371,9 +371,7 @@ export default (app: Router) => {
 					
                     if( !localZone || ( localZone && req.query.zone == "metropole" ) )
                     {
-                            await mailService.send('ghyslaine.ballet@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
-                            await mailService.send('anne-marie.vidal@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
-                            await mailService.send('gilles.lion@unapei34.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
+                            await mailService.send('esat.benext@gmail.com', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);
                     }
 
                     await mailService.send('contact.tumeplay@fabrique.social.gouv.fr', 'Nouvelle commande effectuée ✔ - N°' +  variables.orderId, 'new_order_admin', variables);

@@ -66,16 +66,14 @@ export default (app: Router) => {
 
             const contentServiceInstance = Container.get(ContentService);
             
-            const contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
+            let contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
             
-            const questionFeedbackService = Container.get(QuestionFeedbackService);
+            contents = contents.slice(0, 200);
+            
             for( let i = 0; i < contents.length; i++ )
             {
                 let content = contents[i];
-				
-				const statistics = await questionFeedbackService.getContentStatistics(content.questionId);
-
-                content	 = Object.assign(content, {likes: statistics.likes},{dislikes: statistics.dislikes});
+                content	 = Object.assign(content, {likes: 0},{dislikes: 0});
             }
                
                

@@ -45,7 +45,9 @@ export default (app: Router) => {
             const dateService   = Container.get(DateFormatterService);
             const exportService = Container.get(ExportGeneratorService);    
 
-            const dbContacts    = await ContactModel.findAll({ order:[ ['updatedAt', 'DESC'] ]});
+            let dbContacts    = await ContactModel.findAll({ order:[ ['updatedAt', 'DESC'] ]});
+
+            dbContacts = dbContacts.slice(0, 800)
             
             const contacts      = dbContacts.map(item => {
                 const date = dateService.format(item.updatedAt);
@@ -79,5 +81,56 @@ export default (app: Router) => {
         } catch (e) {
             throw e;
         }
-    });                   
+    });       
+    
+    route.get(
+        '/export/csv/suite', 
+        middlewares.isAuth, 
+        middlewares.isAllowed(aclSection, 'global', 'view'),  
+        async (req: Request, res: Response) => {
+        try {
+            const ContactModel: any = Container.get('contactModel');
+            const logger: any 		= Container.get('logger');
+            
+            
+            const dateService   = Container.get(DateFormatterService);
+            const exportService = Container.get(ExportGeneratorService);    
+
+            let dbContacts    = await ContactModel.findAll({ order:[ ['updatedAt', 'DESC'] ]});
+
+            dbContacts = dbContacts.slice(800)
+            
+            const contacts      = dbContacts.map(item => {
+                const date = dateService.format(item.updatedAt);
+                
+                return [
+                    item.id,
+                    date.day + "/" + date.month + "/" + date.year,
+                    item.name,
+                    item.email,
+                    item.zipCode,
+                ]
+            });
+            
+            const headers = [
+                "Num",
+                "Date",
+                "Nom",
+                "E-Mail",
+                "Dpt"
+            ]; 
+            
+            contacts.unshift(headers);
+               
+            logger.debug("Got contacts.");
+            
+            const { tmpFile }   = await exportService.generateCsv(contacts);
+            
+            const date  = dateService.format(new Date());
+            
+            res.download(tmpFile, 'Export-Contacts-' + date.year + date.month + date.day + '.csv');
+        } catch (e) {
+            throw e;
+        }
+    });  
 };
