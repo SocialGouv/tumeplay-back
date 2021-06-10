@@ -47,7 +47,7 @@ export default (app: Router) => {
 
             let dbContacts    = await ContactModel.findAll({ order:[ ['updatedAt', 'DESC'] ]});
 
-            dbContacts = dbContacts.slice(0, 200)
+            dbContacts = dbContacts.slice(0, 800)
             
             const contacts      = dbContacts.map(item => {
                 const date = dateService.format(item.updatedAt);
@@ -98,7 +98,7 @@ export default (app: Router) => {
 
             let dbContacts    = await ContactModel.findAll({ order:[ ['updatedAt', 'DESC'] ]});
 
-            dbContacts = dbContacts.slice(200)
+            dbContacts = dbContacts.slice(800)
             
             const contacts      = dbContacts.map(item => {
                 const date = dateService.format(item.updatedAt);
