@@ -15,11 +15,6 @@ export default (sequelize, type) => {
         active: DataTypes.BOOLEAN,        
         stock: DataTypes.INTEGER,
         isOrderable: DataTypes.BOOLEAN,
-        isComSupport: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false,
-        },
         deleted: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

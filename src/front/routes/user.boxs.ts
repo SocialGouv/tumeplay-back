@@ -76,8 +76,7 @@ export default (app: Router) => {
 				
 				const products   = await Container.get(ProductService).findAll(req, {
 					where: {
-						deleted: false,
-						isComSupport: true,
+						deleted: false
 					},
 				});
 				

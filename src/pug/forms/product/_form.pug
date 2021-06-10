@@ -75,13 +75,6 @@
                             input(type="checkbox" name="isOrderable")
                         span.label-text Accessible à la commande ( "Box sur mesure" )
                         
-                .animated-checkbox
-                    label
-                        if product
-                            input(type="checkbox" name="isComSupport" checked=product.isComSupport)
-                        else
-                            input(type="checkbox" name="isComSupport")
-                        span.label-text Support de communication
                 if zones && zones.length > 1
                     hr
                     .form-group.form-inline
