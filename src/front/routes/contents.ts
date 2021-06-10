@@ -66,7 +66,55 @@ export default (app: Router) => {
 
             const contentServiceInstance = Container.get(ContentService);
             
-            const contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
+            let contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
+            
+            contents = contents.slice(0, 200);
+            
+            const questionFeedbackService = Container.get(QuestionFeedbackService);
+            for( let i = 0; i < contents.length; i++ )
+            {
+                let content = contents[i];
+				
+				const statistics = await questionFeedbackService.getContentStatistics(content.questionId);
+
+                content	 = Object.assign(content, {likes: statistics.likes},{dislikes: statistics.dislikes});
+            }
+               
+               
+            const contentStates 	 = await contentServiceInstance.getContentStates();
+            const contentStatesArray = await contentServiceInstance.getContentStatesAsArray();
+                             
+            const categories = await Container.get('questionCategoryModel').findAll();
+            const themes 	 = await Container.get('thematiqueModel').findAll();
+            const zones  	 = await Container.get(UserService).getAllowedZones(req);
+            
+            return res.render('page-contents', {
+                contents: contents,
+                contentStates: contentStates,
+                thematiques: themes,
+                categories: categories,
+                contentStatesArray: contentStatesArray,
+                zones: zones
+            });
+        } catch (e) {
+            throw e;
+        }
+        //res.end();
+    });
+
+    route.get('/suite', 
+    	middlewares.isAuth, 
+    	middlewares.isAllowed(aclSection, 'global', 'view'),  
+    	async (req: Request, res: Response) => {
+        try {
+
+            const logger: any = Container.get('logger');
+
+            const contentServiceInstance = Container.get(ContentService);
+            
+            let contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
+            
+            contents = contents.slice(200);
             
             const questionFeedbackService = Container.get(QuestionFeedbackService);
             for( let i = 0; i < contents.length; i++ )
