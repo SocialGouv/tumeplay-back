@@ -9,6 +9,7 @@ export interface IProductInputDTO {
     price: number;
     stock: number;
     isOrderable: boolean;
+    isComSupport: boolean;
     active: boolean;
     pictureId: number;
     deleted: boolean;
