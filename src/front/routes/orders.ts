@@ -63,7 +63,7 @@ export default (app: Router) => {
 			
 			const orderModel  	= Container.get("orderModel");
 			
-			const  dbOrders		= await orderModel.findAll({ include: ['shippingAddress', 'profile']});
+			const dbOrders		= await orderModel.findAll({ include: ['shippingAddress', 'profile', 'availability_zone']});
 			
 			const orders = dbOrders.map(item => {
 				const dateObject = new Date(item.orderDate);
@@ -71,6 +71,7 @@ export default (app: Router) => {
 				
 				return [
 					item.id,
+                    item.availability_zone,
 					date.day + "/" + date.month + "/" + date.year,
 					item.boxId,
 					item.profile.name,
@@ -81,6 +82,7 @@ export default (app: Router) => {
 			
 			const headers = [
 				"Num",
+                "Zone",
 				"Date",
 				"Box commandée",
 				"Prénom",
