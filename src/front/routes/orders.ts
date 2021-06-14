@@ -71,7 +71,7 @@ export default (app: Router) => {
 				
 				return [
 					item.id,
-                    item.availability_zone,
+                    item.availability_zone && item.availability_zone[0] ? item.availability_zone[0].name : '',
 					date.day + "/" + date.month + "/" + date.year,
 					item.boxId,
 					item.profile.name,
