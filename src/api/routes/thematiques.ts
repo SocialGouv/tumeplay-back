@@ -11,7 +11,7 @@ export default (app: Router) => {
         const logger: any = Container.get('logger');
         try {
             const criterias = {
-                where: { active: true },
+                where: { active: req.query.published ? req.query.published : true },
                 include: ['picture', 'sounds'],
                 order: [['id', 'ASC']],
             };  
