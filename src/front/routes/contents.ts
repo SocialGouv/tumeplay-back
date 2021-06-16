@@ -68,8 +68,6 @@ export default (app: Router) => {
             
             let contents = await contentServiceInstance.findAll(req, { include: ['picture', 'itsTheme', 'itsQuestionCategory', 'itsQuestionContent', 'availability_zone'] });
             
-            contents = contents.slice(0, 200);
-            
             for( let i = 0; i < contents.length; i++ )
             {
                 let content = contents[i];
